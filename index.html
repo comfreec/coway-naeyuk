@@ -1,0 +1,452 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>코웨이 렌탈료 할인 계산기</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background: #f0f4f8; min-height: 100vh; padding: 30px 16px; color: #1a1a2e; }
+    h1 { text-align: center; font-size: 1.6rem; color: #0057a8; margin-bottom: 6px; }
+    .subtitle { text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 28px; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 24px; max-width: 720px; margin: 0 auto 24px; }
+    .card h2 { font-size: 1rem; color: #0057a8; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e8f0fe; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.8rem; font-weight: 600; color: #444; }
+    input { padding: 10px 12px; border: 1.5px solid #dde3ec; border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s; outline: none; }
+    input:focus { border-color: #0057a8; }
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    button:hover { opacity: 0.85; }
+    .btn-add { background: #0057a8; color: #fff; }
+    .btn-reset { background: #e8f0fe; color: #0057a8; }
+    .result-wrap { overflow-x: visible; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; table-layout: fixed; }
+    thead tr { background: #0057a8; color: #fff; }
+    thead th { padding: 11px 6px; text-align: center; word-break: keep-all; }
+    tbody tr:nth-child(even) { background: #f5f8ff; }
+    tbody tr:hover { background: #e8f0fe; }
+    tbody td { padding: 9px 6px; text-align: center; border-bottom: 1px solid #eee; word-break: keep-all; }
+    tbody td:first-child { text-align: left; font-weight: 600; }
+    .del-btn { background: none; border: none; color: #cc3333; font-size: 1rem; cursor: pointer; padding: 2px 6px; }
+    .detail-btn { background: none; border: 1.5px solid #0057a8; color: #0057a8; font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 3px 8px; cursor: pointer; white-space: nowrap; flex: unset; }
+    .detail-btn:hover { background: #0057a8; color: #fff; opacity: 1; }
+    .total-row td { font-weight: 700; background: #e8f0fe !important; color: #0057a8; border-top: 2px solid #0057a8; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+    .summary-item { background: #f5f8ff; border-radius: 12px; padding: 16px 12px; text-align: center; }
+    .summary-item .s-label { font-size: 0.75rem; color: #666; margin-bottom: 6px; }
+    .summary-item .s-value { font-size: 1.15rem; font-weight: 700; color: #0057a8; }
+    .summary-item.highlight { background: #0057a8; }
+    .summary-item.highlight .s-label { color: #cce0ff; }
+    .summary-item.highlight .s-value { color: #fff; font-size: 1.3rem; }
+    .empty-msg { text-align: center; color: #aaa; padding: 30px 0; font-size: 0.9rem; }
+    .btn-clear-all { flex: unset; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; background: #fff0f0; color: #cc3333; border: 1.5px solid #ffcccc; border-radius: 8px; cursor: pointer; }
+    .btn-clear-all:hover { background: #cc3333; color: #fff; opacity: 1; }
+    /* 모달 오버레이 */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    /* 노트 종이 모달 */
+    .note-paper { position: relative; background: #fffef5; border-radius: 4px; width: 540px; max-width: 96vw; max-height: 92vh; overflow-y: auto; box-shadow: 4px 6px 24px rgba(0,0,0,0.25), 0 0 0 1px #e0d9b0; padding: 56px 44px 40px 20px; background-image: linear-gradient(#e8e0c0 1px, transparent 1px); background-size: 100% 64px; background-position: 0 56px; font-family: 'Nanum Pen Script', 'Gungsuh', 'KaiTi', cursive; }
+    .note-paper::before { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 2px; background: rgba(200,80,80,0.4); }
+    .note-paper::after { content: ''; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 26px; height: 26px; border-radius: 50%; background: #f0f4f8; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
+    .note-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.6rem; color: #999; cursor: pointer; flex: unset; padding: 0; }
+    .note-close:hover { color: #333; opacity: 1; }
+    .note-title { font-size: 2.4rem; color: #1a3a6e; margin-bottom: 4px; line-height: 64px; letter-spacing: 2px; }
+    .share-emoji { cursor: pointer; display: inline-block; transition: transform 0.15s; }
+    .share-emoji:hover { transform: scale(1.25); }
+    .note-product { font-size: 1.9rem; color: #333; margin-bottom: 4px; line-height: 64px; }
+    .note-divider { border: none; border-top: 1.5px dashed #c8b97a; margin: 6px 0; }
+    .note-row { display: flex; justify-content: space-between; align-items: baseline; line-height: 64px; font-size: 1.9rem; color: #333; }
+    .note-row .n-label { color: #444; }
+    .note-row .n-val { color: #1a3a6e; }
+    .note-row .n-minus { color: #c0392b; }
+    .note-row .n-final { color: #0057a8; font-size: 2.2rem; font-weight: bold; }
+    .note-underline { border-bottom: 3px double #1a3a6e; padding-bottom: 2px; }
+    .note-stamp { margin-top: 14px; text-align: right; font-size: 1.4rem; color: #aaa; line-height: 64px; }
+    .note-paper .note-row:nth-child(odd) { transform: rotate(-0.2deg); }
+    .note-paper .note-row:nth-child(even) { transform: rotate(0.15deg); }
+    .note-sms-row { margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .btn-sms { display: inline-block; background: #25d366; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; text-decoration: none; box-shadow: 0 3px 10px rgba(37,211,102,0.35); transition: opacity 0.2s; }
+    .btn-sms:hover { opacity: 0.85; }
+    .btn-img { display: inline-block; background: #ff6b35; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(255,107,53,0.35); transition: opacity 0.2s; flex: unset; }
+    .btn-img:hover { opacity: 0.85; }
+    .btn-save { display: inline-block; background: #0057a8; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(0,87,168,0.35); transition: opacity 0.2s; flex: unset; }
+    .btn-save:hover { opacity: 0.85; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const app = initializeApp({ apiKey:"AIzaSyA0EekCumIcFsWZnk2E_pM0Kq_GLDViwdM", authDomain:"coway-naeyuk.firebaseapp.com", projectId:"coway-naeyuk", storageBucket:"coway-naeyuk.firebasestorage.app", messagingSenderId:"614907721481", appId:"1:614907721481:web:a54fcdd0bb852f3c6505d8" });
+    const db = getFirestore(app);
+    const col = collection(db, 'products');
+    window._db = db; window._col = col;
+    window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc };
+    onSnapshot(query(col, orderBy('createdAt','asc')), (snap) => {
+      window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+      window.renderTable && window.renderTable();
+      window.renderSummary && window.renderSummary();
+    });
+  </script>
+</head>
+<body>
+<h1>🌊 코웨이 렌탈료 할인 계산기</h1>
+<p class="subtitle">제품별 할인 내역을 입력하면 최종 납부금액을 자동으로 계산합니다</p>
+
+<div class="card">
+  <h2>➕ 제품 추가</h2>
+  <div class="form-grid">
+    <div class="form-group full"><label>제품명</label><input type="text" id="productName" placeholder="예) 코웨이 공기청정기 AP-1019C" /></div>
+    <div class="form-group"><label>월 렌탈료 (원)</label><input type="number" id="rentalFee" placeholder="예) 35000" min="0" /></div>
+    <div class="form-group"><label>약정 할인금액 (원)</label><input type="number" id="contractDiscount" placeholder="예) 3000" min="0" /></div>
+    <div class="form-group"><label>반값 할인율 (%)</label><input type="number" id="halfDiscountRate" placeholder="예) 50" min="0" max="100" /></div>
+    <div class="form-group"><label>재렌탈 할인율 (%)</label><input type="number" id="rerentalDiscountRate" placeholder="예) 10" min="0" max="100" /></div>
+    <div class="form-group"><label>기본 할인율 (%)</label><input type="number" id="discountRate" placeholder="예) 10" min="0" max="100" /></div>
+    <div class="form-group"><label>추가 할인율 (%)</label><input type="number" id="extraDiscountRate" placeholder="예) 20" min="0" max="100" /></div>
+    <div class="form-group"><label>결합 할인율 (%)</label><input type="number" id="bundleDiscountRate" placeholder="예) 5" min="0" max="100" /></div>
+    <div class="form-group"><label>동시구매 할인율 (%)</label><input type="number" id="multiDiscountRate" placeholder="예) 10" min="0" max="100" /></div>
+    <div class="form-group"><label>타사보상 할인금액 (원)</label><input type="number" id="competitorDiscount" placeholder="예) 10000" min="0" /></div>
+    <div class="form-group"><label>코라솔 할인금액 (원)</label><input type="number" id="corasolDiscount" placeholder="예) 16600" min="0" /></div>
+    <div class="form-group"><label>신용카드 할인금액 (원)</label><input type="number" id="cardDiscount" placeholder="예) 23000" min="0" /></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-add" onclick="addProduct()">계산 추가</button>
+    <button class="btn-reset" onclick="resetForm()">초기화</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="display:flex;justify-content:space-between;align-items:center;">
+    <span>📋 할인 계산 내역</span>
+    <button class="btn-clear-all" onclick="clearAll()">🗑 전체 초기화</button>
+  </h2>
+  <div class="result-wrap">
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th style="width:30%">제품명</th>
+          <th style="width:18%">렌탈료</th>
+          <th style="width:18%">총 할인액</th>
+          <th style="width:18%">최종 납부액</th>
+          <th style="width:16%"></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="5" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card" id="summaryCard" style="display:none;">
+  <h2>💰 전체 납부 요약</h2>
+  <div class="summary-grid" id="summaryGrid"></div>
+</div>
+
+<!-- 수정 모달 -->
+<div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+  <div class="card" style="width:560px;max-width:96vw;max-height:90vh;overflow-y:auto;margin:0;">
+    <h2 style="display:flex;justify-content:space-between;align-items:center;">
+      <span>✏️ 내역 수정</span>
+      <button onclick="closeEditModalDirect()" style="flex:unset;background:none;border:none;font-size:1.4rem;color:#999;cursor:pointer;padding:0;">✕</button>
+    </h2>
+    <div class="form-grid">
+      <div class="form-group full"><label>제품명</label><input type="text" id="e_productName" /></div>
+      <div class="form-group"><label>월 렌탈료 (원)</label><input type="number" id="e_rentalFee" min="0" /></div>
+      <div class="form-group"><label>약정 할인금액 (원)</label><input type="number" id="e_contractDiscount" min="0" /></div>
+      <div class="form-group"><label>반값 할인율 (%)</label><input type="number" id="e_halfDiscountRate" min="0" max="100" /></div>
+      <div class="form-group"><label>재렌탈 할인율 (%)</label><input type="number" id="e_rerentalDiscountRate" min="0" max="100" /></div>
+      <div class="form-group"><label>기본 할인율 (%)</label><input type="number" id="e_discountRate" min="0" max="100" /></div>
+      <div class="form-group"><label>추가 할인율 (%)</label><input type="number" id="e_extraDiscountRate" min="0" max="100" /></div>
+      <div class="form-group"><label>결합 할인율 (%)</label><input type="number" id="e_bundleDiscountRate" min="0" max="100" /></div>
+      <div class="form-group"><label>동시구매 할인율 (%)</label><input type="number" id="e_multiDiscountRate" min="0" max="100" /></div>
+      <div class="form-group"><label>타사보상 할인금액 (원)</label><input type="number" id="e_competitorDiscount" min="0" /></div>
+      <div class="form-group"><label>코라솔 할인금액 (원)</label><input type="number" id="e_corasolDiscount" min="0" /></div>
+      <div class="form-group"><label>신용카드 할인금액 (원)</label><input type="number" id="e_cardDiscount" min="0" /></div>
+    </div>
+    <div class="btn-row" style="margin-top:18px;">
+      <button class="btn-add" onclick="saveEdit()">💾 저장</button>
+      <button class="btn-reset" onclick="closeEditModalDirect()">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- 손글씨 계산 모달 -->
+<div class="modal-overlay" id="noteModal" onclick="closeModal(event)">
+  <div class="note-paper" id="notePaper">
+    <button class="note-close" onclick="closeModalDirect()">✕</button>
+    <div id="noteContent"></div>
+    <div class="note-stamp" id="noteStamp"></div>
+    <div class="note-sms-row">
+      <a id="smsBtn" class="btn-sms" href="#" onclick="sendSms(event)">📱 문자 보내기</a>
+      <button class="btn-img" onclick="shareImage()">🖼 이미지로 보내기</button>
+      <button class="btn-save" onclick="saveImage()">💾 저장하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let products = [];
+
+  function fmt(n) { return n.toLocaleString('ko-KR') + '원'; }
+  function pct(n) { return n > 0 ? n + '%' : '-'; }
+
+  function calcProduct(raw) {
+    const { rental=0, contract=0, halfDisc=0, rerentalDisc=0, disc=0,
+            extraDisc=0, bundleDisc=0, multiDisc=0, competitor=0, corasol=0, card=0 } = raw;
+    const contractAmt     = contract;
+    const afterContract   = rental - contractAmt;
+    const halfDiscAmt     = Math.round(afterContract * (halfDisc / 100));
+    const afterHalf       = afterContract - halfDiscAmt;
+    const rerentalDiscAmt = Math.round(afterHalf * (rerentalDisc / 100));
+    const afterRerental   = afterHalf - rerentalDiscAmt;
+    const discAmt         = Math.round(afterRerental * (disc / 100));
+    const afterDisc       = afterRerental - discAmt;
+    const extraDiscAmt    = Math.round(afterDisc * (extraDisc / 100));
+    const afterExtra      = afterDisc - extraDiscAmt;
+    const bundleDiscAmt   = Math.round(afterExtra * (bundleDisc / 100));
+    const afterBundle     = afterExtra - bundleDiscAmt;
+    const multiDiscAmt    = Math.round(afterBundle * (multiDisc / 100));
+    const afterMulti      = afterBundle - multiDiscAmt;
+    const afterCompetitor = afterMulti - competitor;
+    const afterCorasol    = afterCompetitor - corasol;
+    const finalAmt        = Math.max(0, afterCorasol - card);
+    const totalDisc       = rental - finalAmt;
+    return { ...raw, contractAmt, halfDiscAmt, rerentalDiscAmt, discAmt,
+             extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt };
+  }
+
+  async function addProduct() {
+    const name         = document.getElementById('productName').value.trim();
+    const rental       = parseFloat(document.getElementById('rentalFee').value) || 0;
+    const contract     = parseFloat(document.getElementById('contractDiscount').value) || 0;
+    const halfDisc     = parseFloat(document.getElementById('halfDiscountRate').value) || 0;
+    const rerentalDisc = parseFloat(document.getElementById('rerentalDiscountRate').value) || 0;
+    const disc         = parseFloat(document.getElementById('discountRate').value) || 0;
+    const extraDisc    = parseFloat(document.getElementById('extraDiscountRate').value) || 0;
+    const bundleDisc   = parseFloat(document.getElementById('bundleDiscountRate').value) || 0;
+    const multiDisc    = parseFloat(document.getElementById('multiDiscountRate').value) || 0;
+    const competitor   = parseFloat(document.getElementById('competitorDiscount').value) || 0;
+    const corasol      = parseFloat(document.getElementById('corasolDiscount').value) || 0;
+    const card         = parseFloat(document.getElementById('cardDiscount').value) || 0;
+    if (!name)       { alert('제품명을 입력해주세요.'); return; }
+    if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
+    const { addDoc } = window._firestoreFns;
+    await addDoc(window._col, { name, rental, contract, halfDisc, rerentalDisc, disc,
+      extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now() });
+    resetForm();
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('삭제할까요?')) return;
+    const { deleteDoc, doc } = window._firestoreFns;
+    await deleteDoc(doc(window._db, 'products', id));
+  }
+
+  let editingId = null;
+  function openEditModal(id) {
+    const p = products.find(x => x._id === id);
+    if (!p) return;
+    editingId = id;
+    const map = { e_productName:'name', e_rentalFee:'rental', e_contractDiscount:'contract',
+      e_halfDiscountRate:'halfDisc', e_rerentalDiscountRate:'rerentalDisc', e_discountRate:'disc',
+      e_extraDiscountRate:'extraDisc', e_bundleDiscountRate:'bundleDisc',
+      e_multiDiscountRate:'multiDisc', e_competitorDiscount:'competitor',
+      e_corasolDiscount:'corasol', e_cardDiscount:'card' };
+    Object.entries(map).forEach(([elId, key]) => {
+      document.getElementById(elId).value = p[key] || '';
+    });
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  async function saveEdit() {
+    const name   = document.getElementById('e_productName').value.trim();
+    const rental = parseFloat(document.getElementById('e_rentalFee').value) || 0;
+    if (!name)       { alert('제품명을 입력해주세요.'); return; }
+    if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
+    const { updateDoc, doc } = window._firestoreFns;
+    await updateDoc(doc(window._db, 'products', editingId), {
+      name, rental,
+      contract:    parseFloat(document.getElementById('e_contractDiscount').value) || 0,
+      halfDisc:    parseFloat(document.getElementById('e_halfDiscountRate').value) || 0,
+      rerentalDisc:parseFloat(document.getElementById('e_rerentalDiscountRate').value) || 0,
+      disc:        parseFloat(document.getElementById('e_discountRate').value) || 0,
+      extraDisc:   parseFloat(document.getElementById('e_extraDiscountRate').value) || 0,
+      bundleDisc:  parseFloat(document.getElementById('e_bundleDiscountRate').value) || 0,
+      multiDisc:   parseFloat(document.getElementById('e_multiDiscountRate').value) || 0,
+      competitor:  parseFloat(document.getElementById('e_competitorDiscount').value) || 0,
+      corasol:     parseFloat(document.getElementById('e_corasolDiscount').value) || 0,
+      card:        parseFloat(document.getElementById('e_cardDiscount').value) || 0,
+    });
+    closeEditModalDirect();
+  }
+
+  function closeEditModal(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
+  function closeEditModalDirect() { document.getElementById('editModal').classList.remove('open'); }
+
+  window.renderTable = function() {
+    const tbody = document.getElementById('tableBody');
+    if (!products || products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
+      window.renderSummary(); return;
+    }
+    let totalRental = 0, totalDisc = 0, totalFinal = 0;
+    let rows = products.map((raw) => {
+      const p = calcProduct(raw);
+      totalRental += p.rental; totalDisc += p.totalDisc; totalFinal += p.finalAmt;
+      return `<tr>
+        <td style="text-align:left;font-weight:600">${p.name}</td>
+        <td>${fmt(p.rental)}</td>
+        <td style="color:#c0392b;font-weight:700">▼ ${fmt(p.totalDisc)}</td>
+        <td style="color:#0057a8;font-weight:700">${fmt(p.finalAmt)}</td>
+        <td style="display:flex;gap:2px;justify-content:center;align-items:center;border:none;">
+          <button class="detail-btn" onclick="openModal('${p._id}')" title="상세내역">📝</button>
+          <button class="detail-btn" style="border-color:#f39c12;color:#f39c12;" onclick="openEditModal('${p._id}')" title="수정">✏️</button>
+          <button class="del-btn" onclick="deleteProduct('${p._id}')" title="삭제">✕</button>
+        </td>
+      </tr>`;
+    }).join('');
+    rows += `<tr class="total-row">
+      <td style="text-align:left">합 계 (${products.length}개)</td>
+      <td>${fmt(totalRental)}</td>
+      <td>▼ ${fmt(totalDisc)}</td>
+      <td>${fmt(totalFinal)}</td>
+      <td></td>
+    </tr>`;
+    tbody.innerHTML = rows;
+  };
+
+  window.renderSummary = function() {
+    const card = document.getElementById('summaryCard');
+    const grid = document.getElementById('summaryGrid');
+    if (!products || products.length === 0) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    const ps = products.map(calcProduct);
+    const totalRental = ps.reduce((s,p) => s+p.rental, 0);
+    const totalDisc   = ps.reduce((s,p) => s+p.totalDisc, 0);
+    const totalFinal  = ps.reduce((s,p) => s+p.finalAmt, 0);
+    const discPct = totalRental > 0 ? ((totalDisc/totalRental)*100).toFixed(1) : 0;
+    grid.innerHTML = `
+      <div class="summary-item"><div class="s-label">총 렌탈료 (할인 전)</div><div class="s-value">${fmt(totalRental)}</div></div>
+      <div class="summary-item"><div class="s-label">총 할인금액</div><div class="s-value" style="color:#c0392b">▼ ${fmt(totalDisc)}</div></div>
+      <div class="summary-item"><div class="s-label">평균 할인율</div><div class="s-value" style="color:#27ae60">${discPct}%</div></div>
+      <div class="summary-item highlight"><div class="s-label">월 최종 납부금액</div><div class="s-value">${fmt(totalFinal)}</div></div>`;
+  };
+
+  function resetForm() {
+    ['productName','rentalFee','contractDiscount','halfDiscountRate','rerentalDiscountRate',
+     'discountRate','extraDiscountRate','bundleDiscountRate','multiDiscountRate',
+     'competitorDiscount','corasolDiscount','cardDiscount']
+      .forEach(id => document.getElementById(id).value = '');
+    document.getElementById('productName').focus();
+  }
+
+  async function clearAll() {
+    if (!products || products.length === 0) return;
+    if (!confirm('전체 계산 내역을 초기화할까요?')) return;
+    const { deleteDoc, doc } = window._firestoreFns;
+    await Promise.all(products.map(p => deleteDoc(doc(window._db, 'products', p._id))));
+  }
+
+  let currentSmsText = '';
+  let currentProductName = '';
+
+  function openModal(id) {
+    const raw = products.find(x => x._id === id);
+    if (!raw) return;
+    const p = calcProduct(raw);
+    const rows = [];
+    rows.push(`<div class="note-title"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인 계산 내역서</div>`);
+    rows.push(`<div class="note-product">제품 : ${p.name}</div>`);
+    rows.push(`<hr class="note-divider">`);
+    rows.push(`<div class="note-row"><span class="n-label">① 월 렌탈료</span><span class="n-val">${fmt(p.rental)}</span></div>`);
+    let step = 1, running = p.rental;
+    const nums = ['②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪'];
+    const push = (label, amt) => {
+      running -= amt;
+      rows.push(`<div class="note-row"><span class="n-label">${nums[step-1]} ${label}</span><span class="n-minus">- ${fmt(amt)}</span></div>`);
+      rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(running)}</span></div>`);
+      step++;
+    };
+    if (p.contract > 0)     push('약정 할인', p.contractAmt);
+    if (p.halfDisc > 0)     push(`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt);
+    if (p.rerentalDisc > 0) push(`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt);
+    if (p.disc > 0)         push(`기본 할인 (${p.disc}%)`, p.discAmt);
+    if (p.extraDisc > 0)    push(`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt);
+    if (p.bundleDisc > 0)   push(`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt);
+    if (p.multiDisc > 0)    push(`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt);
+    if (p.competitor > 0)   push('타사보상 할인', p.competitor);
+    if (p.corasol > 0)      push('코라솔 할인', p.corasol);
+    if (p.card > 0)         push('신용카드 할인', p.card);
+    rows.push(`<hr class="note-divider">`);
+    rows.push(`<div class="note-row"><span class="n-label">총 할인금액</span><span class="n-minus">- ${fmt(p.totalDisc)}</span></div>`);
+    rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline">${fmt(p.finalAmt)}</span></div>`);
+    document.getElementById('noteContent').innerHTML = rows.join('');
+    const today = new Date().toLocaleDateString('ko-KR');
+    document.getElementById('noteStamp').textContent = '작성일 : ' + today;
+    currentProductName = p.name;
+    let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
+    if (p.contract > 0)     sms += `② 약정 할인 : - ${fmt(p.contractAmt)}\n`;
+    if (p.halfDisc > 0)     sms += `③ 반값 할인 (${p.halfDisc}%) : - ${fmt(p.halfDiscAmt)}\n`;
+    if (p.rerentalDisc > 0) sms += `④ 재렌탈 할인 (${p.rerentalDisc}%) : - ${fmt(p.rerentalDiscAmt)}\n`;
+    if (p.disc > 0)         sms += `⑤ 기본 할인 (${p.disc}%) : - ${fmt(p.discAmt)}\n`;
+    if (p.extraDisc > 0)    sms += `⑥ 추가 할인 (${p.extraDisc}%) : - ${fmt(p.extraDiscAmt)}\n`;
+    if (p.bundleDisc > 0)   sms += `⑦ 결합 할인 (${p.bundleDisc}%) : - ${fmt(p.bundleDiscAmt)}\n`;
+    if (p.multiDisc > 0)    sms += `⑧ 동시구매 할인 (${p.multiDisc}%) : - ${fmt(p.multiDiscAmt)}\n`;
+    if (p.competitor > 0)   sms += `⑨ 타사보상 할인 : - ${fmt(p.competitor)}\n`;
+    if (p.corasol > 0)      sms += `⑩ 코라솔 할인 : - ${fmt(p.corasol)}\n`;
+    if (p.card > 0)         sms += `⑪ 신용카드 할인 : - ${fmt(p.card)}\n`;
+    sms += `─────────────────\n총 할인금액 : - ${fmt(p.totalDisc)}\n✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
+    currentSmsText = sms;
+    document.getElementById('noteModal').classList.add('open');
+  }
+
+  function sendSms(e) { e.preventDefault(); window.location.href = `sms:?body=${encodeURIComponent(currentSmsText)}`; }
+
+  async function captureNote() {
+    const el = document.getElementById('notePaper');
+    const smsRow = document.querySelector('.note-sms-row');
+    smsRow.style.display = 'none';
+    el.style.maxHeight = 'none'; el.style.overflowY = 'visible'; el.style.height = 'auto';
+    await new Promise(r => setTimeout(r, 100));
+    const canvas = await html2canvas(el, { backgroundColor:'#fffef5', scale:2, logging:false, useCORS:true, scrollY:-window.scrollY, scrollX:-window.scrollX, windowHeight:document.documentElement.scrollHeight });
+    el.style.maxHeight = ''; el.style.overflowY = ''; el.style.height = '';
+    smsRow.style.display = 'flex';
+    return canvas;
+  }
+
+  async function shareImage() {
+    try {
+      const canvas = await captureNote();
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], '코웨이_할인내역.png', { type:'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
+          try { await navigator.share({ files:[file], title:'코웨이 렌탈료 할인 내역' }); }
+          catch(err) { if (err.name !== 'AbortError') downloadCanvas(canvas, '코웨이_할인내역.png'); }
+        } else { downloadCanvas(canvas, '코웨이_할인내역.png'); }
+      }, 'image/png');
+    } catch(err) { alert('이미지 생성에 실패했습니다.'); }
+  }
+
+  async function saveImage() {
+    try {
+      const canvas = await captureNote();
+      downloadCanvas(canvas, `${currentProductName.replace(/[\\/:*?"<>|]/g,'_')}.png`);
+    } catch(err) { alert('이미지 저장에 실패했습니다.'); }
+  }
+
+  function downloadCanvas(canvas, filename) {
+    const link = document.createElement('a');
+    link.download = filename; link.href = canvas.toDataURL('image/png'); link.click();
+  }
+
+  function closeModal(e) { if (e.target === document.getElementById('noteModal')) document.getElementById('noteModal').classList.remove('open'); }
+  function closeModalDirect() { document.getElementById('noteModal').classList.remove('open'); }
+</script>
+</body>
+</html>
