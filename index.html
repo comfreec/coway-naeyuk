@@ -78,21 +78,6 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot }
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    const app = initializeApp({ apiKey:"AIzaSyA0EekCumIcFsWZnk2E_pM0Kq_GLDViwdM", authDomain:"coway-naeyuk.firebaseapp.com", projectId:"coway-naeyuk", storageBucket:"coway-naeyuk.firebasestorage.app", messagingSenderId:"614907721481", appId:"1:614907721481:web:a54fcdd0bb852f3c6505d8" });
-    const db = getFirestore(app);
-    const col = collection(db, 'products');
-    window._db = db; window._col = col;
-    window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc };
-    onSnapshot(query(col, orderBy('createdAt','asc')), (snap) => {
-      window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-      window.renderTable && window.renderTable();
-      window.renderSummary && window.renderSummary();
-    });
-  </script>
 </head>
 <body>
 <h1>🌊 코웨이 렌탈료 할인 계산기</h1>
@@ -129,15 +114,14 @@
     <table id="resultTable">
       <thead>
         <tr>
-          <th style="width:30%">제품명</th>
-          <th style="width:18%">렌탈료</th>
-          <th style="width:18%">총 할인액</th>
-          <th style="width:18%">최종 납부액</th>
-          <th style="width:16%"></th>
+          <th style="width:35%">제품명</th>
+          <th style="width:25%">렌탈료</th>
+          <th style="width:25%">최종 납부액</th>
+          <th style="width:15%"></th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="5" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>
+        <tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>
       </tbody>
     </table>
   </div>
@@ -222,6 +206,7 @@
   }
 
   async function addProduct() {
+    if (!window._firestoreFns) { alert('데이터베이스 연결 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     const name         = document.getElementById('productName').value.trim();
     const rental       = parseFloat(document.getElementById('rentalFee').value) || 0;
     const contract     = parseFloat(document.getElementById('contractDiscount').value) || 0;
@@ -236,10 +221,15 @@
     const card         = parseFloat(document.getElementById('cardDiscount').value) || 0;
     if (!name)       { alert('제품명을 입력해주세요.'); return; }
     if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
-    const { addDoc } = window._firestoreFns;
-    await addDoc(window._col, { name, rental, contract, halfDisc, rerentalDisc, disc,
-      extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now() });
-    resetForm();
+    try {
+      const { addDoc } = window._firestoreFns;
+      await addDoc(window._col, { name, rental, contract, halfDisc, rerentalDisc, disc,
+        extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now() });
+      resetForm();
+    } catch(e) {
+      console.error(e);
+      alert('저장 실패: ' + e.message);
+    }
   }
 
   async function deleteProduct(id) {
@@ -250,7 +240,7 @@
 
   let editingId = null;
   function openEditModal(id) {
-    const p = products.find(x => x._id === id);
+    const p = (window.products || []).find(x => x._id === id);
     if (!p) return;
     editingId = id;
     const map = { e_productName:'name', e_rentalFee:'rental', e_contractDiscount:'contract',
@@ -262,6 +252,7 @@
       document.getElementById(elId).value = p[key] || '';
     });
     document.getElementById('editModal').classList.add('open');
+    history.pushState({ modal: 'edit' }, '');
   }
 
   async function saveEdit() {
@@ -291,8 +282,9 @@
 
   window.renderTable = function() {
     const tbody = document.getElementById('tableBody');
-    if (!products || products.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
+    const products = window.products || [];
+    if (products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
       window.renderSummary(); return;
     }
     let totalRental = 0, totalDisc = 0, totalFinal = 0;
@@ -302,7 +294,6 @@
       return `<tr>
         <td style="text-align:left;font-weight:600">${p.name}</td>
         <td>${fmt(p.rental)}</td>
-        <td style="color:#c0392b;font-weight:700">▼ ${fmt(p.totalDisc)}</td>
         <td style="color:#0057a8;font-weight:700">${fmt(p.finalAmt)}</td>
         <td style="display:flex;gap:2px;justify-content:center;align-items:center;border:none;">
           <button class="detail-btn" onclick="openModal('${p._id}')" title="상세내역">📝</button>
@@ -314,7 +305,6 @@
     rows += `<tr class="total-row">
       <td style="text-align:left">합 계 (${products.length}개)</td>
       <td>${fmt(totalRental)}</td>
-      <td>▼ ${fmt(totalDisc)}</td>
       <td>${fmt(totalFinal)}</td>
       <td></td>
     </tr>`;
@@ -324,7 +314,8 @@
   window.renderSummary = function() {
     const card = document.getElementById('summaryCard');
     const grid = document.getElementById('summaryGrid');
-    if (!products || products.length === 0) { card.style.display = 'none'; return; }
+    const products = window.products || [];
+    if (products.length === 0) { card.style.display = 'none'; return; }
     card.style.display = 'block';
     const ps = products.map(calcProduct);
     const totalRental = ps.reduce((s,p) => s+p.rental, 0);
@@ -347,7 +338,8 @@
   }
 
   async function clearAll() {
-    if (!products || products.length === 0) return;
+    const products = window.products || [];
+    if (products.length === 0) return;
     if (!confirm('전체 계산 내역을 초기화할까요?')) return;
     const { deleteDoc, doc } = window._firestoreFns;
     await Promise.all(products.map(p => deleteDoc(doc(window._db, 'products', p._id))));
@@ -357,7 +349,7 @@
   let currentProductName = '';
 
   function openModal(id) {
-    const raw = products.find(x => x._id === id);
+    const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
     const p = calcProduct(raw);
     const rows = [];
@@ -404,6 +396,7 @@
     sms += `─────────────────\n총 할인금액 : - ${fmt(p.totalDisc)}\n✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
     currentSmsText = sms;
     document.getElementById('noteModal').classList.add('open');
+    history.pushState({ modal: 'note' }, '');
   }
 
   function sendSms(e) { e.preventDefault(); window.location.href = `sms:?body=${encodeURIComponent(currentSmsText)}`; }
@@ -446,7 +439,49 @@
   }
 
   function closeModal(e) { if (e.target === document.getElementById('noteModal')) document.getElementById('noteModal').classList.remove('open'); }
-  function closeModalDirect() { document.getElementById('noteModal').classList.remove('open'); }
+  function closeModalDirect() {
+    document.getElementById('noteModal').classList.remove('open');
+    if (history.state && history.state.modal) history.back();
+  }
+
+  function closeEditModal(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
+  function closeEditModalDirect() {
+    document.getElementById('editModal').classList.remove('open');
+    if (history.state && history.state.modal) history.back();
+  }
+
+  // 뒤로가기 감지
+  window.addEventListener('popstate', (e) => {
+    document.getElementById('noteModal').classList.remove('open');
+    document.getElementById('editModal').classList.remove('open');
+  });
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyA0EekCumIcFsWZnk2E_pM0Kq_GLDViwdM",
+    authDomain: "coway-naeyuk.firebaseapp.com",
+    projectId: "coway-naeyuk",
+    storageBucket: "coway-naeyuk.firebasestorage.app",
+    messagingSenderId: "614907721481",
+    appId: "1:614907721481:web:a54fcdd0bb852f3c6505d8"
+  });
+  const db  = getFirestore(app);
+  const col = collection(db, 'products');
+
+  window._db  = db;
+  window._col = col;
+  window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc };
+
+  onSnapshot(query(col, orderBy('createdAt', 'asc')), (snap) => {
+    window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+    window.renderTable();
+    window.renderSummary();
+  });
 </script>
 </body>
 </html>
