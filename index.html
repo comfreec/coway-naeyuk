@@ -110,6 +110,7 @@
     <span>📋 할인 계산 내역</span>
     <button class="btn-clear-all" onclick="clearAll()">🗑 전체 초기화</button>
   </h2>
+  <p style="font-size:0.75rem;color:#aaa;margin-bottom:10px;">행을 길게 누르면 입력폼에 자동 복사됩니다</p>
   <div class="result-wrap">
     <table id="resultTable">
       <thead>
@@ -291,7 +292,7 @@
     let rows = products.map((raw) => {
       const p = calcProduct(raw);
       totalRental += p.rental; totalDisc += p.totalDisc; totalFinal += p.finalAmt;
-      return `<tr>
+      return `<tr oncontextmenu="copyToForm('${p._id}');return false;" ontouchstart="startLongPress('${p._id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="cursor:pointer;">
         <td style="text-align:left;font-weight:600">${p.name}</td>
         <td>${fmt(p.rental)}</td>
         <td style="color:#0057a8;font-weight:700">${fmt(p.finalAmt)}</td>
@@ -438,7 +439,39 @@
     link.download = filename; link.href = canvas.toDataURL('image/png'); link.click();
   }
 
-  function closeModal(e) { if (e.target === document.getElementById('noteModal')) document.getElementById('noteModal').classList.remove('open'); }
+  let longPressTimer = null;
+
+  function startLongPress(id) {
+    longPressTimer = setTimeout(() => { copyToForm(id); }, 600);
+  }
+
+  function cancelLongPress() {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  }
+
+  function copyToForm(id) {
+    const p = (window.products || []).find(x => x._id === id);
+    if (!p) return;
+    const map = {
+      productName: 'name', rentalFee: 'rental', contractDiscount: 'contract',
+      halfDiscountRate: 'halfDisc', rerentalDiscountRate: 'rerentalDisc',
+      discountRate: 'disc', extraDiscountRate: 'extraDisc',
+      bundleDiscountRate: 'bundleDisc', multiDiscountRate: 'multiDisc',
+      competitorDiscount: 'competitor', corasolDiscount: 'corasol', cardDiscount: 'card'
+    };
+    Object.entries(map).forEach(([elId, key]) => {
+      document.getElementById(elId).value = p[key] || '';
+    });
+    // 입력폼으로 스크롤
+    document.getElementById('productName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('productName').focus();
+    // 복사됐다는 시각적 피드백
+    const row = document.querySelector(`tr[ontouchstart*="${id}"]`);
+    if (row) {
+      row.style.background = '#d4edda';
+      setTimeout(() => row.style.background = '', 800);
+    }
+  }
   function closeModalDirect() {
     document.getElementById('noteModal').classList.remove('open');
     if (history.state && history.state.modal) history.back();
@@ -477,7 +510,7 @@
   window._col = col;
   window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc };
 
-  onSnapshot(query(col, orderBy('createdAt', 'asc')), (snap) => {
+  onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
     window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
     window.renderTable();
     window.renderSummary();
