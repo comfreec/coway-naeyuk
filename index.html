@@ -427,10 +427,19 @@
       const canvas = await captureNote();
       canvas.toBlob(async (blob) => {
         const file = new File([blob], '코웨이_할인내역.png', { type:'image/png' });
+        const shareText = '⏰ 지금만 가능한 금액이에요!\n확인하시고 빠르게 연락 주세요 😊';
+        // 클립보드에 멘트 복사
+        try { await navigator.clipboard.writeText(shareText); } catch(e) {}
         if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
-          try { await navigator.share({ files:[file], title:'코웨이 렌탈료 할인 내역' }); }
-          catch(err) { if (err.name !== 'AbortError') downloadCanvas(canvas, '코웨이_할인내역.png'); }
-        } else { downloadCanvas(canvas, '코웨이_할인내역.png'); }
+          try {
+            await navigator.share({ files:[file], title:'코웨이 렌탈료 할인 내역', text: shareText });
+          } catch(err) {
+            if (err.name !== 'AbortError') downloadCanvas(canvas, '코웨이_할인내역.png');
+          }
+        } else {
+          downloadCanvas(canvas, '코웨이_할인내역.png');
+          alert('멘트가 클립보드에 복사됐어요!\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
+        }
       }, 'image/png');
     } catch(err) { alert('이미지 생성에 실패했습니다.'); }
   }
