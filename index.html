@@ -115,9 +115,9 @@
     <table id="resultTable">
       <thead>
         <tr>
-          <th style="width:35%">제품명</th>
-          <th style="width:25%">렌탈료</th>
-          <th style="width:25%">최종 납부액</th>
+          <th style="width:35%;cursor:pointer;" onclick="sortTable('name')">제품명 <span id="sort_name"></span></th>
+          <th style="width:25%;cursor:pointer;" onclick="sortTable('rental')">렌탈료 <span id="sort_rental"></span></th>
+          <th style="width:25%;cursor:pointer;" onclick="sortTable('finalAmt')">최종 납부액 <span id="sort_finalAmt"></span></th>
           <th style="width:15%"></th>
         </tr>
       </thead>
@@ -289,7 +289,15 @@
       window.renderSummary(); return;
     }
     let totalRental = 0, totalDisc = 0, totalFinal = 0;
-    let rows = products.map((raw) => {
+    // 정렬 적용
+    const sorted = [...products].sort((a, b) => {
+      const pa = calcProduct(a), pb = calcProduct(b);
+      const va = sortKey === 'name' ? (pa.name || '') : (pa[sortKey] || 0);
+      const vb = sortKey === 'name' ? (pb.name || '') : (pb[sortKey] || 0);
+      if (typeof va === 'string') return va.localeCompare(vb, 'ko') * sortDir;
+      return (va - vb) * sortDir;
+    });
+    let rows = sorted.map((raw) => {
       const p = calcProduct(raw);
       totalRental += p.rental; totalDisc += p.totalDisc; totalFinal += p.finalAmt;
       return `<tr oncontextmenu="copyToForm('${p._id}');return false;" ontouchstart="startLongPress('${p._id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="cursor:pointer;">
@@ -440,6 +448,21 @@
   }
 
   let longPressTimer = null;
+  let sortKey = 'name';
+  let sortDir = 1; // 1: 오름차순, -1: 내림차순
+
+  function sortTable(key) {
+    if (sortKey === key) { sortDir *= -1; }
+    else { sortKey = key; sortDir = 1; }
+    // 화살표 표시 업데이트
+    ['name','rental','finalAmt'].forEach(k => {
+      const el = document.getElementById('sort_' + k);
+      if (el) el.textContent = '';
+    });
+    const el = document.getElementById('sort_' + key);
+    if (el) el.textContent = sortDir === 1 ? ' ▲' : ' ▼';
+    window.renderTable();
+  }
 
   function startLongPress(id) {
     longPressTimer = setTimeout(() => { copyToForm(id); }, 600);
