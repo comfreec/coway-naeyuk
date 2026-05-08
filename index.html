@@ -24,16 +24,19 @@
     .btn-add { background: #0057a8; color: #fff; }
     .btn-reset { background: #e8f0fe; color: #0057a8; }
     .result-wrap { overflow-x: visible; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; table-layout: fixed; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; table-layout: fixed; }
     thead tr { background: #0057a8; color: #fff; }
-    thead th { padding: 11px 6px; text-align: center; word-break: keep-all; }
+    thead th { padding: 10px 4px; text-align: center; word-break: keep-all; }
     tbody tr:nth-child(even) { background: #f5f8ff; }
     tbody tr:hover { background: #e8f0fe; }
-    tbody td { padding: 9px 6px; text-align: center; border-bottom: 1px solid #eee; word-break: keep-all; }
-    tbody td:first-child { text-align: left; font-weight: 600; }
-    .del-btn { background: none; border: none; color: #cc3333; font-size: 1rem; cursor: pointer; padding: 2px 6px; }
-    .detail-btn { background: none; border: 1.5px solid #0057a8; color: #0057a8; font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 3px 8px; cursor: pointer; white-space: nowrap; flex: unset; }
+    tbody td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #eee; word-break: break-all; }
+    tbody td:first-child { text-align: left; font-weight: 600; word-break: keep-all; }
+    .del-btn { background: none; border: none; color: #cc3333; font-size: 0.8rem; cursor: pointer; padding: 2px 4px; }
+    .detail-btn { background: none; border: 1.5px solid #0057a8; color: #0057a8; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; }
     .detail-btn:hover { background: #0057a8; color: #fff; opacity: 1; }
+    .del-btn { background: none; border: none; color: #cc3333; font-size: 0.8rem; cursor: pointer; padding: 2px 4px; }
+    .btn-best { background: none; border: 1.5px solid #ff4e00; color: #ff4e00; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; }
+    .btn-best:hover { background: #ff4e00; color: #fff; opacity: 1; }
     .total-row td { font-weight: 700; background: #e8f0fe !important; color: #0057a8; border-top: 2px solid #0057a8; }
     .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
     .summary-item { background: #f5f8ff; border-radius: 12px; padding: 16px 12px; text-align: center; }
@@ -45,6 +48,37 @@
     .empty-msg { text-align: center; color: #aaa; padding: 30px 0; font-size: 0.9rem; }
     .btn-clear-all { flex: unset; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; background: #fff0f0; color: #cc3333; border: 1.5px solid #ffcccc; border-radius: 8px; cursor: pointer; }
     .btn-clear-all:hover { background: #cc3333; color: #fff; opacity: 1; }
+
+    /* 🔥 최고의 할인 모달 */
+    .best-modal {
+      position: relative;
+      width: 380px; max-width: 95vw; max-height: 92vh; overflow-y: auto;
+      border-radius: 24px;
+      background: linear-gradient(160deg, #0f0c29, #1a1a4e, #24243e);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      padding: 28px 24px 28px;
+      text-align: center;
+      color: #fff;
+      animation: popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .best-modal .bm-close { position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 1.2rem; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; flex: unset; padding: 0; }
+    .best-modal .bm-badge { display: inline-block; background: #ffd700; color: #1a1a2e; font-size: 0.8rem; font-weight: 900; padding: 4px 14px; border-radius: 50px; margin-bottom: 10px; letter-spacing: 1px; }
+    .best-modal .bm-name { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.75); margin-bottom: 16px; line-height: 1.4; }
+    .best-modal .bm-disc-rate { font-size: 5rem; font-weight: 900; line-height: 1; color: #ffd700; margin-bottom: 2px; text-shadow: 0 0 30px rgba(255,215,0,0.5); }
+    .best-modal .bm-disc-label { font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 20px; letter-spacing: 2px; }
+    .best-modal .bm-compare { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .best-modal .bm-original { font-size: 1.2rem; color: rgba(255,255,255,0.4); text-decoration: line-through; }
+    .best-modal .bm-arrow { font-size: 1.3rem; color: #ffd700; }
+    .best-modal .bm-final { font-size: 2.6rem; font-weight: 900; color: #fff; line-height: 1; }
+    .best-modal .bm-final small { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.8); }
+    .best-modal .bm-per { font-size: 0.9rem; color: rgba(255,255,255,0.65); margin-bottom: 20px; }
+    .best-modal .bm-per strong { color: #ffd700; font-size: 1.05rem; }
+    .best-modal .bm-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0; }
+    .best-modal .s-row { display: flex; justify-content: space-between; font-size: 0.92rem; color: rgba(255,255,255,0.92); padding: 5px 0; }
+    .best-modal .s-row span:last-child { color: #7ee8a2; font-weight: 700; }
+    .best-modal .s-row.total { font-size: 1.05rem; font-weight: 900; color: #ffd700; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 6px; padding-top: 10px; }
+    .best-modal .s-row.total span:last-child { color: #ffd700; }
     /* 모달 오버레이 */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
@@ -106,19 +140,16 @@
 </div>
 
 <div class="card">
-  <h2 style="display:flex;justify-content:space-between;align-items:center;">
-    <span>📋 할인 계산 내역</span>
-    <button class="btn-clear-all" onclick="clearAll()">🗑 전체 초기화</button>
-  </h2>
+  <h2>📋 할인 계산 내역</h2>
   <p style="font-size:0.75rem;color:#aaa;margin-bottom:10px;">행을 길게 누르면 입력폼에 자동 복사됩니다</p>
   <div class="result-wrap">
     <table id="resultTable">
       <thead>
         <tr>
-          <th style="width:35%;cursor:pointer;" onclick="sortTable('name')">제품명 <span id="sort_name"></span></th>
-          <th style="width:25%;cursor:pointer;" onclick="sortTable('rental')">렌탈료 <span id="sort_rental"></span></th>
-          <th style="width:25%;cursor:pointer;" onclick="sortTable('finalAmt')">최종 납부액 <span id="sort_finalAmt"></span></th>
-          <th style="width:15%"></th>
+          <th style="width:30%;cursor:pointer;" onclick="sortTable('name')">제품명 <span id="sort_name"></span></th>
+          <th style="width:20%;cursor:pointer;" onclick="sortTable('rental')">렌탈료 <span id="sort_rental"></span></th>
+          <th style="width:22%;cursor:pointer;" onclick="sortTable('finalAmt')">최종 납부액 <span id="sort_finalAmt"></span></th>
+          <th style="width:28%"></th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -158,6 +189,14 @@
       <button class="btn-add" onclick="saveEdit()">💾 저장</button>
       <button class="btn-reset" onclick="closeEditModalDirect()">취소</button>
     </div>
+  </div>
+</div>
+
+<!-- 최고의 할인 모달 -->
+<div class="modal-overlay" id="bestModal" onclick="closeBestModal(event)">
+  <div class="best-modal" id="bestPaper">
+    <button class="bm-close" onclick="closeBestModalDirect()">✕</button>
+    <div id="bestContent"></div>
   </div>
 </div>
 
@@ -235,6 +274,7 @@
 
   async function deleteProduct(id) {
     if (!confirm('삭제할까요?')) return;
+    if (!confirm('정말로 삭제할까요?')) return;
     const { deleteDoc, doc } = window._firestoreFns;
     await deleteDoc(doc(window._db, 'products', id));
   }
@@ -304,10 +344,13 @@
         <td style="text-align:left;font-weight:600">${p.name}</td>
         <td>${fmt(p.rental)}</td>
         <td style="color:#0057a8;font-weight:700">${fmt(p.finalAmt)}</td>
-        <td style="display:flex;gap:2px;justify-content:center;align-items:center;border:none;">
-          <button class="detail-btn" onclick="openModal('${p._id}')" title="상세내역">📝</button>
-          <button class="detail-btn" style="border-color:#f39c12;color:#f39c12;" onclick="openEditModal('${p._id}')" title="수정">✏️</button>
-          <button class="del-btn" onclick="deleteProduct('${p._id}')" title="삭제">✕</button>
+        <td>
+          <div style="display:flex;gap:2px;justify-content:center;align-items:center;">
+            <button class="detail-btn" onclick="openModal('${p._id}')" title="상세내역">📝</button>
+            <button class="btn-best" onclick="openBestModal('${p._id}')" title="최고의 할인">🔥</button>
+            <button class="detail-btn" style="border-color:#f39c12;color:#f39c12;" onclick="openEditModal('${p._id}')" title="수정">✏️</button>
+            <button class="del-btn" onclick="deleteProduct('${p._id}')" title="삭제">✕</button>
+          </div>
         </td>
       </tr>`;
     }).join('');
@@ -504,6 +547,51 @@
       setTimeout(() => row.style.background = '', 800);
     }
   }
+  function closeBestModal(e) { if (e.target === document.getElementById('bestModal')) closeBestModalDirect(); }
+  function closeBestModalDirect() {
+    document.getElementById('bestModal').classList.remove('open');
+    if (history.state && history.state.modal) history.back();
+  }
+
+  function openBestModal(id) {
+    const raw = (window.products || []).find(x => x._id === id);
+    if (!raw) return;
+    const p = calcProduct(raw);
+    const discRate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
+    const saving = p.totalDisc;
+    const items = [];
+    if (p.contract > 0)     items.push(['약정 할인', p.contractAmt]);
+    if (p.halfDisc > 0)     items.push([`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt]);
+    if (p.rerentalDisc > 0) items.push([`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt]);
+    if (p.disc > 0)         items.push([`기본 할인 (${p.disc}%)`, p.discAmt]);
+    if (p.extraDisc > 0)    items.push([`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt]);
+    if (p.bundleDisc > 0)   items.push([`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt]);
+    if (p.multiDisc > 0)    items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
+    if (p.competitor > 0)   items.push(['타사보상 할인', p.competitor]);
+    if (p.corasol > 0)      items.push(['코라솔 할인', p.corasol]);
+    if (p.card > 0)         items.push(['카드 할인', p.card]);
+    const itemRows = items.map(([label, amt]) =>
+      `<div class="s-row"><span>${label}</span><span>- ${fmt(amt)}</span></div>`
+    ).join('');
+    document.getElementById('bestContent').innerHTML = `
+      <div class="bm-badge">🔥 최고의 할인 혜택</div>
+      <div class="bm-name">${p.name}</div>
+      <div class="bm-disc-rate">${discRate}%</div>
+      <div class="bm-disc-label">할 인 적 용 !</div>
+      <div class="bm-compare">
+        <span class="bm-original">${fmt(p.rental)}</span>
+        <span class="bm-arrow">→</span>
+        <div class="bm-final"><small>월 </small>${p.finalAmt.toLocaleString('ko-KR')}<small>원</small></div>
+      </div>
+      <div class="bm-per">매달 <strong>${fmt(saving)}</strong> 절약!</div>
+      <hr class="bm-divider">
+      ${itemRows}
+      <div class="s-row total"><span>총 할인금액</span><span>- ${fmt(saving)}</span></div>
+    `;
+    document.getElementById('bestModal').classList.add('open');
+    history.pushState({ modal: 'best' }, '');
+  }
+
   function closeModalDirect() {
     document.getElementById('noteModal').classList.remove('open');
     if (history.state && history.state.modal) history.back();
@@ -519,6 +607,7 @@
   window.addEventListener('popstate', (e) => {
     document.getElementById('noteModal').classList.remove('open');
     document.getElementById('editModal').classList.remove('open');
+    document.getElementById('bestModal').classList.remove('open');
   });
 </script>
 
