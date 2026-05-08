@@ -3,51 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>코웨이 렌탈료 할인 계산기</title>
+  <title>코웨이 렌탈료 할인 내역서</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background: #f0f4f8; min-height: 100vh; padding: 30px 16px; color: #1a1a2e; }
-    h1 { text-align: center; font-size: 1.6rem; color: #0057a8; margin-bottom: 6px; }
-    .subtitle { text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 28px; }
-    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 24px; max-width: 720px; margin: 0 auto 24px; }
-    .card h2 { font-size: 1rem; color: #0057a8; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e8f0fe; }
+    body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; color: #1a1a2e; }
+    .site-header { background: linear-gradient(135deg, #0057a8 0%, #003d7a 100%); padding: 28px 20px 24px; text-align: center; position: relative; overflow: hidden; }
+    .site-header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.06); }
+    .site-header::after { content: ''; position: absolute; bottom: -40px; left: -40px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+    .site-header h1 { font-size: 1.55rem; font-weight: 800; color: #fff; letter-spacing: -0.3px; margin-bottom: 6px; position: relative; }
+    .site-header .subtitle { font-size: 0.82rem; color: rgba(255,255,255,0.7); font-weight: 400; position: relative; margin-bottom: 0; }
+    .page-body { padding: 20px 16px 40px; max-width: 720px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 20px; box-shadow: 0 2px 16px rgba(0,0,57,0.07); padding: 22px 20px; margin-bottom: 16px; border: 1px solid rgba(0,87,168,0.06); }
+    .card h2 { font-size: 0.9rem; font-weight: 700; color: #0057a8; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1.5px solid #eef2fb; display: flex; align-items: center; gap: 6px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group.full { grid-column: 1 / -1; }
-    label { font-size: 0.8rem; font-weight: 600; color: #444; }
-    input { padding: 10px 12px; border: 1.5px solid #dde3ec; border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s; outline: none; }
-    input:focus { border-color: #0057a8; }
+    label { font-size: 0.75rem; font-weight: 600; color: #555; letter-spacing: 0.2px; }
+    input { padding: 10px 13px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; font-family: inherit; background: #fafbfd; transition: border-color 0.2s, box-shadow 0.2s; outline: none; color: #1a1a2e; }
+    input:focus { border-color: #0057a8; background: #fff; box-shadow: 0 0 0 3px rgba(0,87,168,0.1); }
+    input::placeholder { color: #b0bac8; }
     .btn-row { display: flex; gap: 10px; margin-top: 18px; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
     button:hover { opacity: 0.85; }
-    .btn-add { background: #0057a8; color: #fff; }
-    .btn-reset { background: #e8f0fe; color: #0057a8; }
+    .btn-add { background: linear-gradient(135deg, #0057a8, #0070d4); color: #fff; box-shadow: 0 4px 12px rgba(0,87,168,0.3); }
+    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,87,168,0.35); opacity: 1; }
+    .btn-reset { background: #f0f4f8; color: #0057a8; border: 1.5px solid #dde8f5; }
+    .btn-reset:hover { background: #e2ecf8; opacity: 1; }
     .result-wrap { overflow-x: visible; }
     table { width: 100%; border-collapse: collapse; font-size: 0.78rem; table-layout: fixed; }
-    thead tr { background: #0057a8; color: #fff; }
-    thead th { padding: 10px 4px; text-align: center; word-break: keep-all; }
-    tbody tr:nth-child(even) { background: #f5f8ff; }
-    tbody tr:hover { background: #e8f0fe; }
-    tbody td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #eee; word-break: break-all; }
+    thead tr { background: linear-gradient(135deg, #0057a8, #0070d4); color: #fff; }
+    thead th { padding: 11px 6px; text-align: center; word-break: keep-all; font-weight: 600; }
+    tbody tr { transition: background 0.15s; }
+    tbody tr:nth-child(even) { background: #f8faff; }
+    tbody tr:hover { background: #eef4ff; }
+    tbody td { padding: 9px 6px; text-align: center; border-bottom: 1px solid #f0f2f8; word-break: break-all; }
     tbody td:first-child { text-align: left; font-weight: 600; word-break: keep-all; }
-    .del-btn { background: none; border: none; color: #cc3333; font-size: 0.8rem; cursor: pointer; padding: 2px 4px; }
-    .detail-btn { background: none; border: 1.5px solid #0057a8; color: #0057a8; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; }
+    .del-btn { background: none; border: none; color: #e05555; font-size: 0.8rem; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
+    .del-btn:hover { background: #fff0f0; }
+    .detail-btn { background: none; border: 1.5px solid #0057a8; color: #0057a8; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; transition: all 0.15s; }
     .detail-btn:hover { background: #0057a8; color: #fff; opacity: 1; }
-    .del-btn { background: none; border: none; color: #cc3333; font-size: 0.8rem; cursor: pointer; padding: 2px 4px; }
-    .btn-best { background: none; border: 1.5px solid #ff4e00; color: #ff4e00; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; }
+    .btn-best { background: none; border: 1.5px solid #ff4e00; color: #ff4e00; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; transition: all 0.15s; }
     .btn-best:hover { background: #ff4e00; color: #fff; opacity: 1; }
-    .total-row td { font-weight: 700; background: #e8f0fe !important; color: #0057a8; border-top: 2px solid #0057a8; }
-    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
-    .summary-item { background: #f5f8ff; border-radius: 12px; padding: 16px 12px; text-align: center; }
-    .summary-item .s-label { font-size: 0.75rem; color: #666; margin-bottom: 6px; }
-    .summary-item .s-value { font-size: 1.15rem; font-weight: 700; color: #0057a8; }
-    .summary-item.highlight { background: #0057a8; }
-    .summary-item.highlight .s-label { color: #cce0ff; }
-    .summary-item.highlight .s-value { color: #fff; font-size: 1.3rem; }
-    .empty-msg { text-align: center; color: #aaa; padding: 30px 0; font-size: 0.9rem; }
-    .btn-clear-all { flex: unset; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; background: #fff0f0; color: #cc3333; border: 1.5px solid #ffcccc; border-radius: 8px; cursor: pointer; }
-    .btn-clear-all:hover { background: #cc3333; color: #fff; opacity: 1; }
+    .total-row td { font-weight: 700; background: #eef4ff !important; color: #0057a8; border-top: 2px solid #c5d8f5; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+    .summary-item { background: #f8faff; border-radius: 14px; padding: 16px 12px; text-align: center; border: 1px solid #e8eef8; transition: transform 0.2s; }
+    .summary-item:hover { transform: translateY(-2px); }
+    .summary-item .s-label { font-size: 0.72rem; color: #7a8aaa; margin-bottom: 6px; font-weight: 500; }
+    .summary-item .s-value { font-size: 1.1rem; font-weight: 700; color: #0057a8; }
+    .summary-item.highlight { background: linear-gradient(135deg, #0057a8, #0070d4); border-color: transparent; box-shadow: 0 4px 16px rgba(0,87,168,0.3); }
+    .summary-item.highlight .s-label { color: rgba(255,255,255,0.75); }
+    .summary-item.highlight .s-value { color: #fff; font-size: 1.25rem; }
+    .empty-msg { text-align: center; color: #b0bac8; padding: 36px 0; font-size: 0.88rem; }
+    .hint-text { font-size: 0.72rem; color: #b0bac8; margin-bottom: 10px; }
 
     /* 🔥 최고의 할인 모달 */
     .best-modal {
@@ -79,11 +88,18 @@
     .best-modal .s-row span:last-child { color: #7ee8a2; font-weight: 700; }
     .best-modal .s-row.total { font-size: 1.05rem; font-weight: 900; color: #ffd700; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 6px; padding-top: 10px; }
     .best-modal .s-row.total span:last-child { color: #ffd700; }
-    /* 모달 오버레이 */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
+
+    /* 태블릿: best-modal만 크게 */
+    @media (min-width: 768px) {
+      .best-modal { width: 520px; padding: 36px 32px; }
+      .best-modal .bm-disc-rate { font-size: 6.5rem; }
+      .best-modal .bm-final { font-size: 3.4rem; }
+      .best-modal .s-row { font-size: 1.05rem; }
+    }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.55); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
     /* 노트 종이 모달 */
-    .note-paper { position: relative; background: #fffef5; border-radius: 4px; width: 540px; max-width: 96vw; max-height: 92vh; overflow-y: auto; box-shadow: 4px 6px 24px rgba(0,0,0,0.25), 0 0 0 1px #e0d9b0; padding: 56px 44px 40px 20px; background-image: linear-gradient(#e8e0c0 1px, transparent 1px); background-size: 100% 64px; background-position: 0 56px; font-family: 'Nanum Pen Script', 'Gungsuh', 'KaiTi', cursive; }
+    .note-paper { position: relative; background: #fffef5; border-radius: 4px; width: 540px; max-width: 96vw; max-height: 92vh; overflow-y: auto; box-shadow: 4px 6px 24px rgba(0,0,0,0.25), 0 0 0 1px #e0d9b0; padding: 56px 44px 40px 20px; font-family: 'Nanum Pen Script', 'Gungsuh', 'KaiTi', cursive; }
     .note-paper::before { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 2px; background: rgba(200,80,80,0.4); }
     .note-paper::after { content: ''; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 26px; height: 26px; border-radius: 50%; background: #f0f4f8; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
     .note-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.6rem; color: #999; cursor: pointer; flex: unset; padding: 0; }
@@ -94,7 +110,7 @@
     .note-product { font-size: 1.9rem; color: #333; margin-bottom: 4px; line-height: 64px; }
     .note-divider { border: none; border-top: 1.5px dashed #c8b97a; margin: 6px 0; }
     .note-row { display: flex; justify-content: space-between; align-items: baseline; line-height: 64px; font-size: 1.9rem; color: #333; }
-    .note-row .n-label { color: #444; }
+    .note-row .n-label { color: #222; }
     .note-row .n-val { color: #1a3a6e; }
     .note-row .n-minus { color: #c0392b; }
     .note-row .n-final { color: #0057a8; font-size: 2.2rem; font-weight: bold; }
@@ -102,6 +118,16 @@
     .note-stamp { margin-top: 14px; text-align: right; font-size: 1.4rem; color: #aaa; line-height: 64px; }
     .note-paper .note-row:nth-child(odd) { transform: rotate(-0.2deg); }
     .note-paper .note-row:nth-child(even) { transform: rotate(0.15deg); }
+
+    /* 모바일: 할인 내역서 크기 축소 */
+    @media (max-width: 767px) {
+      .note-paper { padding: 52px 28px 28px 16px; }
+      .note-title { font-size: 2rem; line-height: 54px; }
+      .note-product { font-size: 1.6rem; line-height: 54px; }
+      .note-row { font-size: 1.6rem; line-height: 54px; }
+      .note-row .n-final { font-size: 1.9rem; }
+      .note-stamp { font-size: 1.2rem; line-height: 54px; }
+    }
     .note-sms-row { margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .btn-sms { display: inline-block; background: #25d366; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; text-decoration: none; box-shadow: 0 3px 10px rgba(37,211,102,0.35); transition: opacity 0.2s; }
     .btn-sms:hover { opacity: 0.85; }
@@ -110,12 +136,17 @@
     .btn-save { display: inline-block; background: #0057a8; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(0,87,168,0.35); transition: opacity 0.2s; flex: unset; }
     .btn-save:hover { opacity: 0.85; }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-<h1>🌊 코웨이 렌탈료 할인 계산기</h1>
-<p class="subtitle">제품별 할인 내역을 입력하면 최종 납부금액을 자동으로 계산합니다</p>
+
+<div class="site-header">
+  <h1>🌊 코웨이 렌탈료 할인 내역서</h1>
+  <p class="subtitle">제품별 할인 내역을 입력하면 최종 납부금액을 자동으로 계산합니다</p>
+</div>
+
+<div class="page-body">
 
 <div class="card">
   <h2>➕ 제품 추가</h2>
@@ -163,6 +194,8 @@
   <h2>💰 전체 납부 요약</h2>
   <div class="summary-grid" id="summaryGrid"></div>
 </div>
+
+</div><!-- /page-body -->
 
 <!-- 수정 모달 -->
 <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
@@ -354,12 +387,6 @@
         </td>
       </tr>`;
     }).join('');
-    rows += `<tr class="total-row">
-      <td style="text-align:left">합 계 (${products.length}개)</td>
-      <td>${fmt(totalRental)}</td>
-      <td>${fmt(totalFinal)}</td>
-      <td></td>
-    </tr>`;
     tbody.innerHTML = rows;
   };
 
@@ -406,14 +433,18 @@
     const p = calcProduct(raw);
     const rows = [];
     rows.push(`<div class="note-title"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인 계산 내역서</div>`);
-    rows.push(`<div class="note-product">제품 : ${p.name}</div>`);
+    rows.push(`<div class="note-product"><a href="https://search.shopping.naver.com/search/all?query=코웨이+${encodeURIComponent(p.name)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
     rows.push(`<hr class="note-divider">`);
     rows.push(`<div class="note-row"><span class="n-label">① 월 렌탈료</span><span class="n-val">${fmt(p.rental)}</span></div>`);
     let step = 1, running = p.rental;
     const nums = ['②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪'];
-    const push = (label, amt) => {
+    const push = (label, amt, type, link) => {
       running -= amt;
-      rows.push(`<div class="note-row"><span class="n-label">${nums[step-1]} ${label}</span><span class="n-minus">- ${fmt(amt)}</span></div>`);
+      const labelStyle = type === 'highlight' ? 'color:#0057a8;' : '';
+      const labelHtml = link
+        ? `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;">${nums[step-1]} ${label}</a>`
+        : `<span class="n-label" style="${labelStyle}">${nums[step-1]} ${label}</span>`;
+      rows.push(`<div class="note-row">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
       rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(running)}</span></div>`);
       step++;
     };
@@ -425,8 +456,8 @@
     if (p.bundleDisc > 0)   push(`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt);
     if (p.multiDisc > 0)    push(`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt);
     if (p.competitor > 0)   push('타사보상 할인', p.competitor);
-    if (p.corasol > 0)      push('코라솔 할인', p.corasol);
-    if (p.card > 0)         push('신용카드 할인', p.card);
+    if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
+    if (p.card > 0)         push('신용카드 할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
     rows.push(`<div class="note-row"><span class="n-label">총 할인금액</span><span class="n-minus">- ${fmt(p.totalDisc)}</span></div>`);
     rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline">${fmt(p.finalAmt)}</span></div>`);
@@ -449,6 +480,8 @@
     currentSmsText = sms;
     document.getElementById('noteModal').classList.add('open');
     history.pushState({ modal: 'note' }, '');
+    // 스와이프로 최고의 할인 모달 전환
+    initModalSwipe(document.getElementById('notePaper'), id, 'note');
   }
 
   function sendSms(e) { e.preventDefault(); window.location.href = `sms:?body=${encodeURIComponent(currentSmsText)}`; }
@@ -553,6 +586,24 @@
     if (history.state && history.state.modal) history.back();
   }
 
+  // 모달 간 스와이프 전환
+  function initModalSwipe(el, id, currentType) {
+    let sx = 0;
+    const onSwipe = () => {
+      if (currentType === 'note') {
+        document.getElementById('noteModal').classList.remove('open');
+        openBestModal(id);
+      } else {
+        document.getElementById('bestModal').classList.remove('open');
+        openModal(id);
+      }
+    };
+    el.ontouchstart = (e) => { sx = e.touches[0].clientX; };
+    el.ontouchend = (e) => {
+      if (Math.abs(e.changedTouches[0].clientX - sx) > 60) onSwipe();
+    };
+  }
+
   function openBestModal(id) {
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
@@ -590,6 +641,12 @@
     `;
     document.getElementById('bestModal').classList.add('open');
     history.pushState({ modal: 'best' }, '');
+    // 스와이프로 계산 내역서 모달 전환
+    initModalSwipe(document.getElementById('bestPaper'), id, 'best');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('noteModal')) closeModalDirect();
   }
 
   function closeModalDirect() {
