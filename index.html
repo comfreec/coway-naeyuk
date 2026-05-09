@@ -4,41 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>코웨이 렌탈료 할인 내역서</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; color: #1a1a2e; }
-    .site-header { background: linear-gradient(135deg, #0057a8 0%, #003d7a 100%); padding: 28px 20px 24px; text-align: center; position: relative; overflow: hidden; }
-    .site-header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.06); }
-    .site-header::after { content: ''; position: absolute; bottom: -40px; left: -40px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,0.04); }
-    .site-header h1 { font-size: 1.55rem; font-weight: 800; color: #fff; letter-spacing: -0.3px; margin-bottom: 6px; position: relative; }
-    .site-header .subtitle { font-size: 0.82rem; color: rgba(255,255,255,0.7); font-weight: 400; position: relative; margin-bottom: 0; }
-    .page-body { padding: 20px 16px 40px; max-width: 720px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 20px; box-shadow: 0 2px 16px rgba(0,0,57,0.07); padding: 22px 20px; margin-bottom: 16px; border: 1px solid rgba(0,87,168,0.06); }
-    .card h2 { font-size: 0.9rem; font-weight: 700; color: #0057a8; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1.5px solid #eef2fb; display: flex; align-items: center; gap: 6px; }
+    body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif; background: radial-gradient(circle at 10% 0%, #e9f2ff 0%, #f4f8ff 36%, #edf3fb 100%); min-height: 100vh; color: #1a1a2e; }
+    .site-header { background: linear-gradient(138deg, #0a5bb0 0%, #1a74d1 44%, #0a4d98 100%); padding: 34px 20px 26px; text-align: center; position: relative; overflow: hidden; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 12px 30px rgba(0,57,125,0.22); }
+    .site-header::before { content: ''; position: absolute; top: -70px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.09); }
+    .site-header::after { content: ''; position: absolute; bottom: -45px; left: -35px; width: 170px; height: 170px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+    .site-header h1 { font-size: 1.68rem; font-weight: 800; color: #fff; letter-spacing: -0.4px; margin-bottom: 8px; position: relative; }
+    .site-header .subtitle { font-size: 0.84rem; color: rgba(255,255,255,0.84); font-weight: 500; position: relative; margin-bottom: 12px; }
+    .header-meta { display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center; position: relative; }
+    .header-chip { font-size: 0.73rem; font-weight: 700; color: #ecf5ff; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); border-radius: 999px; padding: 6px 11px; backdrop-filter: blur(3px); }
+    .page-body { padding: 24px 16px 44px; max-width: 760px; margin: 0 auto; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.92)); border-radius: 22px; box-shadow: 0 10px 28px rgba(14,45,90,0.08); padding: 22px 20px; margin-bottom: 16px; border: 1px solid rgba(19,103,194,0.12); backdrop-filter: blur(6px); }
+    .card h2 { font-size: 0.95rem; font-weight: 800; color: #0a4d98; margin-bottom: 16px; padding-bottom: 11px; border-bottom: 1.5px solid #e4eefb; display: flex; align-items: center; gap: 6px; letter-spacing: -0.2px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group.full { grid-column: 1 / -1; }
-    label { font-size: 0.75rem; font-weight: 600; color: #555; letter-spacing: 0.2px; }
-    input { padding: 10px 13px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; font-family: inherit; background: #fafbfd; transition: border-color 0.2s, box-shadow 0.2s; outline: none; color: #1a1a2e; }
-    input:focus { border-color: #0057a8; background: #fff; box-shadow: 0 0 0 3px rgba(0,87,168,0.1); }
+    label { font-size: 0.75rem; font-weight: 700; color: #42546f; letter-spacing: 0.1px; }
+    input { padding: 11px 13px; border: 1.5px solid #d9e5f6; border-radius: 11px; font-size: 0.92rem; font-family: inherit; background: #fbfdff; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; outline: none; color: #1a1a2e; }
+    input:focus { border-color: #0a67cb; background: #fff; box-shadow: 0 0 0 4px rgba(20,114,212,0.12); transform: translateY(-1px); }
     input::placeholder { color: #b0bac8; }
     .btn-row { display: flex; gap: 10px; margin-top: 18px; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; letter-spacing: -0.1px; }
     button:hover { opacity: 0.85; }
-    .btn-add { background: linear-gradient(135deg, #0057a8, #0070d4); color: #fff; box-shadow: 0 4px 12px rgba(0,87,168,0.3); }
-    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,87,168,0.35); opacity: 1; }
-    .btn-reset { background: #f0f4f8; color: #0057a8; border: 1.5px solid #dde8f5; }
-    .btn-reset:hover { background: #e2ecf8; opacity: 1; }
+    .btn-add { background: linear-gradient(135deg, #0a63c0, #2491ff); color: #fff; box-shadow: 0 10px 18px rgba(10,99,192,0.26); }
+    .btn-add:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(10,99,192,0.34); opacity: 1; }
+    .btn-reset { background: #edf4fc; color: #0a5ab2; border: 1.5px solid #d4e3f7; }
+    .btn-reset:hover { background: #dfecfb; opacity: 1; }
     .result-wrap { overflow-x: visible; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; table-layout: fixed; }
-    thead tr { background: linear-gradient(135deg, #0057a8, #0070d4); color: #fff; }
-    thead th { padding: 11px 6px; text-align: center; word-break: keep-all; font-weight: 600; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.79rem; table-layout: fixed; overflow: hidden; border-radius: 14px; }
+    thead tr { background: linear-gradient(135deg, #0a5ab0, #2a8bf3); color: #fff; }
+    thead th { padding: 12px 6px; text-align: center; word-break: keep-all; font-weight: 700; }
     tbody tr { transition: background 0.15s; }
-    tbody tr:nth-child(even) { background: #f8faff; }
-    tbody tr:hover { background: #eef4ff; }
-    tbody td { padding: 9px 6px; text-align: center; border-bottom: 1px solid #f0f2f8; word-break: break-all; }
+    tbody tr:nth-child(even) { background: #f6faff; }
+    tbody tr:hover { background: #eaf2ff; }
+    tbody td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #edf2fb; word-break: break-all; }
     tbody td:first-child { text-align: left; font-weight: 600; word-break: keep-all; }
     .del-btn { background: none; border: none; color: #e05555; font-size: 0.8rem; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
     .del-btn:hover { background: #fff0f0; }
@@ -99,34 +101,34 @@
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.55); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
     /* 노트 종이 모달 */
-    .note-paper { position: relative; background: #fffef5; border-radius: 4px; width: 540px; max-width: 96vw; max-height: 92vh; overflow-y: auto; box-shadow: 4px 6px 24px rgba(0,0,0,0.25), 0 0 0 1px #e0d9b0; padding: 56px 44px 40px 20px; font-family: 'Nanum Pen Script', 'Gungsuh', 'KaiTi', cursive; }
+    .note-paper { position: relative; background: #fffef5; border-radius: 4px; width: 540px; max-width: 96vw; max-height: 92vh; overflow-y: auto; box-shadow: 4px 6px 24px rgba(0,0,0,0.25), 0 0 0 1px #e0d9b0; padding: 56px 44px 40px 20px; font-family: 'Noto Sans KR', 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
     .note-paper::before { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 2px; background: rgba(200,80,80,0.4); }
     .note-paper::after { content: ''; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 26px; height: 26px; border-radius: 50%; background: #f0f4f8; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
     .note-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.6rem; color: #999; cursor: pointer; flex: unset; padding: 0; }
     .note-close:hover { color: #333; opacity: 1; }
-    .note-title { font-size: 2.4rem; color: #1a3a6e; margin-bottom: 4px; line-height: 64px; letter-spacing: 2px; }
+    .note-title { font-size: 2.15rem; font-weight: 700; color: #1a3a6e; margin-bottom: 4px; line-height: 56px; letter-spacing: 1px; }
     .share-emoji { cursor: pointer; display: inline-block; transition: transform 0.15s; }
     .share-emoji:hover { transform: scale(1.25); }
-    .note-product { font-size: 1.9rem; color: #333; margin-bottom: 4px; line-height: 64px; }
+    .note-product { font-size: 1.65rem; font-weight: 700; color: #333; margin-bottom: 4px; line-height: 54px; }
     .note-divider { border: none; border-top: 1.5px dashed #c8b97a; margin: 6px 0; }
-    .note-row { display: flex; justify-content: space-between; align-items: baseline; line-height: 64px; font-size: 1.9rem; color: #333; }
+    .note-row { display: flex; justify-content: space-between; align-items: baseline; line-height: 52px; font-size: 1.55rem; color: #333; }
     .note-row .n-label { color: #222; }
     .note-row .n-val { color: #1a3a6e; }
     .note-row .n-minus { color: #c0392b; }
-    .note-row .n-final { color: #0057a8; font-size: 2.2rem; font-weight: bold; }
+    .note-row .n-final { color: #0057a8; font-size: 1.95rem; font-weight: 700; }
     .note-underline { border-bottom: 3px double #1a3a6e; padding-bottom: 2px; }
-    .note-stamp { margin-top: 14px; text-align: right; font-size: 1.4rem; color: #aaa; line-height: 64px; }
+    .note-stamp { margin-top: 12px; text-align: right; font-size: 1.25rem; color: #888; line-height: 44px; }
     .note-paper .note-row:nth-child(odd) { transform: rotate(-0.2deg); }
     .note-paper .note-row:nth-child(even) { transform: rotate(0.15deg); }
 
     /* 모바일: 할인 내역서 크기 축소 */
     @media (max-width: 767px) {
       .note-paper { padding: 52px 28px 28px 16px; }
-      .note-title { font-size: 2rem; line-height: 54px; }
-      .note-product { font-size: 1.6rem; line-height: 54px; }
-      .note-row { font-size: 1.6rem; line-height: 54px; }
-      .note-row .n-final { font-size: 1.9rem; }
-      .note-stamp { font-size: 1.2rem; line-height: 54px; }
+      .note-title { font-size: 1.85rem; line-height: 48px; }
+      .note-product { font-size: 1.45rem; line-height: 46px; }
+      .note-row { font-size: 1.35rem; line-height: 44px; }
+      .note-row .n-final { font-size: 1.7rem; }
+      .note-stamp { font-size: 1.1rem; line-height: 40px; }
     }
     .note-sms-row { margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .btn-sms { display: inline-block; background: #25d366; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; text-decoration: none; box-shadow: 0 3px 10px rgba(37,211,102,0.35); transition: opacity 0.2s; }
@@ -137,21 +139,44 @@
     .btn-save:hover { opacity: 0.85; }
 
     /* 임팩트 요약 모달 */
-    .impact-modal { position: relative; width: 420px; max-width: 96vw; max-height: 92vh; overflow-y: auto; border-radius: 24px; background: linear-gradient(160deg, #1a2a4a, #1e3460, #1a2a4a); box-shadow: 0 12px 50px rgba(0,0,0,0.6); animation: popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275); padding: 28px 20px 24px; color: #fff; text-align: center; }
-    .impact-close { position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 1.1rem; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; flex: unset; padding: 0; }
-    .impact-badge { display: inline-block; background: #ffd700; color: #1a1a2e; font-size: 0.8rem; font-weight: 900; padding: 4px 14px; border-radius: 50px; margin-bottom: 10px; letter-spacing: 1px; }
-    .impact-title { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 20px; }
-    .impact-item { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; margin-bottom: 8px; background: rgba(255,255,255,0.07); border-radius: 14px; border-left: 3px solid #ffd700; cursor: pointer; transition: background 0.15s; text-align: left; }
-    .impact-item:hover { background: rgba(255,255,255,0.13); }
-    .impact-item .ii-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); flex: 1; margin-right: 10px; }
-    .impact-item .ii-prices { text-align: right; }
-    .impact-item .ii-original { font-size: 0.75rem; color: rgba(255,255,255,0.35); text-decoration: line-through; }
-    .impact-item .ii-final { font-size: 1.15rem; font-weight: 800; color: #7ee8a2; }
-    .impact-item .ii-badge { background: none; color: #ffd700; font-size: 0.75rem; font-weight: 900; margin-left: 5px; vertical-align: middle; }
-    .impact-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 14px 0; }
-    .impact-saving-label { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
-    .impact-saving { font-size: 2.2rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.4); }
-    .impact-saving-sub { font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
+    .impact-modal { position: relative; width: 500px; max-width: 96vw; max-height: 92vh; overflow-y: auto; border-radius: 26px; background: radial-gradient(circle at top, #2c4570 0%, #1b2f51 42%, #111f37 100%); box-shadow: 0 18px 60px rgba(4,10,30,0.58); animation: popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275); padding: 26px 20px 20px; color: #fff; text-align: left; border: 1px solid rgba(255,255,255,0.12); }
+    .impact-brand { font-size: 0.72rem; letter-spacing: 1.2px; color: rgba(255,255,255,0.62); margin-bottom: 4px; font-weight: 700; }
+    .impact-close { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.16); border: none; color: #fff; font-size: 1.05rem; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; flex: unset; padding: 0; }
+    .impact-badge { display: inline-block; background: linear-gradient(135deg, #ffd873, #ffb703); color: #302300; font-size: 0.76rem; font-weight: 900; padding: 5px 13px; border-radius: 999px; margin-bottom: 8px; letter-spacing: 0.8px; }
+    .impact-title { font-size: 1.34rem; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -0.2px; }
+    .impact-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+    .impact-kpi { background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 10px 8px; text-align: center; }
+    .impact-kpi .k-label { font-size: 0.69rem; color: rgba(255,255,255,0.75); margin-bottom: 5px; }
+    .impact-kpi .k-value { font-size: 0.95rem; font-weight: 800; color: #fff; }
+    .impact-kpi.highlight { background: rgba(255, 215, 0, 0.17); border-color: rgba(255, 215, 0, 0.45); }
+    .impact-kpi.highlight .k-value { color: #ffe486; }
+    .impact-best { margin-bottom: 10px; padding: 11px 12px; border-radius: 14px; background: rgba(126,232,162,0.14); border: 1px solid rgba(126,232,162,0.45); font-size: 0.82rem; color: #dafee7; }
+    .impact-best strong { color: #fff; font-size: 0.88rem; }
+    .impact-item { display: flex; align-items: center; gap: 10px; padding: 11px 12px; margin-bottom: 8px; background: rgba(255,255,255,0.08); border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); cursor: pointer; transition: all 0.18s ease; text-align: left; }
+    .impact-item:hover { transform: translateY(-1px); background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.28); }
+    .impact-item .ii-rank { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,215,0,0.2); color: #ffd873; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .impact-item .ii-name { font-size: 0.81rem; font-weight: 600; color: rgba(255,255,255,0.92); flex: 1; margin-right: 6px; line-height: 1.3; }
+    .impact-item .ii-prices { text-align: right; min-width: 122px; }
+    .impact-item .ii-original { font-size: 0.7rem; color: rgba(255,255,255,0.45); text-decoration: line-through; }
+    .impact-item .ii-final { font-size: 1.02rem; font-weight: 800; color: #88ffb7; }
+    .impact-item .ii-saving { font-size: 0.72rem; color: #ffd873; font-weight: 700; margin-top: 2px; }
+    .impact-item .ii-badge { background: none; color: #ffd873; font-size: 0.72rem; font-weight: 900; margin-left: 4px; vertical-align: middle; }
+    .impact-divider { border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 12px 0; }
+    .impact-saving-label { font-size: 0.78rem; color: rgba(255,255,255,0.74); margin-bottom: 4px; text-align: center; }
+    .impact-saving { font-size: 2.1rem; font-weight: 900; color: #ffe486; text-align: center; text-shadow: 0 0 18px rgba(255,215,0,0.34); }
+    .impact-saving-sub { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 3px; text-align: center; }
+    .impact-share-row { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+    .impact-share-btn { flex: unset; border: none; border-radius: 999px; padding: 10px 15px; font-size: 0.78rem; font-weight: 800; color: #fff; cursor: pointer; }
+    .impact-share-btn.share { background: linear-gradient(135deg, #2f80ed, #56ccf2); }
+    .impact-share-btn.save { background: linear-gradient(135deg, #00b09b, #96c93d); }
+    .impact-share-btn:hover { opacity: 0.9; }
+    @media (max-width: 767px) {
+      .impact-modal { width: 440px; padding: 24px 14px 16px; }
+      .impact-summary-grid { grid-template-columns: 1fr; gap: 6px; }
+      .impact-kpi { text-align: left; padding: 9px 10px; }
+      .impact-kpi .k-value { font-size: 1rem; }
+      .impact-item .ii-prices { min-width: 106px; }
+    }
     .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
     .btn-impact:hover { transform: translateY(-1px); opacity: 1; }
     .auth-card { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -167,7 +192,7 @@
     .setup-modal li { font-size: 0.85rem; line-height: 1.5; color: #334155; margin-bottom: 4px; }
     .setup-actions { display: flex; justify-content: flex-end; }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
@@ -175,6 +200,10 @@
 <div class="site-header">
   <h1>🌊 코웨이 렌탈료 할인 내역서</h1>
   <p class="subtitle">제품별 할인 내역을 입력하면 최종 납부금액을 자동으로 계산합니다</p>
+  <div class="header-meta">
+    <span class="header-chip" id="headerCountChip">등록 제품 0개</span>
+    <span class="header-chip">실시간 자동 계산</span>
+  </div>
 </div>
 
 <div class="page-body">
@@ -241,8 +270,9 @@
 
 <!-- 임팩트 요약 모달 -->
 <div class="modal-overlay" id="impactModal" onclick="closeImpactModal(event)">
-  <div class="impact-modal">
+  <div class="impact-modal" id="impactPaper">
     <button class="impact-close" onclick="closeImpactModalDirect()">✕</button>
+    <div class="impact-brand">COWAY BENEFIT REPORT</div>
     <div class="impact-badge">✨ 고객님만을 위한 특별 혜택</div>
     <div class="impact-title">할인 혜택 한눈에 보기</div>
     <div id="impactBody"></div>
@@ -433,6 +463,8 @@
     const tbody = document.getElementById('tableBody');
     const products = window.products || [];
     const btn = document.getElementById('impactBtn');
+    const countChip = document.getElementById('headerCountChip');
+    if (countChip) countChip.textContent = `등록 제품 ${products.length}개`;
     if (products.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
       if (btn) btn.style.display = 'none';
@@ -580,34 +612,21 @@
 
   async function shareImage() {
     try {
-      const bestEl = document.getElementById('bestPaper');
-      const bestModal = document.getElementById('bestModal');
-      const wasBestOpen = bestModal.classList.contains('open');
-      if (!document.getElementById('bestContent').innerHTML.trim()) {
-        openBestModal(currentModalProductId || '');
-      }
-      bestModal.style.display = 'flex';
-      bestEl.style.animation = 'none';
-      await new Promise(r => setTimeout(r, 80));
-      const canvas = await html2canvas(bestEl, {
-        backgroundColor: '#1a1a4e', scale: 2, logging: false, useCORS: true,
-        scrollY: -window.scrollY, scrollX: -window.scrollX
-      });
-      if (!wasBestOpen) bestModal.style.display = '';
-
+      const canvas = await captureNote();
       const shareText = '⏰ 지금만 가능한 금액이에요!\n확인하시고 빠르게 연락 주세요 😊';
       try { await navigator.clipboard.writeText(shareText); } catch(e) {}
 
       canvas.toBlob(async (blob) => {
-        const file = new File([blob], `${currentProductName}_최고의할인.png`, { type:'image/png' });
+        const safeName = (currentProductName || '할인계산내역서').replace(/[\\/:*?"<>|]/g,'_');
+        const file = new File([blob], `${safeName}_할인계산내역서.png`, { type:'image/png' });
         if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
           try {
-            await navigator.share({ files:[file], title:'코웨이 최고의 할인', text: shareText });
+            await navigator.share({ files:[file], title:'코웨이 할인 계산 내역서', text: shareText });
           } catch(err) {
-            if (err.name !== 'AbortError') downloadCanvas(canvas, `${currentProductName}_최고의할인.png`);
+            if (err.name !== 'AbortError') downloadCanvas(canvas, `${safeName}_할인계산내역서.png`);
           }
         } else {
-          downloadCanvas(canvas, `${currentProductName}_최고의할인.png`);
+          downloadCanvas(canvas, `${safeName}_할인계산내역서.png`);
           alert('멘트가 클립보드에 복사됐어요!\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
         }
       }, 'image/png');
@@ -685,6 +704,62 @@
     if (history.state && history.state.modal) history.back();
   }
 
+  async function captureImpactModal() {
+    const impactPaper = document.getElementById('impactPaper');
+    const closeBtn = impactPaper.querySelector('.impact-close');
+    const prevMaxHeight = impactPaper.style.maxHeight;
+    const prevOverflow = impactPaper.style.overflowY;
+    if (closeBtn) closeBtn.style.display = 'none';
+    impactPaper.style.maxHeight = 'none';
+    impactPaper.style.overflowY = 'visible';
+    await new Promise(r => setTimeout(r, 80));
+    const canvas = await html2canvas(impactPaper, {
+      backgroundColor: '#13233d',
+      scale: 2.5,
+      logging: false,
+      useCORS: true,
+      scrollY: -window.scrollY,
+      scrollX: -window.scrollX
+    });
+    impactPaper.style.maxHeight = prevMaxHeight;
+    impactPaper.style.overflowY = prevOverflow;
+    if (closeBtn) closeBtn.style.display = '';
+    return canvas;
+  }
+
+  async function shareImpactImage() {
+    try {
+      const canvas = await captureImpactModal();
+      const shareText = '코웨이 렌탈 할인 혜택 한눈에 보기 이미지입니다.';
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], `혜택한눈에보기_${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: '코웨이 혜택 한눈에 보기', text: shareText });
+          } catch (err) {
+            if (err.name !== 'AbortError') downloadCanvas(canvas, file.name);
+          }
+        } else {
+          downloadCanvas(canvas, file.name);
+          alert('이미지를 저장했습니다. 고객에게 전송해주세요.');
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error(err);
+      alert('이미지 생성에 실패했습니다.');
+    }
+  }
+
+  async function saveImpactImage() {
+    try {
+      const canvas = await captureImpactModal();
+      downloadCanvas(canvas, `혜택한눈에보기_${new Date().toISOString().slice(0,10)}.png`);
+    } catch (err) {
+      console.error(err);
+      alert('이미지 저장에 실패했습니다.');
+    }
+  }
+
   function openImpactModal() {
     const prods = window.products || [];
     if (prods.length === 0) return;
@@ -702,22 +777,48 @@
     const totalRental = ps.reduce((s,p) => s + p.rental, 0);
     const totalFinal  = ps.reduce((s,p) => s + p.finalAmt, 0);
     const totalSaving = totalRental - totalFinal;
+    const avgRate = totalRental > 0 ? Math.round((totalSaving / totalRental) * 100) : 0;
+    const bestProduct = [...ps].sort((a, b) => b.totalDisc - a.totalDisc)[0];
 
-    document.getElementById('impactBody').innerHTML = ps.map(p => {
+    document.getElementById('impactBody').innerHTML = `
+      <div class="impact-summary-grid">
+        <div class="impact-kpi">
+          <div class="k-label">총 제품 수</div>
+          <div class="k-value">${ps.length}개</div>
+        </div>
+        <div class="impact-kpi">
+          <div class="k-label">평균 할인율</div>
+          <div class="k-value">${avgRate}%</div>
+        </div>
+        <div class="impact-kpi highlight">
+          <div class="k-label">월 절약 금액</div>
+          <div class="k-value">${fmt(totalSaving)}</div>
+        </div>
+      </div>
+      ${bestProduct ? `<div class="impact-best">🏆 가장 혜택이 큰 제품: <strong>${bestProduct.name}</strong> (월 ${fmt(bestProduct.totalDisc)} 절약)</div>` : ''}
+      ${ps.map((p, idx) => {
       const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
+      const savingAmt = p.rental - p.finalAmt;
       return `<div class="impact-item" onclick="impactItemClick('${p._id}')">
+        <div class="ii-rank">${idx + 1}</div>
         <div class="ii-name">${p.name}</div>
         <div class="ii-prices">
           <div class="ii-original">${fmt(p.rental)}</div>
           <div class="ii-final">${fmt(p.finalAmt)}<span class="ii-badge">-${rate}%</span></div>
+          <div class="ii-saving">월 ${fmt(savingAmt)} 절약</div>
         </div>
       </div>`;
-    }).join('');
+    }).join('')}
+    `;
 
     document.getElementById('impactFooter').innerHTML = `
       <div class="impact-saving-label">원래 ${fmt(totalRental)}에서</div>
       <div class="impact-saving">▼ ${fmt(totalSaving)} 절약!</div>
       <div class="impact-saving-sub">매달 이만큼 아낄 수 있어요 😊</div>
+      <div class="impact-share-row">
+        <button type="button" class="impact-share-btn share" onclick="shareImpactImage()">📤 이미지 공유</button>
+        <button type="button" class="impact-share-btn save" onclick="saveImpactImage()">💾 이미지 저장</button>
+      </div>
     `;
 
     document.getElementById('impactModal').classList.add('open');
