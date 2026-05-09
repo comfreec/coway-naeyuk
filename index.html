@@ -135,6 +135,25 @@
     .btn-img:hover { opacity: 0.85; }
     .btn-save { display: inline-block; background: #0057a8; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(0,87,168,0.35); transition: opacity 0.2s; flex: unset; }
     .btn-save:hover { opacity: 0.85; }
+
+    /* 임팩트 요약 모달 */
+    .impact-modal { position: relative; width: 420px; max-width: 96vw; max-height: 92vh; overflow-y: auto; border-radius: 24px; background: linear-gradient(160deg, #1a2a4a, #1e3460, #1a2a4a); box-shadow: 0 12px 50px rgba(0,0,0,0.6); animation: popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275); padding: 28px 20px 24px; color: #fff; text-align: center; }
+    .impact-close { position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 1.1rem; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; flex: unset; padding: 0; }
+    .impact-badge { display: inline-block; background: #ffd700; color: #1a1a2e; font-size: 0.8rem; font-weight: 900; padding: 4px 14px; border-radius: 50px; margin-bottom: 10px; letter-spacing: 1px; }
+    .impact-title { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 20px; }
+    .impact-item { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; margin-bottom: 8px; background: rgba(255,255,255,0.07); border-radius: 14px; border-left: 3px solid #ffd700; cursor: pointer; transition: background 0.15s; text-align: left; }
+    .impact-item:hover { background: rgba(255,255,255,0.13); }
+    .impact-item .ii-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); flex: 1; margin-right: 10px; }
+    .impact-item .ii-prices { text-align: right; }
+    .impact-item .ii-original { font-size: 0.75rem; color: rgba(255,255,255,0.35); text-decoration: line-through; }
+    .impact-item .ii-final { font-size: 1.15rem; font-weight: 800; color: #7ee8a2; }
+    .impact-item .ii-badge { background: none; color: #ffd700; font-size: 0.75rem; font-weight: 900; margin-left: 5px; vertical-align: middle; }
+    .impact-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 14px 0; }
+    .impact-saving-label { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+    .impact-saving { font-size: 2.2rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.4); }
+    .impact-saving-sub { font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
+    .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
+    .btn-impact:hover { transform: translateY(-1px); opacity: 1; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -171,7 +190,10 @@
 </div>
 
 <div class="card">
-  <h2>📋 할인 계산 내역</h2>
+  <h2 style="display:flex;justify-content:space-between;align-items:center;">
+    <span>📋 할인 계산 내역</span>
+    <button class="btn-impact" onclick="openImpactModal()" id="impactBtn" style="display:none;padding:8px 14px;font-size:0.82rem;border-radius:10px;">🎯 혜택 한눈에 보기</button>
+  </h2>
   <p style="font-size:0.75rem;color:#aaa;margin-bottom:10px;">행을 길게 누르면 입력폼에 자동 복사됩니다</p>
   <div class="result-wrap">
     <table id="resultTable">
@@ -196,6 +218,18 @@
 </div>
 
 </div><!-- /page-body -->
+
+<!-- 임팩트 요약 모달 -->
+<div class="modal-overlay" id="impactModal" onclick="closeImpactModal(event)">
+  <div class="impact-modal">
+    <button class="impact-close" onclick="closeImpactModalDirect()">✕</button>
+    <div class="impact-badge">✨ 고객님만을 위한 특별 혜택</div>
+    <div class="impact-title">할인 혜택 한눈에 보기</div>
+    <div id="impactBody"></div>
+    <hr class="impact-divider">
+    <div id="impactFooter"></div>
+  </div>
+</div>
 
 <!-- 수정 모달 -->
 <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
@@ -357,10 +391,13 @@
   window.renderTable = function() {
     const tbody = document.getElementById('tableBody');
     const products = window.products || [];
+    const btn = document.getElementById('impactBtn');
     if (products.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
+      if (btn) btn.style.display = 'none';
       window.renderSummary(); return;
     }
+    if (btn) btn.style.display = '';
     let totalRental = 0, totalDisc = 0, totalFinal = 0;
     // 정렬 적용
     const sorted = [...products].sort((a, b) => {
@@ -426,6 +463,7 @@
 
   let currentSmsText = '';
   let currentProductName = '';
+  let currentModalProductId = null;
 
   function openModal(id) {
     const raw = (window.products || []).find(x => x._id === id);
@@ -465,6 +503,7 @@
     const today = new Date().toLocaleDateString('ko-KR');
     document.getElementById('noteStamp').textContent = '작성일 : ' + today;
     currentProductName = p.name;
+    currentModalProductId = id;
     let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
     if (p.contract > 0)     sms += `② 약정 할인 : - ${fmt(p.contractAmt)}\n`;
     if (p.halfDisc > 0)     sms += `③ 반값 할인 (${p.halfDisc}%) : - ${fmt(p.halfDiscAmt)}\n`;
@@ -500,24 +539,38 @@
 
   async function shareImage() {
     try {
-      const canvas = await captureNote();
+      const bestEl = document.getElementById('bestPaper');
+      const bestModal = document.getElementById('bestModal');
+      const wasBestOpen = bestModal.classList.contains('open');
+      if (!document.getElementById('bestContent').innerHTML.trim()) {
+        openBestModal(currentModalProductId || '');
+      }
+      bestModal.style.display = 'flex';
+      bestEl.style.animation = 'none';
+      await new Promise(r => setTimeout(r, 80));
+      const canvas = await html2canvas(bestEl, {
+        backgroundColor: '#1a1a4e', scale: 2, logging: false, useCORS: true,
+        scrollY: -window.scrollY, scrollX: -window.scrollX
+      });
+      if (!wasBestOpen) bestModal.style.display = '';
+
+      const shareText = '⏰ 지금만 가능한 금액이에요!\n확인하시고 빠르게 연락 주세요 😊';
+      try { await navigator.clipboard.writeText(shareText); } catch(e) {}
+
       canvas.toBlob(async (blob) => {
-        const file = new File([blob], '코웨이_할인내역.png', { type:'image/png' });
-        const shareText = '⏰ 지금만 가능한 금액이에요!\n확인하시고 빠르게 연락 주세요 😊';
-        // 클립보드에 멘트 복사
-        try { await navigator.clipboard.writeText(shareText); } catch(e) {}
+        const file = new File([blob], `${currentProductName}_최고의할인.png`, { type:'image/png' });
         if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
           try {
-            await navigator.share({ files:[file], title:'코웨이 렌탈료 할인 내역', text: shareText });
+            await navigator.share({ files:[file], title:'코웨이 최고의 할인', text: shareText });
           } catch(err) {
-            if (err.name !== 'AbortError') downloadCanvas(canvas, '코웨이_할인내역.png');
+            if (err.name !== 'AbortError') downloadCanvas(canvas, `${currentProductName}_최고의할인.png`);
           }
         } else {
-          downloadCanvas(canvas, '코웨이_할인내역.png');
+          downloadCanvas(canvas, `${currentProductName}_최고의할인.png`);
           alert('멘트가 클립보드에 복사됐어요!\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
         }
       }, 'image/png');
-    } catch(err) { alert('이미지 생성에 실패했습니다.'); }
+    } catch(err) { console.error(err); alert('이미지 생성에 실패했습니다.'); }
   }
 
   async function saveImage() {
@@ -580,9 +633,64 @@
       setTimeout(() => row.style.background = '', 800);
     }
   }
+  function impactItemClick(id) {
+    document.getElementById('impactModal').style.zIndex = '999';
+    openBestModal(id);
+  }
+
+  function closeImpactModal(e) { if (e.target === document.getElementById('impactModal')) closeImpactModalDirect(); }
+  function closeImpactModalDirect() {
+    document.getElementById('impactModal').classList.remove('open');
+    if (history.state && history.state.modal) history.back();
+  }
+
+  function openImpactModal() {
+    const prods = window.products || [];
+    if (prods.length === 0) return;
+
+    // 현재 정렬 순서 그대로 적용
+    const sorted = [...prods].sort((a, b) => {
+      const pa = calcProduct(a), pb = calcProduct(b);
+      const va = sortKey === 'name' ? (pa.name || '') : (pa[sortKey] || 0);
+      const vb = sortKey === 'name' ? (pb.name || '') : (pb[sortKey] || 0);
+      if (typeof va === 'string') return va.localeCompare(vb, 'ko') * sortDir;
+      return (va - vb) * sortDir;
+    });
+
+    const ps = sorted.map(calcProduct);
+    const totalRental = ps.reduce((s,p) => s + p.rental, 0);
+    const totalFinal  = ps.reduce((s,p) => s + p.finalAmt, 0);
+    const totalSaving = totalRental - totalFinal;
+
+    document.getElementById('impactBody').innerHTML = ps.map(p => {
+      const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
+      return `<div class="impact-item" onclick="impactItemClick('${p._id}')">
+        <div class="ii-name">${p.name}</div>
+        <div class="ii-prices">
+          <div class="ii-original">${fmt(p.rental)}</div>
+          <div class="ii-final">${fmt(p.finalAmt)}<span class="ii-badge">-${rate}%</span></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('impactFooter').innerHTML = `
+      <div class="impact-saving-label">원래 ${fmt(totalRental)}에서</div>
+      <div class="impact-saving">▼ ${fmt(totalSaving)} 절약!</div>
+      <div class="impact-saving-sub">매달 이만큼 아낄 수 있어요 😊</div>
+    `;
+
+    document.getElementById('impactModal').classList.add('open');
+    history.pushState({ modal: 'impact' }, '');
+  }
+
   function closeBestModal(e) { if (e.target === document.getElementById('bestModal')) closeBestModalDirect(); }
   function closeBestModalDirect() {
     document.getElementById('bestModal').classList.remove('open');
+    const im = document.getElementById('impactModal');
+    if (im.classList.contains('open')) {
+      im.style.zIndex = '1000';
+      return;
+    }
     if (history.state && history.state.modal) history.back();
   }
 
@@ -651,6 +759,12 @@
 
   function closeModalDirect() {
     document.getElementById('noteModal').classList.remove('open');
+    // impactModal이 뒤에 있으면 다시 앞으로
+    const im = document.getElementById('impactModal');
+    if (im.classList.contains('open')) {
+      im.style.zIndex = '1000';
+      return;
+    }
     if (history.state && history.state.modal) history.back();
   }
 
@@ -665,6 +779,7 @@
     document.getElementById('noteModal').classList.remove('open');
     document.getElementById('editModal').classList.remove('open');
     document.getElementById('bestModal').classList.remove('open');
+    document.getElementById('impactModal').classList.remove('open');
   });
 </script>
 
