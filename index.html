@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -154,6 +154,18 @@
     .impact-saving-sub { font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
     .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
     .btn-impact:hover { transform: translateY(-1px); opacity: 1; }
+    .auth-card { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .auth-status { font-size: 0.8rem; color: #4b5d78; font-weight: 600; }
+    .auth-status.warn { color: #c0392b; }
+    .auth-actions { display: flex; gap: 8px; }
+    .btn-auth { flex: unset; padding: 8px 12px; border-radius: 10px; font-size: 0.78rem; border: 1px solid #d7e3f3; background: #f8fbff; color: #0057a8; font-weight: 700; }
+    .btn-auth.primary { background: linear-gradient(135deg, #0057a8, #0070d4); border: none; color: #fff; }
+    .setup-modal { width: 520px; max-width: 96vw; max-height: 90vh; overflow-y: auto; padding: 22px 18px; border-radius: 16px; background: #fff; box-shadow: 0 8px 30px rgba(0,0,0,0.25); }
+    .setup-modal h3 { margin-bottom: 10px; font-size: 1rem; color: #1a3a6e; }
+    .setup-modal p { font-size: 0.86rem; color: #4b5d78; margin-bottom: 10px; line-height: 1.5; }
+    .setup-modal ol { padding-left: 18px; margin-bottom: 14px; }
+    .setup-modal li { font-size: 0.85rem; line-height: 1.5; color: #334155; margin-bottom: 4px; }
+    .setup-actions { display: flex; justify-content: flex-end; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -166,6 +178,14 @@
 </div>
 
 <div class="page-body">
+
+<div class="card auth-card">
+  <div id="authStatus" class="auth-status warn">로그인이 필요합니다</div>
+  <div class="auth-actions">
+    <button id="btnLogin" type="button" class="btn-auth primary" disabled>Google 로그인</button>
+    <button id="btnLogout" type="button" class="btn-auth" style="display:none;">로그아웃</button>
+  </div>
+</div>
 
 <div class="card">
   <h2>➕ 제품 추가</h2>
@@ -277,6 +297,27 @@
       <a id="smsBtn" class="btn-sms" href="#" onclick="sendSms(event)">📱 문자 보내기</a>
       <button class="btn-img" onclick="shareImage()">🖼 이미지로 보내기</button>
       <button class="btn-save" onclick="saveImage()">💾 저장하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth 설정 안내 모달 -->
+<div class="modal-overlay" id="authSetupModal" onclick="closeAuthSetupModal(event)">
+  <div class="setup-modal">
+    <h3>Firebase 로그인 설정이 필요합니다</h3>
+    <p>현재 프로젝트에서 인증 설정을 찾지 못했습니다. 아래 순서로 한 번만 설정하면 로그인됩니다.</p>
+    <ol>
+      <li>Firebase 콘솔에서 <strong>coway-naeyuk</strong> 프로젝트 선택</li>
+      <li><strong>Authentication</strong> 진입 후 <strong>Get started</strong> 클릭</li>
+      <li><strong>Sign-in method</strong> 탭에서 <strong>Google</strong> 활성화 후 저장</li>
+      <li><strong>Settings</strong> 탭의 <strong>Authorized domains</strong>에
+        <br>- <code>coway-naeyuk.web.app</code>
+        <br>- <code>coway-naeyuk.firebaseapp.com</code>
+        추가</li>
+    </ol>
+    <p>설정 완료 후 페이지를 새로고침하고 다시 로그인 버튼을 눌러주세요.</p>
+    <div class="setup-actions">
+      <button type="button" class="btn-auth primary" onclick="closeAuthSetupModalDirect()">확인</button>
     </div>
   </div>
 </div>
@@ -774,20 +815,34 @@
     if (history.state && history.state.modal) history.back();
   }
 
+  function closeAuthSetupModal(e) {
+    if (e.target === document.getElementById('authSetupModal')) closeAuthSetupModalDirect();
+  }
+  function closeAuthSetupModalDirect() {
+    document.getElementById('authSetupModal').classList.remove('open');
+  }
+  function openAuthSetupModal() {
+    document.getElementById('authSetupModal').classList.add('open');
+  }
+
   // 뒤로가기 감지
   window.addEventListener('popstate', (e) => {
     document.getElementById('noteModal').classList.remove('open');
     document.getElementById('editModal').classList.remove('open');
     document.getElementById('bestModal').classList.remove('open');
     document.getElementById('impactModal').classList.remove('open');
+    document.getElementById('authSetupModal').classList.remove('open');
   });
 </script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+  const OWNER_EMAIL = "comfreec1@gmail.com";
   const app = initializeApp({
     apiKey: "AIzaSyA0EekCumIcFsWZnk2E_pM0Kq_GLDViwdM",
     authDomain: "coway-naeyuk.firebaseapp.com",
@@ -796,17 +851,109 @@
     messagingSenderId: "614907721481",
     appId: "1:614907721481:web:a54fcdd0bb852f3c6505d8"
   });
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
   const db  = getFirestore(app);
   const col = collection(db, 'products');
+  let unsubProducts = null;
+  const loginBtn = document.getElementById('btnLogin');
+  const logoutBtn = document.getElementById('btnLogout');
+  const authStatusEl = document.getElementById('authStatus');
 
   window._db  = db;
   window._col = col;
   window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc };
+  window.signInOwner = async () => {
+    if (!loginBtn) return;
+    try {
+      loginBtn.disabled = true;
+      loginBtn.textContent = '로그인 중...';
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error(e);
+      if (e.code === 'auth/unauthorized-domain') {
+        alert('현재 도메인이 Firebase Auth 허용 도메인에 없습니다.\nFirebase 콘솔 > Authentication > Settings > Authorized domains에 현재 도메인을 추가해주세요.');
+      } else if (e.code === 'auth/popup-blocked') {
+        alert('브라우저에서 팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
+      } else if (e.code === 'auth/operation-not-allowed') {
+        alert('Firebase 콘솔에서 Google 로그인이 비활성화되어 있습니다.\nAuthentication > Sign-in method에서 Google을 활성화해주세요.');
+      } else if (e.code === 'auth/configuration-not-found') {
+        openAuthSetupModal();
+      } else {
+        alert('로그인 실패: ' + (e.message || e.code || '알 수 없는 오류'));
+      }
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Google 로그인';
+    }
+  };
+  window.signOutOwner = async () => {
+    try { await signOut(auth); } catch(e) { console.error(e); }
+  };
 
-  onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
-    window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-    window.renderTable();
-    window.renderSummary();
+  function updateAuthUi(user) {
+    const statusEl = authStatusEl;
+    if (!user) {
+      statusEl.textContent = '로그인이 필요합니다';
+      statusEl.classList.add('warn');
+      loginBtn.style.display = '';
+      logoutBtn.style.display = 'none';
+      return;
+    }
+    if (user.email !== OWNER_EMAIL) {
+      statusEl.textContent = `허용되지 않은 계정: ${user.email || '알 수 없음'}`;
+      statusEl.classList.add('warn');
+      loginBtn.style.display = '';
+      logoutBtn.style.display = 'none';
+      return;
+    }
+    statusEl.textContent = `접속 계정: ${user.email}`;
+    statusEl.classList.remove('warn');
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = '';
+  }
+
+  if (loginBtn) {
+    loginBtn.disabled = false;
+    loginBtn.addEventListener('click', () => {
+      window.signInOwner();
+    });
+  }
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      window.signOutOwner();
+    });
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (unsubProducts) {
+      unsubProducts();
+      unsubProducts = null;
+    }
+
+    updateAuthUi(user);
+
+    if (!user) {
+      window.products = [];
+      window.renderTable();
+      window.renderSummary();
+      return;
+    }
+
+    if (user.email !== OWNER_EMAIL) {
+      alert('이 앱은 지정된 계정만 사용할 수 있습니다.');
+      await signOut(auth);
+      return;
+    }
+
+    unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
+      window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+      window.renderTable();
+      window.renderSummary();
+    }, (err) => {
+      console.error(err);
+      alert('데이터 접근 실패: ' + err.message);
+    });
   });
 </script>
 </body>
