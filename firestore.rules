@@ -39,7 +39,7 @@ service cloud.firestore {
       && data.name.size() > 0
       && data.name.size() <= 80
       && isValidAmount(data.rental)
-      && isValidRate(data.contract)
+      && isValidAmount(data.contract)
       && isValidRate(data.halfDisc)
       && isValidRate(data.rerentalDisc)
       && isValidRate(data.disc)
