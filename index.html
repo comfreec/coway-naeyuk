@@ -155,6 +155,8 @@
     .impact-item { display: flex; align-items: center; gap: 10px; padding: 11px 12px; margin-bottom: 8px; background: rgba(255,255,255,0.08); border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); cursor: pointer; transition: all 0.18s ease; text-align: left; }
     .impact-item:hover { transform: translateY(-1px); background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.28); }
     .impact-item .ii-rank { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,215,0,0.2); color: #ffd873; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .impact-item .ii-thumb { width: 46px; height: 46px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.24); flex-shrink: 0; background: rgba(255,255,255,0.08); }
+    .impact-item .ii-thumb img { width: 100%; height: 100%; display: block; object-fit: cover; }
     .impact-item .ii-name { font-size: 0.81rem; font-weight: 600; color: rgba(255,255,255,0.92); flex: 1; margin-right: 6px; line-height: 1.3; }
     .impact-item .ii-prices { text-align: right; min-width: 122px; }
     .impact-item .ii-original { font-size: 0.7rem; color: rgba(255,255,255,0.45); text-decoration: line-through; }
@@ -179,6 +181,58 @@
     }
     .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
     .btn-impact:hover { transform: translateY(-1px); opacity: 1; }
+    .btn-big-benefit { background: linear-gradient(135deg, #0a63c0, #3d9eff); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(10,99,192,0.32); transition: all 0.2s; letter-spacing: 0.3px; }
+    .btn-big-benefit:hover { transform: translateY(-1px); opacity: 1; box-shadow: 0 6px 18px rgba(10,99,192,0.4); }
+
+    /* 할인 혜택 크게 보기 (고객용 라지 카드) */
+    .big-benefit-paper { position: relative; width: 640px; max-width: 96vw; max-height: 92vh; overflow-y: auto; border-radius: 28px; background: radial-gradient(ellipse 120% 80% at 50% 0%, #2f5fa3 0%, #1e3d6b 42%, #0f1f38 100%); box-shadow: 0 22px 70px rgba(0,20,50,0.65); padding: 28px 24px 22px; color: #fff; text-align: left; border: 1px solid rgba(255,255,255,0.15); animation: popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275); }
+    .big-benefit-paper .bb-close { top: 16px; right: 16px; }
+    .bb-brand { font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.55); margin-bottom: 6px; font-weight: 800; }
+    .bb-hero { display: flex; justify-content: center; align-items: center; margin: 0 auto 16px; max-width: 100%; }
+    .bb-hero svg { width: min(560px, 96vw); height: auto; filter: drop-shadow(0 16px 30px rgba(0,0,0,0.42)); }
+    .bb-title-block { text-align: center; margin-bottom: 18px; }
+    .bb-main-title { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 6px; text-shadow: 0 2px 20px rgba(0,0,0,0.25); }
+    .bb-sub-title { font-size: 0.88rem; color: rgba(255,255,255,0.78); font-weight: 500; }
+    .bb-kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .bb-kpi { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); border-radius: 16px; padding: 14px 12px; text-align: center; }
+    .bb-kpi .bk-label { font-size: 0.78rem; color: rgba(255,255,255,0.78); margin-bottom: 8px; font-weight: 600; }
+    .bb-kpi .bk-value { font-size: 1.25rem; font-weight: 900; color: #fff; }
+    .bb-kpi.gold { background: linear-gradient(145deg, rgba(255,215,0,0.22), rgba(255,180,0,0.1)); border-color: rgba(255,215,0,0.45); }
+    .bb-kpi.gold .bk-value { color: #ffeaa7; font-size: 1.45rem; }
+    .bb-best-banner { margin-bottom: 16px; padding: 14px 16px; border-radius: 18px; background: rgba(126,232,162,0.18); border: 1px solid rgba(126,232,162,0.5); font-size: 0.95rem; color: #e8fff0; text-align: center; line-height: 1.45; }
+    .bb-best-banner strong { color: #fff; font-size: 1.02rem; }
+    .bb-products-title { font-size: 0.82rem; font-weight: 800; color: rgba(255,255,255,0.65); margin-bottom: 10px; letter-spacing: 0.5px; }
+    .bb-sort-row { display: flex; gap: 8px; align-items: center; margin: 4px 0 12px; flex-wrap: wrap; }
+    .bb-sort-label { font-size: 0.74rem; font-weight: 700; color: rgba(255,255,255,0.66); letter-spacing: 0.3px; }
+    .bb-sort-btn { flex: unset; border: 1px solid rgba(255,255,255,0.26); background: rgba(255,255,255,0.1); color: #fff; font-size: 0.76rem; font-weight: 800; border-radius: 999px; padding: 7px 11px; cursor: pointer; }
+    .bb-sort-btn.active { background: rgba(255,215,0,0.22); border-color: rgba(255,215,0,0.55); color: #ffe486; }
+    .bb-lg-card { display: flex; align-items: stretch; gap: 14px; padding: 18px 18px; margin-bottom: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; cursor: pointer; transition: transform 0.2s, background 0.2s, border-color 0.2s; }
+    .bb-lg-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.3); }
+    .bb-lg-rank { min-width: 44px; width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, rgba(255,215,0,0.35), rgba(255,180,0,0.2)); border: 1px solid rgba(255,215,0,0.5); font-size: 1.25rem; font-weight: 900; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .bb-lg-thumb { width: 74px; min-width: 74px; height: 74px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.26); background: rgba(255,255,255,0.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+    .bb-lg-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .bb-lg-main { flex: 1; min-width: 0; }
+    .bb-lg-name { font-size: 1.06rem; font-weight: 800; color: #fff; margin-bottom: 10px; line-height: 1.35; }
+    .bb-lg-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.9rem; color: rgba(255,255,255,0.85); }
+    .bb-lg-row .strike { color: rgba(255,255,255,0.45); text-decoration: line-through; font-size: 0.82rem; }
+    .bb-lg-final { font-size: 1.35rem; font-weight: 900; color: #92ffc4; }
+    .bb-lg-badge { font-size: 0.85rem; font-weight: 900; color: #ffd873; margin-left: 4px; }
+    .bb-lg-saving { margin-top: 8px; font-size: 0.88rem; font-weight: 700; color: #ffd873; }
+    .bb-summary-block { margin-top: 8px; text-align: center; padding-top: 4px; }
+    .bb-summary-block .bbs-label { font-size: 0.88rem; color: rgba(255,255,255,0.78); margin-bottom: 6px; }
+    .bb-summary-block .bbs-value { font-size: 2.35rem; font-weight: 900; color: #ffeaa7; text-shadow: 0 0 24px rgba(255,215,0,0.35); line-height: 1.1; }
+    .bb-summary-block .bbs-sub { font-size: 0.88rem; color: rgba(255,255,255,0.62); margin-top: 6px; }
+    .bb-share-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: center; flex-wrap: wrap; }
+    .bb-share-actions .impact-share-btn { padding: 12px 20px; font-size: 0.84rem; }
+    @media (max-width: 767px) {
+      .big-benefit-paper { padding: 24px 16px 18px; }
+      .bb-kpi-grid { grid-template-columns: 1fr; }
+      .bb-main-title { font-size: 1.28rem; }
+      .bb-lg-final { font-size: 1.15rem; }
+      .bb-summary-block .bbs-value { font-size: 1.95rem; }
+      .bb-hero svg { width: min(430px, 96vw); }
+      .bb-lg-thumb { width: 62px; min-width: 62px; height: 62px; }
+    }
     .auth-card { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
     .auth-status { font-size: 0.8rem; color: #4b5d78; font-weight: 600; }
     .auth-status.warn { color: #c0392b; }
@@ -239,9 +293,11 @@
 </div>
 
 <div class="card">
-  <h2 style="display:flex;justify-content:space-between;align-items:center;">
+  <h2 style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;">
     <span>📋 할인 계산 내역</span>
-    <button class="btn-impact" onclick="openImpactModal()" id="impactBtn" style="display:none;padding:8px 14px;font-size:0.82rem;border-radius:10px;">🎯 혜택 한눈에 보기</button>
+    <span style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <button type="button" class="btn-big-benefit" onclick="openBigBenefitModal()" id="bigBenefitBtn" style="display:none;">📺 할인 혜택 크게 보기</button>
+    </span>
   </h2>
   <p style="font-size:0.75rem;color:#aaa;margin-bottom:10px;">행을 길게 누르면 입력폼에 자동 복사됩니다</p>
   <div class="result-wrap">
@@ -278,6 +334,50 @@
     <div id="impactBody"></div>
     <hr class="impact-divider">
     <div id="impactFooter"></div>
+  </div>
+</div>
+
+<!-- 할인 혜택 크게 보기 (고객용 대형 카드) -->
+<div class="modal-overlay" id="bigBenefitModal" onclick="closeBigBenefitModal(event)">
+  <div class="big-benefit-paper" id="bigBenefitPaper">
+    <button type="button" class="impact-close bb-close" onclick="closeBigBenefitModalDirect()">✕</button>
+    <div class="bb-brand">COWAY PREVIEW</div>
+    <div class="bb-hero" aria-hidden="true">
+      <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img">
+        <defs>
+          <linearGradient id="bbg1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4a9fff;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#0a5ab0;stop-opacity:1"/>
+          </linearGradient>
+          <linearGradient id="bbg2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffeaa7;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#ffb703;stop-opacity:1"/>
+          </linearGradient>
+          <filter id="bbglow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="6" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <ellipse cx="200" cy="200" rx="190" ry="46" fill="rgba(255,255,255,0.06)"/>
+        <circle cx="200" cy="95" r="62" fill="url(#bbg1)" filter="url(#bbglow)"/>
+        <circle cx="200" cy="95" r="48" fill="rgba(255,255,255,0.12)"/>
+        <text x="200" y="108" text-anchor="middle" fill="#fff" font-size="44" font-weight="800" font-family="system-ui,sans-serif">%</text>
+        <circle cx="95" cy="130" r="34" fill="url(#bbg2)" opacity="0.95"/>
+        <path d="M85 138 L93 146 L109 118" stroke="#1a2a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="305" cy="125" r="26" fill="rgba(146,255,196,0.35)" stroke="rgba(146,255,196,0.8)" stroke-width="2"/>
+        <path d="M305 118v16M297 126h16" stroke="#e8fff0" stroke-width="4" stroke-linecap="round"/>
+        <ellipse cx="200" cy="48" rx="70" ry="10" fill="rgba(255,215,0,0.25)"/>
+        <ellipse cx="120" cy="62" rx="12" ry="6" fill="rgba(255,255,255,0.35)"/>
+        <ellipse cx="278" cy="58" rx="16" ry="7" fill="rgba(255,255,255,0.28)"/>
+      </svg>
+    </div>
+    <div class="bb-title-block">
+      <div class="bb-main-title">할인 혜택 크게 보기</div>
+      <div class="bb-sub-title">고객님께 보여드리기 좋은 큰 카드 레이아웃입니다</div>
+    </div>
+    <div id="bigBenefitBody"></div>
+    <hr class="impact-divider">
+    <div id="bigBenefitFooter"></div>
   </div>
 </div>
 
@@ -357,6 +457,35 @@
 
   function fmt(n) { return n.toLocaleString('ko-KR') + '원'; }
   function pct(n) { return n > 0 ? n + '%' : '-'; }
+  function getProductVisualByName(name = '') {
+    const n = String(name).toLowerCase();
+    if (n.includes('정수기')) return { icon: '💧', c1: '#4facfe', c2: '#00f2fe', label: '정수기' };
+    if (n.includes('공기') || n.includes('청정')) return { icon: '🌿', c1: '#43e97b', c2: '#38f9d7', label: '공기청정기' };
+    if (n.includes('비데')) return { icon: '🚿', c1: '#6a11cb', c2: '#2575fc', label: '비데' };
+    if (n.includes('매트리스') || n.includes('매트')) return { icon: '🛏️', c1: '#f7971e', c2: '#ffd200', label: '매트리스' };
+    if (n.includes('안마') || n.includes('체어')) return { icon: '🪑', c1: '#ff6a88', c2: '#ff99ac', label: '안마의자' };
+    return { icon: '✨', c1: '#2f80ed', c2: '#56ccf2', label: '렌탈제품' };
+  }
+  function getProductThumbDataUri(name = '') {
+    const v = getProductVisualByName(name);
+    const text = String(name).slice(0, 20).replace(/[&<>"]/g, '');
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${v.c1}"/>
+            <stop offset="100%" stop-color="${v.c2}"/>
+          </linearGradient>
+        </defs>
+        <rect width="200" height="200" rx="26" fill="url(#g)"/>
+        <circle cx="154" cy="48" r="26" fill="rgba(255,255,255,0.22)"/>
+        <text x="32" y="96" font-size="56" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif">${v.icon}</text>
+        <rect x="18" y="128" width="164" height="50" rx="14" fill="rgba(0,0,0,0.2)"/>
+        <text x="100" y="147" text-anchor="middle" fill="white" font-size="16" font-weight="700" font-family="Pretendard, sans-serif">${v.label}</text>
+        <text x="100" y="167" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="11" font-weight="600" font-family="Pretendard, sans-serif">${text}</text>
+      </svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
 
   function calcProduct(raw) {
     const { rental=0, contract=0, halfDisc=0, rerentalDisc=0, disc=0,
@@ -463,14 +592,17 @@
     const tbody = document.getElementById('tableBody');
     const products = window.products || [];
     const btn = document.getElementById('impactBtn');
+    const bigBtn = document.getElementById('bigBenefitBtn');
     const countChip = document.getElementById('headerCountChip');
     if (countChip) countChip.textContent = `등록 제품 ${products.length}개`;
     if (products.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
       if (btn) btn.style.display = 'none';
+      if (bigBtn) bigBtn.style.display = 'none';
       window.renderSummary(); return;
     }
     if (btn) btn.style.display = '';
+    if (bigBtn) bigBtn.style.display = '';
     let totalRental = 0, totalDisc = 0, totalFinal = 0;
     // 정렬 적용
     const sorted = [...products].sort((a, b) => {
@@ -648,6 +780,8 @@
   let longPressTimer = null;
   let sortKey = 'rental';
   let sortDir = 1; // 1: 오름차순, -1: 내림차순
+  let bigSortKey = 'name';
+  let bigSortDir = 1;
 
   function sortTable(key) {
     if (sortKey === key) { sortDir *= -1; }
@@ -693,15 +827,49 @@
       setTimeout(() => row.style.background = '', 800);
     }
   }
-  function impactItemClick(id) {
-    document.getElementById('impactModal').style.zIndex = '999';
+  function benefitItemClick(id) {
+    const im = document.getElementById('impactModal');
+    const bb = document.getElementById('bigBenefitModal');
+    if (im.classList.contains('open')) im.style.zIndex = '999';
+    if (bb.classList.contains('open')) bb.style.zIndex = '999';
     openBestModal(id);
+  }
+
+  function getBenefitOverviewData(orderKey = sortKey, orderDir = sortDir) {
+    const prods = window.products || [];
+    if (prods.length === 0) return null;
+    const sorted = [...prods].sort((a, b) => {
+      const pa = calcProduct(a), pb = calcProduct(b);
+      const va = orderKey === 'name' ? (pa.name || '') : (pa[orderKey] || 0);
+      const vb = orderKey === 'name' ? (pb.name || '') : (pb[orderKey] || 0);
+      if (typeof va === 'string') return va.localeCompare(vb, 'ko') * orderDir;
+      return (va - vb) * orderDir;
+    });
+    const ps = sorted.map(calcProduct);
+    const totalRental = ps.reduce((s,p) => s + p.rental, 0);
+    const totalFinal  = ps.reduce((s,p) => s + p.finalAmt, 0);
+    const totalSaving = totalRental - totalFinal;
+    const avgRate = totalRental > 0 ? Math.round((totalSaving / totalRental) * 100) : 0;
+    const bestProduct = [...ps].sort((a, b) => b.totalDisc - a.totalDisc)[0];
+    return { ps, totalRental, totalFinal, totalSaving, avgRate, bestProduct };
+  }
+
+  function setBigBenefitSort(key) {
+    if (bigSortKey === key) bigSortDir *= -1;
+    else { bigSortKey = key; bigSortDir = 1; }
+    openBigBenefitModal(false);
   }
 
   function closeImpactModal(e) { if (e.target === document.getElementById('impactModal')) closeImpactModalDirect(); }
   function closeImpactModalDirect() {
     document.getElementById('impactModal').classList.remove('open');
-    if (history.state && history.state.modal) history.back();
+    if (history.state && history.state.modal === 'impact') history.back();
+  }
+
+  function closeBigBenefitModal(e) { if (e.target === document.getElementById('bigBenefitModal')) closeBigBenefitModalDirect(); }
+  function closeBigBenefitModalDirect() {
+    document.getElementById('bigBenefitModal').classList.remove('open');
+    if (history.state && history.state.modal === 'bigBenefit') history.back();
   }
 
   async function captureImpactModal() {
@@ -760,25 +928,69 @@
     }
   }
 
-  function openImpactModal() {
-    const prods = window.products || [];
-    if (prods.length === 0) return;
-
-    // 현재 정렬 순서 그대로 적용
-    const sorted = [...prods].sort((a, b) => {
-      const pa = calcProduct(a), pb = calcProduct(b);
-      const va = sortKey === 'name' ? (pa.name || '') : (pa[sortKey] || 0);
-      const vb = sortKey === 'name' ? (pb.name || '') : (pb[sortKey] || 0);
-      if (typeof va === 'string') return va.localeCompare(vb, 'ko') * sortDir;
-      return (va - vb) * sortDir;
+  async function captureBigBenefitModal() {
+    const paper = document.getElementById('bigBenefitPaper');
+    const closeBtn = paper.querySelector('.bb-close');
+    const shareRow = paper.querySelector('.bb-share-actions');
+    const prevMaxHeight = paper.style.maxHeight;
+    const prevOverflow = paper.style.overflowY;
+    if (closeBtn) closeBtn.style.display = 'none';
+    if (shareRow) shareRow.style.display = 'none';
+    paper.style.maxHeight = 'none';
+    paper.style.overflowY = 'visible';
+    await new Promise(r => setTimeout(r, 90));
+    const canvas = await html2canvas(paper, {
+      backgroundColor: '#0c182d',
+      scale: 2.5,
+      logging: false,
+      useCORS: true,
+      scrollY: -window.scrollY,
+      scrollX: -window.scrollX
     });
+    paper.style.maxHeight = prevMaxHeight;
+    paper.style.overflowY = prevOverflow;
+    if (closeBtn) closeBtn.style.display = '';
+    if (shareRow) shareRow.style.display = '';
+    return canvas;
+  }
 
-    const ps = sorted.map(calcProduct);
-    const totalRental = ps.reduce((s,p) => s + p.rental, 0);
-    const totalFinal  = ps.reduce((s,p) => s + p.finalAmt, 0);
-    const totalSaving = totalRental - totalFinal;
-    const avgRate = totalRental > 0 ? Math.round((totalSaving / totalRental) * 100) : 0;
-    const bestProduct = [...ps].sort((a, b) => b.totalDisc - a.totalDisc)[0];
+  async function shareBigBenefitImage() {
+    try {
+      const canvas = await captureBigBenefitModal();
+      const shareText = '코웨이 렌탈 할인 혜택을 크게 정리한 이미지입니다.';
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], `혜택크게보기_${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: '할인 혜택 크게 보기', text: shareText });
+          } catch (err) {
+            if (err.name !== 'AbortError') downloadCanvas(canvas, file.name);
+          }
+        } else {
+          downloadCanvas(canvas, file.name);
+          alert('이미지를 저장했습니다. 고객에게 전송해주세요.');
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error(err);
+      alert('이미지 생성에 실패했습니다.');
+    }
+  }
+
+  async function saveBigBenefitImage() {
+    try {
+      const canvas = await captureBigBenefitModal();
+      downloadCanvas(canvas, `혜택크게보기_${new Date().toISOString().slice(0,10)}.png`);
+    } catch (err) {
+      console.error(err);
+      alert('이미지 저장에 실패했습니다.');
+    }
+  }
+
+  function openImpactModal() {
+    const data = getBenefitOverviewData();
+    if (!data) return;
+    const { ps, totalRental, totalFinal, totalSaving, avgRate, bestProduct } = data;
 
     document.getElementById('impactBody').innerHTML = `
       <div class="impact-summary-grid">
@@ -799,8 +1011,10 @@
       ${ps.map((p, idx) => {
       const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
       const savingAmt = p.rental - p.finalAmt;
-      return `<div class="impact-item" onclick="impactItemClick('${p._id}')">
+      const thumb = getProductThumbDataUri(p.name);
+      return `<div class="impact-item" onclick="benefitItemClick('${p._id}')">
         <div class="ii-rank">${idx + 1}</div>
+        <div class="ii-thumb"><img src="${thumb}" alt="제품 이미지"></div>
         <div class="ii-name">${p.name}</div>
         <div class="ii-prices">
           <div class="ii-original">${fmt(p.rental)}</div>
@@ -825,15 +1039,73 @@
     history.pushState({ modal: 'impact' }, '');
   }
 
+  function openBigBenefitModal(pushHistory = true) {
+    const data = getBenefitOverviewData(bigSortKey, bigSortDir);
+    if (!data) return;
+    const { ps, totalRental, totalFinal, totalSaving, avgRate, bestProduct } = data;
+
+    document.getElementById('bigBenefitBody').innerHTML = `
+      <div class="bb-kpi-grid">
+        <div class="bb-kpi">
+          <div class="bk-label">총 제품 수</div>
+          <div class="bk-value">${ps.length}개</div>
+        </div>
+        <div class="bb-kpi">
+          <div class="bk-label">평균 할인율</div>
+          <div class="bk-value">${avgRate}%</div>
+        </div>
+        <div class="bb-kpi gold">
+          <div class="bk-label">월 절약 금액</div>
+          <div class="bk-value">${fmt(totalSaving)}</div>
+        </div>
+      </div>
+      ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${bestProduct.name}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
+      <div class="bb-products-title">제품별 할인 요약</div>
+      <div class="bb-sort-row">
+        <span class="bb-sort-label">정렬:</span>
+        <button type="button" class="bb-sort-btn ${bigSortKey === 'name' ? 'active' : ''}" onclick="setBigBenefitSort('name')">제품명${bigSortKey === 'name' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
+        <button type="button" class="bb-sort-btn ${bigSortKey === 'rental' ? 'active' : ''}" onclick="setBigBenefitSort('rental')">렌탈가격${bigSortKey === 'rental' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
+      </div>
+      ${ps.map((p, idx) => {
+        const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
+        const savingAmt = p.rental - p.finalAmt;
+        const thumb = getProductThumbDataUri(p.name);
+        return `<div class="bb-lg-card" onclick="benefitItemClick('${p._id}')">
+          <div class="bb-lg-rank">${idx + 1}</div>
+          <div class="bb-lg-thumb"><img src="${thumb}" alt="제품 이미지"></div>
+          <div class="bb-lg-main">
+            <div class="bb-lg-name">${p.name}</div>
+            <div class="bb-lg-row">
+              <span class="strike">${fmt(p.rental)}</span>
+              <span>→</span>
+              <span class="bb-lg-final">${fmt(p.finalAmt)}<span class="bb-lg-badge">-${rate}%</span></span>
+            </div>
+            <div class="bb-lg-saving">💰 매월 ${fmt(savingAmt)} 절약</div>
+          </div>
+        </div>`;
+      }).join('')}
+    `;
+
+    document.getElementById('bigBenefitFooter').innerHTML = `
+      <div class="bb-summary-block">
+        <div class="bbs-label">월 렌탈 합계 기준 총 절약</div>
+        <div class="bbs-value">▼ ${fmt(totalSaving)}</div>
+        <div class="bbs-sub">${fmt(totalRental)}에서 ${fmt(totalFinal)}로</div>
+      </div>
+      <div class="impact-share-row bb-share-actions">
+        <button type="button" class="impact-share-btn share" onclick="shareBigBenefitImage()">📤 이미지 공유</button>
+        <button type="button" class="impact-share-btn save" onclick="saveBigBenefitImage()">💾 이미지 저장</button>
+      </div>
+    `;
+
+    document.getElementById('bigBenefitModal').classList.add('open');
+    if (pushHistory) history.pushState({ modal: 'bigBenefit' }, '');
+  }
+
   function closeBestModal(e) { if (e.target === document.getElementById('bestModal')) closeBestModalDirect(); }
   function closeBestModalDirect() {
     document.getElementById('bestModal').classList.remove('open');
-    const im = document.getElementById('impactModal');
-    if (im.classList.contains('open')) {
-      im.style.zIndex = '1000';
-      return;
-    }
-    if (history.state && history.state.modal) history.back();
+    if (history.state && history.state.modal === 'best') history.back();
   }
 
   // 모달 간 스와이프 전환
@@ -901,19 +1173,13 @@
 
   function closeModalDirect() {
     document.getElementById('noteModal').classList.remove('open');
-    // impactModal이 뒤에 있으면 다시 앞으로
-    const im = document.getElementById('impactModal');
-    if (im.classList.contains('open')) {
-      im.style.zIndex = '1000';
-      return;
-    }
-    if (history.state && history.state.modal) history.back();
+    if (history.state && history.state.modal === 'note') history.back();
   }
 
   function closeEditModal(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
   function closeEditModalDirect() {
     document.getElementById('editModal').classList.remove('open');
-    if (history.state && history.state.modal) history.back();
+    if (history.state && history.state.modal === 'edit') history.back();
   }
 
   function closeAuthSetupModal(e) {
@@ -932,7 +1198,20 @@
     document.getElementById('editModal').classList.remove('open');
     document.getElementById('bestModal').classList.remove('open');
     document.getElementById('impactModal').classList.remove('open');
+    document.getElementById('bigBenefitModal').classList.remove('open');
     document.getElementById('authSetupModal').classList.remove('open');
+    const modal = history.state && history.state.modal;
+    if (modal === 'bigBenefit') {
+      document.getElementById('bigBenefitModal').classList.add('open');
+    } else if (modal === 'impact') {
+      document.getElementById('impactModal').classList.add('open');
+    } else if (modal === 'best') {
+      document.getElementById('bestModal').classList.add('open');
+    } else if (modal === 'note') {
+      document.getElementById('noteModal').classList.add('open');
+    } else if (modal === 'edit') {
+      document.getElementById('editModal').classList.add('open');
+    }
   });
 </script>
 
