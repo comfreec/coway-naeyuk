@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -144,12 +144,6 @@
     .impact-close { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.16); border: none; color: #fff; font-size: 1.05rem; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; flex: unset; padding: 0; }
     .impact-badge { display: inline-block; background: linear-gradient(135deg, #ffd873, #ffb703); color: #302300; font-size: 0.76rem; font-weight: 900; padding: 5px 13px; border-radius: 999px; margin-bottom: 8px; letter-spacing: 0.8px; }
     .impact-title { font-size: 1.34rem; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -0.2px; }
-    .impact-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
-    .impact-kpi { background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 10px 8px; text-align: center; }
-    .impact-kpi .k-label { font-size: 0.69rem; color: rgba(255,255,255,0.75); margin-bottom: 5px; }
-    .impact-kpi .k-value { font-size: 0.95rem; font-weight: 800; color: #fff; }
-    .impact-kpi.highlight { background: rgba(255, 215, 0, 0.17); border-color: rgba(255, 215, 0, 0.45); }
-    .impact-kpi.highlight .k-value { color: #ffe486; }
     .impact-best { margin-bottom: 10px; padding: 11px 12px; border-radius: 14px; background: rgba(126,232,162,0.14); border: 1px solid rgba(126,232,162,0.45); font-size: 0.82rem; color: #dafee7; }
     .impact-best strong { color: #fff; font-size: 0.88rem; }
     .impact-item { display: flex; align-items: center; gap: 10px; padding: 11px 12px; margin-bottom: 8px; background: rgba(255,255,255,0.08); border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); cursor: pointer; transition: all 0.18s ease; text-align: left; }
@@ -164,9 +158,6 @@
     .impact-item .ii-saving { font-size: 0.72rem; color: #ffd873; font-weight: 700; margin-top: 2px; }
     .impact-item .ii-badge { background: none; color: #ffd873; font-size: 0.72rem; font-weight: 900; margin-left: 4px; vertical-align: middle; }
     .impact-divider { border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 12px 0; }
-    .impact-saving-label { font-size: 0.78rem; color: rgba(255,255,255,0.74); margin-bottom: 4px; text-align: center; }
-    .impact-saving { font-size: 2.1rem; font-weight: 900; color: #ffe486; text-align: center; text-shadow: 0 0 18px rgba(255,215,0,0.34); }
-    .impact-saving-sub { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 3px; text-align: center; }
     .impact-share-row { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
     .impact-share-btn { flex: unset; border: none; border-radius: 999px; padding: 10px 15px; font-size: 0.78rem; font-weight: 800; color: #fff; cursor: pointer; }
     .impact-share-btn.share { background: linear-gradient(135deg, #2f80ed, #56ccf2); }
@@ -174,9 +165,6 @@
     .impact-share-btn:hover { opacity: 0.9; }
     @media (max-width: 767px) {
       .impact-modal { width: 440px; padding: 24px 14px 16px; }
-      .impact-summary-grid { grid-template-columns: 1fr; gap: 6px; }
-      .impact-kpi { text-align: left; padding: 9px 10px; }
-      .impact-kpi .k-value { font-size: 1rem; }
       .impact-item .ii-prices { min-width: 106px; }
     }
     .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
@@ -193,12 +181,6 @@
     .bb-title-block { text-align: center; margin-bottom: 18px; }
     .bb-main-title { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 6px; text-shadow: 0 2px 20px rgba(0,0,0,0.25); }
     .bb-sub-title { font-size: 0.88rem; color: rgba(255,255,255,0.78); font-weight: 500; }
-    .bb-kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .bb-kpi { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); border-radius: 16px; padding: 14px 12px; text-align: center; }
-    .bb-kpi .bk-label { font-size: 0.78rem; color: rgba(255,255,255,0.78); margin-bottom: 8px; font-weight: 600; }
-    .bb-kpi .bk-value { font-size: 1.25rem; font-weight: 900; color: #fff; }
-    .bb-kpi.gold { background: linear-gradient(145deg, rgba(255,215,0,0.22), rgba(255,180,0,0.1)); border-color: rgba(255,215,0,0.45); }
-    .bb-kpi.gold .bk-value { color: #ffeaa7; font-size: 1.45rem; }
     .bb-best-banner { margin-bottom: 16px; padding: 14px 16px; border-radius: 18px; background: rgba(126,232,162,0.18); border: 1px solid rgba(126,232,162,0.5); font-size: 0.95rem; color: #e8fff0; text-align: center; line-height: 1.45; }
     .bb-best-banner strong { color: #fff; font-size: 1.02rem; }
     .bb-products-title { font-size: 0.82rem; font-weight: 800; color: rgba(255,255,255,0.65); margin-bottom: 10px; letter-spacing: 0.5px; }
@@ -218,20 +200,30 @@
     .bb-lg-final { font-size: 1.35rem; font-weight: 900; color: #92ffc4; }
     .bb-lg-badge { font-size: 0.85rem; font-weight: 900; color: #ffd873; margin-left: 4px; }
     .bb-lg-saving { margin-top: 8px; font-size: 0.88rem; font-weight: 700; color: #ffd873; }
-    .bb-summary-block { margin-top: 8px; text-align: center; padding-top: 4px; }
-    .bb-summary-block .bbs-label { font-size: 0.88rem; color: rgba(255,255,255,0.78); margin-bottom: 6px; }
-    .bb-summary-block .bbs-value { font-size: 2.35rem; font-weight: 900; color: #ffeaa7; text-shadow: 0 0 24px rgba(255,215,0,0.35); line-height: 1.1; }
-    .bb-summary-block .bbs-sub { font-size: 0.88rem; color: rgba(255,255,255,0.62); margin-top: 6px; }
     .bb-share-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: center; flex-wrap: wrap; }
     .bb-share-actions .impact-share-btn { padding: 12px 20px; font-size: 0.84rem; }
+    .table-name-filter-wrap { margin-bottom: 10px; }
+    .table-name-filter-wrap label { display: block; font-size: 0.75rem; font-weight: 700; color: #5a6b7e; margin-bottom: 4px; }
+    .table-name-filter { width: 100%; max-width: 360px; box-sizing: border-box; padding: 8px 11px; border-radius: 10px; border: 1px solid #d7e3f3; font-size: 0.88rem; }
+    .table-name-filter::placeholder { color: #9aa8b8; }
+    .table-filter-meta { font-size: 0.72rem; color: #7a8a9e; margin: -2px 0 6px; min-height: 1.2em; }
+    .bb-toolbar { margin: 0 0 14px; }
+    .bb-toolbar .bb-search-label { display: block; font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.78); margin-bottom: 6px; }
+    .bb-toolbar .bb-name-filter { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.28); background: rgba(255,255,255,0.1); color: #fff; font-size: 0.95rem; }
+    .bb-toolbar .bb-name-filter::placeholder { color: rgba(255,255,255,0.45); }
+    .bb-empty-filter { text-align: center; color: rgba(255,255,255,0.72); padding: 22px 10px; border: 1px dashed rgba(255,255,255,0.25); border-radius: 16px; background: rgba(255,255,255,0.06); }
+    .bb-scroll-btns { position: fixed; right: 20px; bottom: 80px; display: none; flex-direction: column; gap: 10px; z-index: 1100; }
+    .bb-scroll-btns.visible { display: flex; }
+    .bb-scroll-btn { width: 46px; height: 46px; border-radius: 50%; border: none; background: rgba(255,255,255,0.18); backdrop-filter: blur(6px); color: #fff; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.35); transition: background 0.15s, transform 0.15s; flex: unset; padding: 0; }
+    .bb-scroll-btn:hover { background: rgba(255,255,255,0.32); transform: scale(1.1); opacity: 1; }
+    .bb-scroll-btn:active { transform: scale(0.95); }
     @media (max-width: 767px) {
       .big-benefit-paper { padding: 24px 16px 18px; }
-      .bb-kpi-grid { grid-template-columns: 1fr; }
       .bb-main-title { font-size: 1.28rem; }
       .bb-lg-final { font-size: 1.15rem; }
-      .bb-summary-block .bbs-value { font-size: 1.95rem; }
       .bb-hero svg { width: min(430px, 96vw); }
       .bb-lg-thumb { width: 62px; min-width: 62px; height: 62px; }
+      .bb-scroll-btns { right: 12px; bottom: 70px; }
     }
     .auth-card { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
     .auth-status { font-size: 0.8rem; color: #4b5d78; font-weight: 600; }
@@ -245,6 +237,21 @@
     .setup-modal ol { padding-left: 18px; margin-bottom: 14px; }
     .setup-modal li { font-size: 0.85rem; line-height: 1.5; color: #334155; margin-bottom: 4px; }
     .setup-actions { display: flex; justify-content: flex-end; }
+
+    /* 일괄변경 모달 */
+    .bulk-modal { width: 480px; max-width: 96vw; max-height: 90vh; overflow-y: auto; padding: 24px 20px; border-radius: 18px; background: #fff; box-shadow: 0 8px 30px rgba(0,0,0,0.22); }
+    .bulk-modal h3 { font-size: 1rem; font-weight: 800; color: #0a4d98; margin-bottom: 6px; }
+    .bulk-modal .bulk-desc { font-size: 0.78rem; color: #7a8aaa; margin-bottom: 16px; line-height: 1.5; }
+    .bulk-field-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #edf2fb; }
+    .bulk-field-row:last-of-type { border-bottom: none; }
+    .bulk-field-label { flex: 1; font-size: 0.85rem; font-weight: 600; color: #334155; }
+    .bulk-field-input { width: 130px; padding: 8px 10px; border: 1.5px solid #d9e5f6; border-radius: 9px; font-size: 0.88rem; font-family: inherit; outline: none; text-align: right; }
+    .bulk-field-input:focus { border-color: #0a67cb; box-shadow: 0 0 0 3px rgba(20,114,212,0.1); }
+    .bulk-field-unit { font-size: 0.8rem; color: #7a8aaa; min-width: 20px; }
+    .bulk-apply-btn { width: 100%; margin-top: 16px; padding: 13px; background: linear-gradient(135deg, #0a63c0, #2491ff); color: #fff; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer; font-family: inherit; }
+    .bulk-apply-btn:hover { opacity: 0.88; }
+    .btn-bulk { background: linear-gradient(135deg, #6a11cb, #9b59b6); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(106,17,203,0.28); transition: all 0.2s; letter-spacing: 0.3px; }
+    .btn-bulk:hover { transform: translateY(-1px); opacity: 1; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -255,7 +262,6 @@
   <h1>🌊 코웨이 렌탈료 할인 내역서</h1>
   <p class="subtitle">제품별 할인 내역을 입력하면 최종 납부금액을 자동으로 계산합니다</p>
   <div class="header-meta">
-    <span class="header-chip" id="headerCountChip">등록 제품 0개</span>
     <span class="header-chip">실시간 자동 계산</span>
   </div>
 </div>
@@ -296,10 +302,16 @@
   <h2 style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;">
     <span>📋 할인 계산 내역</span>
     <span style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <button type="button" class="btn-bulk" onclick="openBulkModal()" id="bulkEditBtn" style="display:none;">⚡ 일괄 변경</button>
       <button type="button" class="btn-big-benefit" onclick="openBigBenefitModal()" id="bigBenefitBtn" style="display:none;">📺 할인 혜택 크게 보기</button>
     </span>
   </h2>
   <p style="font-size:0.75rem;color:#aaa;margin-bottom:10px;">행을 길게 누르면 입력폼에 자동 복사됩니다</p>
+  <div class="table-name-filter-wrap">
+    <label for="tableNameFilter">제품명 검색</label>
+    <input type="search" id="tableNameFilter" class="table-name-filter" placeholder="제품명을 입력하세요" autocomplete="off" oninput="window.renderTable()" />
+  </div>
+  <p class="table-filter-meta" id="tableFilterMeta" aria-live="polite"></p>
   <div class="result-wrap">
     <table id="resultTable">
       <thead>
@@ -375,9 +387,17 @@
       <div class="bb-main-title">할인 혜택 크게 보기</div>
       <div class="bb-sub-title">고객님께 보여드리기 좋은 큰 카드 레이아웃입니다</div>
     </div>
+    <div class="bb-toolbar" id="bigBenefitToolbar" style="display:none;">
+      <label class="bb-search-label" for="bigBenefitNameFilter">제품명 검색</label>
+      <input type="search" id="bigBenefitNameFilter" class="bb-name-filter" placeholder="제품명을 입력하세요" autocomplete="off" />
+    </div>
     <div id="bigBenefitBody"></div>
     <hr class="impact-divider">
     <div id="bigBenefitFooter"></div>
+  </div>
+  <div class="bb-scroll-btns" id="bbScrollBtns">
+    <button type="button" class="bb-scroll-btn" id="bbScrollUp" aria-label="위로 이동">▲</button>
+    <button type="button" class="bb-scroll-btn" id="bbScrollDown" aria-label="아래로 이동">▼</button>
   </div>
 </div>
 
@@ -406,6 +426,66 @@
       <button class="btn-add" onclick="saveEdit()">💾 저장</button>
       <button class="btn-reset" onclick="closeEditModalDirect()">취소</button>
     </div>
+  </div>
+</div>
+
+<!-- 일괄 변경 모달 -->
+<div class="modal-overlay" id="bulkModal" onclick="closeBulkModal(event)">
+  <div class="bulk-modal" style="position:relative;">
+    <button type="button" onclick="closeBulkModalDirect()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.4rem;color:#999;cursor:pointer;padding:0;line-height:1;">✕</button>
+    <h3>⚡ 일괄 변경</h3>
+    <p class="bulk-desc">값을 입력한 항목만 전체 제품에 적용됩니다. 비워두면 해당 항목은 변경되지 않습니다.</p>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">약정 할인금액</span>
+      <input type="number" class="bulk-field-input" id="bulk_contract" placeholder="미변경" min="0" />
+      <span class="bulk-field-unit">원</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">반값 할인율</span>
+      <input type="number" class="bulk-field-input" id="bulk_halfDisc" placeholder="미변경" min="0" max="100" />
+      <span class="bulk-field-unit">%</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">재렌탈 할인율</span>
+      <input type="number" class="bulk-field-input" id="bulk_rerentalDisc" placeholder="미변경" min="0" max="100" />
+      <span class="bulk-field-unit">%</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">기본 할인율</span>
+      <input type="number" class="bulk-field-input" id="bulk_disc" placeholder="미변경" min="0" max="100" />
+      <span class="bulk-field-unit">%</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">추가 할인율</span>
+      <input type="number" class="bulk-field-input" id="bulk_extraDisc" placeholder="미변경" min="0" max="100" />
+      <span class="bulk-field-unit">%</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">결합 할인율</span>
+      <input type="number" class="bulk-field-input" id="bulk_bundleDisc" placeholder="미변경" min="0" max="100" />
+      <span class="bulk-field-unit">%</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">동시구매 할인율</span>
+      <input type="number" class="bulk-field-input" id="bulk_multiDisc" placeholder="미변경" min="0" max="100" />
+      <span class="bulk-field-unit">%</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">타사보상 할인금액</span>
+      <input type="number" class="bulk-field-input" id="bulk_competitor" placeholder="미변경" min="0" />
+      <span class="bulk-field-unit">원</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">코라솔 할인금액</span>
+      <input type="number" class="bulk-field-input" id="bulk_corasol" placeholder="미변경" min="0" />
+      <span class="bulk-field-unit">원</span>
+    </div>
+    <div class="bulk-field-row">
+      <span class="bulk-field-label">신용카드 할인금액</span>
+      <input type="number" class="bulk-field-input" id="bulk_card" placeholder="미변경" min="0" />
+      <span class="bulk-field-unit">원</span>
+    </div>
+    <button type="button" class="bulk-apply-btn" onclick="applyBulkEdit()">전체 제품에 적용</button>
   </div>
 </div>
 
@@ -454,9 +534,41 @@
 
 <script>
   let products = [];
+  // 자동 오픈 규칙:
+  // - 새로고침하면 다시 자동 오픈
+  // - 같은 로드(현재 페이지)에서는 "딱 1번만" 자동 오픈
+  // - 사용자가 닫으면 그 로드에서는 다시 자동 오픈하지 않음
+  let didAutoOpenBigBenefitThisLoad = false;
+  let dismissedBigBenefitThisLoad = false;
+  function shouldAutoOpenBigBenefit() {
+    return !didAutoOpenBigBenefitThisLoad && !dismissedBigBenefitThisLoad;
+  }
+
+  // 홈 이탈(앱 종료처럼 보임) 방지용 히스토리 가드.
+  // 최초 진입 시 home -> home_guard 스택을 만들어 모달을 닫고 나서도
+  // back 1~2번은 홈에서 머물도록 함.
+  try {
+    if (!history.state || !history.state.modal) {
+      history.replaceState({ modal: 'home' }, '');
+      history.pushState({ modal: 'home_guard' }, '');
+    }
+  } catch (e) {}
 
   function fmt(n) { return n.toLocaleString('ko-KR') + '원'; }
   function pct(n) { return n > 0 ? n + '%' : '-'; }
+  function nameMatchesQuery(name, query) {
+    const q = String(query || '').trim().toLowerCase();
+    if (!q) return true;
+    return String(name || '').toLowerCase().includes(q);
+  }
+  function escapeHtml(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  let bigBenefitNameSearch = '';
   function getProductVisualByName(name = '') {
     const n = String(name).toLowerCase();
     if (n.includes('정수기')) return { icon: '💧', c1: '#4facfe', c2: '#00f2fe', label: '정수기' };
@@ -591,18 +703,36 @@
   window.renderTable = function() {
     const tbody = document.getElementById('tableBody');
     const products = window.products || [];
-    const btn = document.getElementById('impactBtn');
     const bigBtn = document.getElementById('bigBenefitBtn');
-    const countChip = document.getElementById('headerCountChip');
-    if (countChip) countChip.textContent = `등록 제품 ${products.length}개`;
+    const bulkBtn = document.getElementById('bulkEditBtn');
     if (products.length === 0) {
+      const meta0 = document.getElementById('tableFilterMeta');
+      if (meta0) meta0.textContent = '';
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
-      if (btn) btn.style.display = 'none';
       if (bigBtn) bigBtn.style.display = 'none';
+      if (bulkBtn) bulkBtn.style.display = 'none';
+      if (shouldAutoOpenBigBenefit()) {
+        didAutoOpenBigBenefitThisLoad = true;
+        openBigBenefitModal();
+      }
       window.renderSummary(); return;
     }
-    if (btn) btn.style.display = '';
     if (bigBtn) bigBtn.style.display = '';
+    if (bulkBtn) bulkBtn.style.display = '';
+    if (shouldAutoOpenBigBenefit()) {
+      didAutoOpenBigBenefitThisLoad = true;
+      openBigBenefitModal();
+    }
+    const nameQ = (document.getElementById('tableNameFilter') && document.getElementById('tableNameFilter').value) || '';
+    const metaEl = document.getElementById('tableFilterMeta');
+    if (metaEl) {
+      if (nameQ.trim() && products.length > 0) {
+        const nMatch = products.filter((raw) => nameMatchesQuery(raw.name, nameQ)).length;
+        metaEl.textContent = nMatch === products.length
+          ? `전체 ${products.length}개 표시`
+          : `검색 결과 ${nMatch}개 (전체 ${products.length}개)`;
+      } else metaEl.textContent = '';
+    }
     let totalRental = 0, totalDisc = 0, totalFinal = 0;
     // 정렬 적용
     const sorted = [...products].sort((a, b) => {
@@ -612,11 +742,18 @@
       if (typeof va === 'string') return va.localeCompare(vb, 'ko') * sortDir;
       return (va - vb) * sortDir;
     });
-    let rows = sorted.map((raw) => {
+    const filtered = sorted.filter((raw) => nameMatchesQuery(raw.name, nameQ));
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">' +
+        (nameQ.trim() ? '검색 조건에 맞는 제품이 없습니다' : '아직 추가된 제품이 없습니다') + '</td></tr>';
+      window.renderSummary();
+      return;
+    }
+    let rows = filtered.map((raw) => {
       const p = calcProduct(raw);
       totalRental += p.rental; totalDisc += p.totalDisc; totalFinal += p.finalAmt;
       return `<tr oncontextmenu="copyToForm('${p._id}');return false;" ontouchstart="startLongPress('${p._id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="cursor:pointer;">
-        <td style="text-align:left;font-weight:600">${p.name}</td>
+        <td style="text-align:left;font-weight:600">${escapeHtml(p.name)}</td>
         <td>${fmt(p.rental)}</td>
         <td style="color:#0057a8;font-weight:700">${fmt(p.finalAmt)}</td>
         <td>
@@ -642,11 +779,9 @@
     const totalRental = ps.reduce((s,p) => s+p.rental, 0);
     const totalDisc   = ps.reduce((s,p) => s+p.totalDisc, 0);
     const totalFinal  = ps.reduce((s,p) => s+p.finalAmt, 0);
-    const discPct = totalRental > 0 ? ((totalDisc/totalRental)*100).toFixed(1) : 0;
     grid.innerHTML = `
       <div class="summary-item"><div class="s-label">총 렌탈료 (할인 전)</div><div class="s-value">${fmt(totalRental)}</div></div>
       <div class="summary-item"><div class="s-label">총 할인금액</div><div class="s-value" style="color:#c0392b">▼ ${fmt(totalDisc)}</div></div>
-      <div class="summary-item"><div class="s-label">평균 할인율</div><div class="s-value" style="color:#27ae60">${discPct}%</div></div>
       <div class="summary-item highlight"><div class="s-label">월 최종 납부금액</div><div class="s-value">${fmt(totalFinal)}</div></div>`;
   };
 
@@ -780,8 +915,8 @@
   let longPressTimer = null;
   let sortKey = 'rental';
   let sortDir = 1; // 1: 오름차순, -1: 내림차순
-  let bigSortKey = 'name';
-  let bigSortDir = 1;
+  let bigSortKey = 'rental';
+  let bigSortDir = 1; // 렌탈가 낮은 순(싼 것부터)
 
   function sortTable(key) {
     if (sortKey === key) { sortDir *= -1; }
@@ -846,12 +981,8 @@
       return (va - vb) * orderDir;
     });
     const ps = sorted.map(calcProduct);
-    const totalRental = ps.reduce((s,p) => s + p.rental, 0);
-    const totalFinal  = ps.reduce((s,p) => s + p.finalAmt, 0);
-    const totalSaving = totalRental - totalFinal;
-    const avgRate = totalRental > 0 ? Math.round((totalSaving / totalRental) * 100) : 0;
     const bestProduct = [...ps].sort((a, b) => b.totalDisc - a.totalDisc)[0];
-    return { ps, totalRental, totalFinal, totalSaving, avgRate, bestProduct };
+    return { ps, bestProduct };
   }
 
   function setBigBenefitSort(key) {
@@ -869,8 +1000,40 @@
   function closeBigBenefitModal(e) { if (e.target === document.getElementById('bigBenefitModal')) closeBigBenefitModalDirect(); }
   function closeBigBenefitModalDirect() {
     document.getElementById('bigBenefitModal').classList.remove('open');
+    dismissedBigBenefitThisLoad = true;
+    bigBenefitNameSearch = '';
+    const bf = document.getElementById('bigBenefitNameFilter');
+    if (bf) bf.value = '';
     if (history.state && history.state.modal === 'bigBenefit') history.back();
   }
+
+  // 할인 혜택 크게 보기 모달 스크롤 버튼
+  (function() {
+    function updateScrollBtns() {
+      const modal = document.getElementById('bigBenefitModal');
+      const btns = document.getElementById('bbScrollBtns');
+      if (!btns) return;
+      btns.classList.toggle('visible', modal && modal.classList.contains('open'));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const upBtn = document.getElementById('bbScrollUp');
+      const downBtn = document.getElementById('bbScrollDown');
+      if (!upBtn || !downBtn) return;
+
+      upBtn.addEventListener('click', () => {
+        document.getElementById('bigBenefitPaper').scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      downBtn.addEventListener('click', () => {
+        const paper = document.getElementById('bigBenefitPaper');
+        paper.scrollTo({ top: paper.scrollHeight, behavior: 'smooth' });
+      });
+
+      const observer = new MutationObserver(updateScrollBtns);
+      const modal = document.getElementById('bigBenefitModal');
+      if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    });
+  })();
 
   async function captureImpactModal() {
     const impactPaper = document.getElementById('impactPaper');
@@ -990,23 +1153,9 @@
   function openImpactModal() {
     const data = getBenefitOverviewData();
     if (!data) return;
-    const { ps, totalRental, totalFinal, totalSaving, avgRate, bestProduct } = data;
+    const { ps, bestProduct } = data;
 
     document.getElementById('impactBody').innerHTML = `
-      <div class="impact-summary-grid">
-        <div class="impact-kpi">
-          <div class="k-label">총 제품 수</div>
-          <div class="k-value">${ps.length}개</div>
-        </div>
-        <div class="impact-kpi">
-          <div class="k-label">평균 할인율</div>
-          <div class="k-value">${avgRate}%</div>
-        </div>
-        <div class="impact-kpi highlight">
-          <div class="k-label">월 절약 금액</div>
-          <div class="k-value">${fmt(totalSaving)}</div>
-        </div>
-      </div>
       ${bestProduct ? `<div class="impact-best">🏆 가장 혜택이 큰 제품: <strong>${bestProduct.name}</strong> (월 ${fmt(bestProduct.totalDisc)} 절약)</div>` : ''}
       ${ps.map((p, idx) => {
       const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
@@ -1026,9 +1175,6 @@
     `;
 
     document.getElementById('impactFooter').innerHTML = `
-      <div class="impact-saving-label">원래 ${fmt(totalRental)}에서</div>
-      <div class="impact-saving">▼ ${fmt(totalSaving)} 절약!</div>
-      <div class="impact-saving-sub">매달 이만큼 아낄 수 있어요 😊</div>
       <div class="impact-share-row">
         <button type="button" class="impact-share-btn share" onclick="shareImpactImage()">📤 이미지 공유</button>
         <button type="button" class="impact-share-btn save" onclick="saveImpactImage()">💾 이미지 저장</button>
@@ -1039,42 +1185,19 @@
     history.pushState({ modal: 'impact' }, '');
   }
 
-  function openBigBenefitModal(pushHistory = true) {
-    const data = getBenefitOverviewData(bigSortKey, bigSortDir);
-    if (!data) return;
-    const { ps, totalRental, totalFinal, totalSaving, avgRate, bestProduct } = data;
-
-    document.getElementById('bigBenefitBody').innerHTML = `
-      <div class="bb-kpi-grid">
-        <div class="bb-kpi">
-          <div class="bk-label">총 제품 수</div>
-          <div class="bk-value">${ps.length}개</div>
-        </div>
-        <div class="bb-kpi">
-          <div class="bk-label">평균 할인율</div>
-          <div class="bk-value">${avgRate}%</div>
-        </div>
-        <div class="bb-kpi gold">
-          <div class="bk-label">월 절약 금액</div>
-          <div class="bk-value">${fmt(totalSaving)}</div>
-        </div>
-      </div>
-      ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${bestProduct.name}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
-      <div class="bb-products-title">제품별 할인 요약</div>
-      <div class="bb-sort-row">
-        <span class="bb-sort-label">정렬:</span>
-        <button type="button" class="bb-sort-btn ${bigSortKey === 'name' ? 'active' : ''}" onclick="setBigBenefitSort('name')">제품명${bigSortKey === 'name' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
-        <button type="button" class="bb-sort-btn ${bigSortKey === 'rental' ? 'active' : ''}" onclick="setBigBenefitSort('rental')">렌탈가격${bigSortKey === 'rental' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
-      </div>
-      ${ps.map((p, idx) => {
-        const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
-        const savingAmt = p.rental - p.finalAmt;
-        const thumb = getProductThumbDataUri(p.name);
-        return `<div class="bb-lg-card" onclick="benefitItemClick('${p._id}')">
+  function buildBigBenefitProductCardsHtml(psShown) {
+    if (!psShown || psShown.length === 0) {
+      return '<div class="bb-empty-filter">검색 조건에 맞는 제품이 없습니다.</div>';
+    }
+    return psShown.map((p, idx) => {
+      const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
+      const savingAmt = p.rental - p.finalAmt;
+      const thumb = getProductThumbDataUri(p.name);
+      return `<div class="bb-lg-card" onclick="benefitItemClick('${p._id}')">
           <div class="bb-lg-rank">${idx + 1}</div>
           <div class="bb-lg-thumb"><img src="${thumb}" alt="제품 이미지"></div>
           <div class="bb-lg-main">
-            <div class="bb-lg-name">${p.name}</div>
+            <div class="bb-lg-name">${escapeHtml(p.name)}</div>
             <div class="bb-lg-row">
               <span class="strike">${fmt(p.rental)}</span>
               <span>→</span>
@@ -1083,15 +1206,61 @@
             <div class="bb-lg-saving">💰 매월 ${fmt(savingAmt)} 절약</div>
           </div>
         </div>`;
-      }).join('')}
+    }).join('');
+  }
+
+  function refreshBigBenefitProductList() {
+    const data = getBenefitOverviewData(bigSortKey, bigSortDir);
+    const listEl = document.getElementById('bigBenefitProductList');
+    if (!data || !listEl) return;
+    if (data.ps.length === 0) { listEl.innerHTML = ''; return; }
+    const shown = data.ps.filter((p) => nameMatchesQuery(p.name, bigBenefitNameSearch));
+    listEl.innerHTML = buildBigBenefitProductCardsHtml(shown);
+  }
+
+  function openBigBenefitModal(pushHistory = true) {
+    const data = getBenefitOverviewData(bigSortKey, bigSortDir);
+    const hasData = !!data;
+    const ps = hasData ? data.ps : [];
+    const bestProduct = hasData ? data.bestProduct : null;
+    const emptyAll = ps.length === 0;
+
+    document.getElementById('bigBenefitBody').innerHTML = `
+      ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${escapeHtml(bestProduct.name)}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
+      <div class="bb-products-title">제품별 할인 요약</div>
+      <div class="bb-sort-row">
+        <span class="bb-sort-label">정렬:</span>
+        <button type="button" class="bb-sort-btn ${bigSortKey === 'name' ? 'active' : ''}" onclick="setBigBenefitSort('name')">제품명${bigSortKey === 'name' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
+        <button type="button" class="bb-sort-btn ${bigSortKey === 'rental' ? 'active' : ''}" onclick="setBigBenefitSort('rental')">렌탈가격${bigSortKey === 'rental' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
+      </div>
+      ${emptyAll ? `<div style="text-align:center;color:rgba(255,255,255,0.7);padding:22px 6px;border:1px dashed rgba(255,255,255,0.25);border-radius:16px;background:rgba(255,255,255,0.06);">아직 추가된 제품이 없습니다.<br>아래에서 <strong style="color:#fff;">계산 추가</strong> 후 다시 확인해주세요.</div>` : '<div id="bigBenefitProductList"></div>'}
     `;
 
+    if (!emptyAll) {
+      const listEl = document.getElementById('bigBenefitProductList');
+      if (listEl) {
+        const shown = ps.filter((p) => nameMatchesQuery(p.name, bigBenefitNameSearch));
+        listEl.innerHTML = buildBigBenefitProductCardsHtml(shown);
+      }
+    }
+
+    const tb = document.getElementById('bigBenefitToolbar');
+    const filterEl = document.getElementById('bigBenefitNameFilter');
+    if (tb && filterEl) {
+      tb.style.display = hasData && ps.length > 0 ? 'block' : 'none';
+      if (ps.length > 0) {
+        filterEl.value = bigBenefitNameSearch;
+        if (!filterEl.dataset.bbListen) {
+          filterEl.dataset.bbListen = '1';
+          filterEl.addEventListener('input', () => {
+            bigBenefitNameSearch = filterEl.value;
+            refreshBigBenefitProductList();
+          });
+        }
+      }
+    }
+
     document.getElementById('bigBenefitFooter').innerHTML = `
-      <div class="bb-summary-block">
-        <div class="bbs-label">월 렌탈 합계 기준 총 절약</div>
-        <div class="bbs-value">▼ ${fmt(totalSaving)}</div>
-        <div class="bbs-sub">${fmt(totalRental)}에서 ${fmt(totalFinal)}로</div>
-      </div>
       <div class="impact-share-row bb-share-actions">
         <button type="button" class="impact-share-btn share" onclick="shareBigBenefitImage()">📤 이미지 공유</button>
         <button type="button" class="impact-share-btn save" onclick="saveBigBenefitImage()">💾 이미지 저장</button>
@@ -1099,7 +1268,11 @@
     `;
 
     document.getElementById('bigBenefitModal').classList.add('open');
-    if (pushHistory) history.pushState({ modal: 'bigBenefit' }, '');
+    if (pushHistory) {
+      // 같은 모달 상태를 중복으로 쌓지 않아서 닫기/뒤로가기 시 재오픈되는 현상 방지
+      const cur = history.state && history.state.modal;
+      if (cur !== 'bigBenefit') history.pushState({ modal: 'bigBenefit' }, '');
+    }
   }
 
   function closeBestModal(e) { if (e.target === document.getElementById('bestModal')) closeBestModalDirect(); }
@@ -1182,6 +1355,62 @@
     if (history.state && history.state.modal === 'edit') history.back();
   }
 
+  function openBulkModal() {
+    // 입력값 초기화
+    ['bulk_contract','bulk_halfDisc','bulk_rerentalDisc','bulk_disc','bulk_extraDisc',
+     'bulk_bundleDisc','bulk_multiDisc','bulk_competitor','bulk_corasol','bulk_card']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('bulkModal').classList.add('open');
+  }
+  function closeBulkModal(e) {
+    if (e.target === document.getElementById('bulkModal')) document.getElementById('bulkModal').classList.remove('open');
+  }
+  function closeBulkModalDirect() { document.getElementById('bulkModal').classList.remove('open'); }
+
+  async function applyBulkEdit() {
+    const products = window.products || [];
+    if (products.length === 0) { alert('변경할 제품이 없습니다.'); return; }
+
+    const fields = {
+      contract:     document.getElementById('bulk_contract').value,
+      halfDisc:     document.getElementById('bulk_halfDisc').value,
+      rerentalDisc: document.getElementById('bulk_rerentalDisc').value,
+      disc:         document.getElementById('bulk_disc').value,
+      extraDisc:    document.getElementById('bulk_extraDisc').value,
+      bundleDisc:   document.getElementById('bulk_bundleDisc').value,
+      multiDisc:    document.getElementById('bulk_multiDisc').value,
+      competitor:   document.getElementById('bulk_competitor').value,
+      corasol:      document.getElementById('bulk_corasol').value,
+      card:         document.getElementById('bulk_card').value,
+    };
+
+    // 입력된 항목만 추출
+    const updates = {};
+    Object.entries(fields).forEach(([key, val]) => {
+      if (val !== '') updates[key] = parseFloat(val) || 0;
+    });
+
+    if (Object.keys(updates).length === 0) { alert('변경할 항목을 하나 이상 입력해주세요.'); return; }
+
+    const fieldNames = {
+      contract:'약정 할인금액', halfDisc:'반값 할인율', rerentalDisc:'재렌탈 할인율',
+      disc:'기본 할인율', extraDisc:'추가 할인율', bundleDisc:'결합 할인율',
+      multiDisc:'동시구매 할인율', competitor:'타사보상 할인금액', corasol:'코라솔 할인금액', card:'신용카드 할인금액'
+    };
+    const summary = Object.entries(updates).map(([k, v]) => `${fieldNames[k]}: ${v}`).join('\n');
+    if (!confirm(`전체 ${products.length}개 제품에 아래 항목을 일괄 적용할까요?\n\n${summary}`)) return;
+
+    const { updateDoc, doc } = window._firestoreFns;
+    try {
+      await Promise.all(products.map(p => updateDoc(doc(window._db, 'products', p._id), updates)));
+      closeBulkModalDirect();
+      alert(`${products.length}개 제품에 적용 완료!`);
+    } catch(e) {
+      console.error(e);
+      alert('일괄 변경 실패: ' + e.message);
+    }
+  }
+
   function closeAuthSetupModal(e) {
     if (e.target === document.getElementById('authSetupModal')) closeAuthSetupModalDirect();
   }
@@ -1194,6 +1423,7 @@
 
   // 뒤로가기 감지
   window.addEventListener('popstate', (e) => {
+    const bbWasOpen = document.getElementById('bigBenefitModal').classList.contains('open');
     document.getElementById('noteModal').classList.remove('open');
     document.getElementById('editModal').classList.remove('open');
     document.getElementById('bestModal').classList.remove('open');
@@ -1201,6 +1431,16 @@
     document.getElementById('bigBenefitModal').classList.remove('open');
     document.getElementById('authSetupModal').classList.remove('open');
     const modal = history.state && history.state.modal;
+
+    // 뒤로가기로 bigBenefit 모달을 닫은 경우에도
+    // 같은 로드에서는 다시 자동 오픈되지 않도록 차단
+    if (bbWasOpen && modal !== 'bigBenefit') {
+      dismissedBigBenefitThisLoad = true;
+      didAutoOpenBigBenefitThisLoad = true;
+    }
+
+    // 홈/가드 상태면 모달을 다시 열지 않음
+    if (!modal || modal === 'home_guard' || modal === 'home') return;
     if (modal === 'bigBenefit') {
       document.getElementById('bigBenefitModal').classList.add('open');
     } else if (modal === 'impact') {
