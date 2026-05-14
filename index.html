@@ -130,13 +130,15 @@
       .note-row .n-final { font-size: 1.7rem; }
       .note-stamp { font-size: 1.1rem; line-height: 40px; }
     }
-    .note-sms-row { margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .note-sms-row { margin-top: 20px; text-align: center; display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
     .btn-sms { display: inline-block; background: #25d366; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; text-decoration: none; box-shadow: 0 3px 10px rgba(37,211,102,0.35); transition: opacity 0.2s; }
     .btn-sms:hover { opacity: 0.85; }
-    .btn-img { display: inline-block; background: #ff6b35; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(255,107,53,0.35); transition: opacity 0.2s; flex: unset; }
-    .btn-img:hover { opacity: 0.85; }
-    .btn-save { display: inline-block; background: #0057a8; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(0,87,168,0.35); transition: opacity 0.2s; flex: unset; }
-    .btn-save:hover { opacity: 0.85; }
+    .btn-img { display: inline-block; background: transparent; color: transparent; font-size: 0; width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; box-shadow: none; padding: 0; flex: unset; transition: background 0.2s; position: relative; }
+    .btn-img::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: rgba(0,0,0,0.28); }
+    .btn-img:hover::after { background: rgba(0,0,0,0.5); }
+    .btn-save { display: inline-block; background: transparent; color: transparent; font-size: 0; width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; box-shadow: none; padding: 0; flex: unset; transition: background 0.2s; position: relative; }
+    .btn-save::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: rgba(0,0,0,0.28); }
+    .btn-save:hover::after { background: rgba(0,0,0,0.5); }
 
     /* 임팩트 요약 모달 */
     .impact-modal { position: relative; width: 500px; max-width: 96vw; max-height: 92vh; overflow-y: auto; border-radius: 26px; background: radial-gradient(circle at top, #2c4570 0%, #1b2f51 42%, #111f37 100%); box-shadow: 0 18px 60px rgba(4,10,30,0.58); animation: popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275); padding: 26px 20px 20px; color: #fff; text-align: left; border: 1px solid rgba(255,255,255,0.12); }
@@ -504,9 +506,9 @@
     <div id="noteContent"></div>
     <div class="note-stamp" id="noteStamp"></div>
     <div class="note-sms-row">
-      <a id="smsBtn" class="btn-sms" href="#" onclick="sendSms(event)">📱 문자 보내기</a>
-      <button class="btn-img" onclick="shareImage()">🖼 이미지로 보내기</button>
-      <button class="btn-save" onclick="saveImage()">💾 저장하기</button>
+      <a id="smsBtn" class="btn-sms" href="#" onclick="sendSms(event)" style="display:none;"></a>
+      <button class="btn-img" onclick="shareImage()">🖼</button>
+      <button class="btn-save" onclick="saveImage()">💾</button>
     </div>
   </div>
 </div>
@@ -1275,6 +1277,57 @@
     }
   }
 
+  async function captureBestModal() {
+    const paper = document.getElementById('bestPaper');
+    const closeBtn = paper.querySelector('.bm-close');
+    const prevMaxHeight = paper.style.maxHeight;
+    const prevOverflow = paper.style.overflowY;
+    if (closeBtn) closeBtn.style.display = 'none';
+    paper.style.maxHeight = 'none';
+    paper.style.overflowY = 'visible';
+    await new Promise(r => setTimeout(r, 80));
+    const canvas = await html2canvas(paper, {
+      backgroundColor: '#1a1a4e',
+      scale: 2.5,
+      logging: false,
+      useCORS: true,
+      scrollY: -window.scrollY,
+      scrollX: -window.scrollX
+    });
+    paper.style.maxHeight = prevMaxHeight;
+    paper.style.overflowY = prevOverflow;
+    if (closeBtn) closeBtn.style.display = '';
+    return canvas;
+  }
+
+  async function shareBestImage() {
+    try {
+      const canvas = await captureBestModal();
+      const fileName = `최고의할인혜택_${new Date().toISOString().slice(0,10)}.png`;
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], fileName, { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: '최고의 할인 혜택' });
+          } catch (err) {
+            if (err.name !== 'AbortError') downloadCanvas(canvas, fileName);
+          }
+        } else {
+          downloadCanvas(canvas, fileName);
+          alert('이미지를 저장했습니다. 고객에게 전송해주세요.');
+        }
+      }, 'image/png');
+    } catch(e) { console.error(e); alert('이미지 생성 실패: ' + e.message); }
+  }
+
+  async function saveBestImage() {
+    try {
+      const canvas = await captureBestModal();
+      const fileName = `최고의할인혜택_${new Date().toISOString().slice(0,10)}.png`;
+      downloadCanvas(canvas, fileName);
+    } catch(e) { console.error(e); alert('이미지 저장 실패: ' + e.message); }
+  }
+
   function closeBestModal(e) { if (e.target === document.getElementById('bestModal')) closeBestModalDirect(); }
   function closeBestModalDirect() {
     document.getElementById('bestModal').classList.remove('open');
@@ -1333,6 +1386,11 @@
       <hr class="bm-divider">
       ${itemRows}
       <div class="s-row total"><span>총 할인금액</span><span>- ${fmt(saving)}</span></div>
+      <hr class="bm-divider">
+      <div class="note-sms-row" style="margin-top:12px;">
+        <button class="btn-img" onclick="shareBestImage()">🖼</button>
+        <button class="btn-save" onclick="saveBestImage()">💾</button>
+      </div>
     `;
     document.getElementById('bestModal').classList.add('open');
     history.pushState({ modal: 'best' }, '');
