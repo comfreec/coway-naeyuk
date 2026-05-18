@@ -598,6 +598,17 @@
   // 🛡️ 모달 히스토리 관리용 헬퍼
   function pushModalState(modalName) {
     const currentState = history.state;
+    const currentModal = currentState ? currentState.modal : null;
+    
+    // 리스트형 모달(Impact, BigBenefit)에서 상세 모달(Note, Best)로 갈 때는 히스토리를 쌓음 (뒤로가기 시 리스트로 복귀)
+    const isListModal = currentModal === 'impact' || currentModal === 'bigBenefit';
+    const isDetailModal = modalName === 'note' || modalName === 'best' || modalName === 'edit';
+    
+    if (isListModal && isDetailModal) {
+      history.pushState({ modal: modalName }, '');
+      return;
+    }
+
     if (currentState && currentState.modal && currentState.modal !== 'home' && currentState.modal !== 'home_guard') {
       // 이미 모달이 하나라도 열려있는 상태라면 히스토리를 쌓지 않고 교체함
       history.replaceState({ modal: modalName }, '');
@@ -1591,12 +1602,16 @@
     if (!modal || modal === 'home_guard' || modal === 'home') return;
     if (modal === 'bigBenefit') {
       document.getElementById('bigBenefitModal').classList.add('open');
+      document.getElementById('bigBenefitPaper').classList.add('hypno-bg-animate');
     } else if (modal === 'impact') {
       document.getElementById('impactModal').classList.add('open');
+      document.getElementById('impactPaper').classList.add('hypno-bg-animate');
     } else if (modal === 'best') {
       document.getElementById('bestModal').classList.add('open');
+      document.getElementById('bestPaper').classList.add('hypno-bg-animate');
     } else if (modal === 'note') {
       document.getElementById('noteModal').classList.add('open');
+      document.getElementById('notePaper').classList.add('hypno-bg-animate');
     } else if (modal === 'edit') {
       document.getElementById('editModal').classList.add('open');
     }
