@@ -595,6 +595,18 @@
     requestAnimationFrame(step);
   }
 
+  // 🛡️ 모달 히스토리 관리용 헬퍼
+  function pushModalState(modalName) {
+    const currentState = history.state;
+    if (currentState && currentState.modal && currentState.modal !== 'home' && currentState.modal !== 'home_guard') {
+      // 이미 모달이 하나라도 열려있는 상태라면 히스토리를 쌓지 않고 교체함
+      history.replaceState({ modal: modalName }, '');
+    } else {
+      // 모달이 처음 열리는 경우에만 히스토리를 쌓음
+      history.pushState({ modal: modalName }, '');
+    }
+  }
+
   function nameMatchesQuery(name, query) {
     const q = String(query || '').trim().toLowerCase();
     if (!q) return true;
@@ -711,7 +723,7 @@
       document.getElementById(elId).value = p[key] || '';
     });
     document.getElementById('editModal').classList.add('open');
-    history.pushState({ modal: 'edit' }, '');
+    pushModalState('edit');
   }
 
   async function saveEdit() {
@@ -902,7 +914,7 @@
     modalOverlay.classList.add('open');
     notePaper.classList.add('hypno-bg-animate');
 
-    history.pushState({ modal: 'note' }, '');
+    pushModalState('note');
     
     // 최종 금액 카운트다운 애니메이션
     setTimeout(() => {
@@ -1240,7 +1252,7 @@
     modalOverlay.classList.add('open');
     impactPaper.classList.add('hypno-bg-animate');
     
-    history.pushState({ modal: 'impact' }, '');
+    pushModalState('impact');
   }
 
   function buildBigBenefitProductCardsHtml(psShown) {
@@ -1327,9 +1339,7 @@
 
     document.getElementById('bigBenefitModal').classList.add('open');
     if (pushHistory) {
-      // 같은 모달 상태를 중복으로 쌓지 않아서 닫기/뒤로가기 시 재오픈되는 현상 방지
-      const cur = history.state && history.state.modal;
-      if (cur !== 'bigBenefit') history.pushState({ modal: 'bigBenefit' }, '');
+      pushModalState('bigBenefit');
     }
   }
 
@@ -1456,7 +1466,7 @@
     modalOverlay.classList.add('open');
     bestPaper.classList.add('hypno-bg-animate');
     
-    history.pushState({ modal: 'best' }, '');
+    pushModalState('best');
 
     // 할인율 및 최종 금액 애니메이션
     setTimeout(() => {
@@ -1557,12 +1567,17 @@
   // 뒤로가기 감지
   window.addEventListener('popstate', (e) => {
     const bbWasOpen = document.getElementById('bigBenefitModal').classList.contains('open');
-    document.getElementById('noteModal').classList.remove('open');
-    document.getElementById('editModal').classList.remove('open');
-    document.getElementById('bestModal').classList.remove('open');
-    document.getElementById('impactModal').classList.remove('open');
-    document.getElementById('bigBenefitModal').classList.remove('open');
-    document.getElementById('authSetupModal').classList.remove('open');
+    
+    // 모든 모달 닫기 및 애니메이션 클래스 제거
+    ['noteModal','editModal','bestModal','impactModal','bigBenefitModal','authSetupModal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    });
+    ['notePaper','bestPaper','impactPaper','bigBenefitPaper'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hypno-bg-animate');
+    });
+
     const modal = history.state && history.state.modal;
 
     // 뒤로가기로 bigBenefit 모달을 닫은 경우에도
