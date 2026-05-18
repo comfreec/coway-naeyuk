@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -169,6 +169,37 @@
       .impact-modal { width: 440px; padding: 24px 14px 16px; }
       .impact-item .ii-prices { min-width: 106px; }
     }
+
+    /* ✨ 최면 효과 (Hypnotic Effects) ✨ */
+    @keyframes hypnoticPulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.4)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.4)); }
+    }
+    .hypno-pulse { animation: hypnoticPulse 2s infinite ease-in-out; display: inline-block; }
+
+    @keyframes hypnoticBgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .hypno-bg-animate {
+      background-size: 200% 200% !important;
+      animation: hypnoticBgMove 10s infinite linear !important;
+    }
+
+    .vignette-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+      pointer-events: none;
+      border-radius: inherit;
+      z-index: 5;
+    }
+
+    .count-up-number { font-variant-numeric: tabular-nums; }
+
     .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
     .btn-impact:hover { transform: translateY(-1px); opacity: 1; }
     .btn-big-benefit { background: linear-gradient(135deg, #0a63c0, #3d9eff); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(10,99,192,0.32); transition: all 0.2s; letter-spacing: 0.3px; }
@@ -558,6 +589,22 @@
 
   function fmt(n) { return n.toLocaleString('ko-KR') + '원'; }
   function pct(n) { return n > 0 ? n + '%' : '-'; }
+
+  // 🔢 숫자 카운트다운 애니메이션 함수
+  function animateNumber(el, start, end, duration = 800, formatter = fmt) {
+    if (!el) return;
+    const startTime = performance.now();
+    const step = (currentTime) => {
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      const easeOutQuad = (t) => t * (2 - t); // 부드러운 감속
+      const currentVal = Math.floor(easeOutQuad(progress) * (end - start) + start);
+      el.textContent = formatter(currentVal);
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = formatter(end);
+    };
+    requestAnimationFrame(step);
+  }
+
   function nameMatchesQuery(name, query) {
     const q = String(query || '').trim().toLowerCase();
     if (!q) return true;
@@ -840,7 +887,7 @@
     if (p.card > 0)         push('신용카드 할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
     rows.push(`<div class="note-row"><span class="n-label">총 할인금액</span><span class="n-minus">- ${fmt(p.totalDisc)}</span></div>`);
-    rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline">${fmt(p.finalAmt)}</span></div>`);
+    rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span></div>`);
     document.getElementById('noteContent').innerHTML = rows.join('');
     const today = new Date().toLocaleDateString('ko-KR');
     document.getElementById('noteStamp').textContent = '작성일 : ' + today;
@@ -859,10 +906,22 @@
     if (p.card > 0)         sms += `⑪ 신용카드 할인 : - ${fmt(p.card)}\n`;
     sms += `─────────────────\n총 할인금액 : - ${fmt(p.totalDisc)}\n✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
     currentSmsText = sms;
-    document.getElementById('noteModal').classList.add('open');
+
+    const modalOverlay = document.getElementById('noteModal');
+    const notePaper = document.getElementById('notePaper');
+    modalOverlay.classList.add('open', 'vignette-overlay');
+    notePaper.classList.add('hypno-bg-animate');
+
     history.pushState({ modal: 'note' }, '');
+    
+    // 최종 금액 카운트다운 애니메이션
+    setTimeout(() => {
+      const el = document.getElementById('noteFinalAmt');
+      animateNumber(el, p.rental, p.finalAmt, 1000);
+    }, 300);
+
     // 스와이프로 최고의 할인 모달 전환
-    initModalSwipe(document.getElementById('notePaper'), id, 'note');
+    initModalSwipe(notePaper, id, 'note');
   }
 
   function sendSms(e) { e.preventDefault(); window.location.href = `sms:?body=${encodeURIComponent(currentSmsText)}`; }
@@ -995,7 +1054,10 @@
 
   function closeImpactModal(e) { if (e.target === document.getElementById('impactModal')) closeImpactModalDirect(); }
   function closeImpactModalDirect() {
-    document.getElementById('impactModal').classList.remove('open');
+    const modalOverlay = document.getElementById('impactModal');
+    const impactPaper = document.getElementById('impactPaper');
+    modalOverlay.classList.remove('open', 'vignette-overlay');
+    impactPaper.classList.remove('hypno-bg-animate');
     if (history.state && history.state.modal === 'impact') history.back();
   }
 
@@ -1183,7 +1245,11 @@
       </div>
     `;
 
-    document.getElementById('impactModal').classList.add('open');
+    const modalOverlay = document.getElementById('impactModal');
+    const impactPaper = document.getElementById('impactPaper');
+    modalOverlay.classList.add('open', 'vignette-overlay');
+    impactPaper.classList.add('hypno-bg-animate');
+    
     history.pushState({ modal: 'impact' }, '');
   }
 
@@ -1330,7 +1396,10 @@
 
   function closeBestModal(e) { if (e.target === document.getElementById('bestModal')) closeBestModalDirect(); }
   function closeBestModalDirect() {
-    document.getElementById('bestModal').classList.remove('open');
+    const modalOverlay = document.getElementById('bestModal');
+    const bestPaper = document.getElementById('bestPaper');
+    modalOverlay.classList.remove('open', 'vignette-overlay');
+    bestPaper.classList.remove('hypno-bg-animate');
     if (history.state && history.state.modal === 'best') history.back();
   }
 
@@ -1375,12 +1444,12 @@
     document.getElementById('bestContent').innerHTML = `
       <div class="bm-badge">🔥 최고의 할인 혜택</div>
       <div class="bm-name">${p.name}</div>
-      <div class="bm-disc-rate">${discRate}%</div>
+      <div class="bm-disc-rate hypno-pulse" id="bestDiscRate">${discRate}%</div>
       <div class="bm-disc-label">할 인 적 용 !</div>
       <div class="bm-compare">
         <span class="bm-original">${fmt(p.rental)}</span>
         <span class="bm-arrow">→</span>
-        <div class="bm-final"><small>월 </small>${p.finalAmt.toLocaleString('ko-KR')}<small>원</small></div>
+        <div class="bm-final"><small>월 </small><span id="bestFinalAmt" class="hypno-pulse">${p.finalAmt.toLocaleString('ko-KR')}</span><small>원</small></div>
       </div>
       <div class="bm-per">매달 <strong>${fmt(saving)}</strong> 절약!</div>
       <hr class="bm-divider">
@@ -1392,10 +1461,23 @@
         <button class="btn-save" onclick="saveBestImage()">💾</button>
       </div>
     `;
-    document.getElementById('bestModal').classList.add('open');
+    const modalOverlay = document.getElementById('bestModal');
+    const bestPaper = document.getElementById('bestPaper');
+    modalOverlay.classList.add('open', 'vignette-overlay');
+    bestPaper.classList.add('hypno-bg-animate');
+    
     history.pushState({ modal: 'best' }, '');
+
+    // 할인율 및 최종 금액 애니메이션
+    setTimeout(() => {
+      const rateEl = document.getElementById('bestDiscRate');
+      const finalEl = document.getElementById('bestFinalAmt');
+      animateNumber(rateEl, 0, discRate, 1000, (n) => n + '%');
+      animateNumber(finalEl, p.rental, p.finalAmt, 1000, (n) => n.toLocaleString('ko-KR'));
+    }, 300);
+
     // 스와이프로 계산 내역서 모달 전환
-    initModalSwipe(document.getElementById('bestPaper'), id, 'best');
+    initModalSwipe(bestPaper, id, 'best');
   }
 
   function closeModal(e) {
@@ -1403,7 +1485,10 @@
   }
 
   function closeModalDirect() {
-    document.getElementById('noteModal').classList.remove('open');
+    const modalOverlay = document.getElementById('noteModal');
+    const notePaper = document.getElementById('notePaper');
+    modalOverlay.classList.remove('open', 'vignette-overlay');
+    notePaper.classList.remove('hypno-bg-animate');
     if (history.state && history.state.modal === 'note') history.back();
   }
 
