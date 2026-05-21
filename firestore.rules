@@ -1,67 +1,49 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 소유자 권한 확인 (comfreec1@gmail.com 계정만 허용)
     function isOwner() {
       return request.auth != null
         && request.auth.token.email != null
         && request.auth.token.email == "comfreec1@gmail.com";
     }
 
-    function isNumber(value) {
-      return value is int || value is float;
+    // 숫자 타입 확인 보조 함수
+    function isNum(val) {
+      return val is int || val is float;
     }
 
-    function isValidRate(value) {
-      return isNumber(value) && value >= 0 && value <= 100;
-    }
+    // 제품 데이터 유효성 검사
+    function isValidProduct(data) {
+      // 1. 필수 필드 존재 여부 확인
+      let hasRequired = data.name is string && data.name.size() > 0 && isNum(data.rental) && data.createdAt is int;
+      
+      // 2. 허용된 필드 외에 다른 필드가 없는지 확인
+      let allowedKeys = [
+        'name', 'category', 'rental', 'contract', 'halfDisc', 'rerentalDisc', 
+        'disc', 'extraDisc', 'bundleDisc', 'multiDisc', 'competitor', 
+        'corasol', 'card', 'createdAt', 'updatedAt'
+      ];
+      let hasOnlyAllowed = data.keys().hasOnly(allowedKeys);
 
-    function isValidAmount(value) {
-      return isNumber(value) && value >= 0 && value <= 1000000;
-    }
-
-    function hasValidProductFields(data) {
-      return data.keys().hasAll(['name', 'rental', 'createdAt'])
-      && data.keys().hasOnly([
-        'name',
-        'category',
-        'rental',
-        'contract',
-        'halfDisc',
-        'rerentalDisc',
-        'disc',
-        'extraDisc',
-        'bundleDisc',
-        'multiDisc',
-        'competitor',
-        'corasol',
-        'card',
-        'createdAt',
-        'updatedAt'
-      ])
-      && data.name is string
-      && data.name.size() > 0
-      && data.name.size() <= 80
-      && (data.category == null || data.category is string)
-      && isValidAmount(data.rental)
-      && isValidAmount(data.contract)
-      && isValidRate(data.halfDisc)
-      && isValidRate(data.rerentalDisc)
-      && isValidRate(data.disc)
-      && isValidRate(data.extraDisc)
-      && isValidRate(data.bundleDisc)
-      && isValidRate(data.multiDisc)
-      && isValidAmount(data.competitor)
-      && isValidAmount(data.corasol)
-      && isValidAmount(data.card)
-      && data.createdAt is int
-      && (data.updatedAt == null || data.updatedAt is int);
+      // 3. 선택적 필드들이 존재할 경우의 타입 및 범위 검사
+      let validCategory = !('category' in data) || (data.category == null || data.category is string);
+      let validContract = !('contract' in data) || isNum(data.contract);
+      let validHalf     = !('halfDisc' in data) || (isNum(data.halfDisc) && data.halfDisc <= 100);
+      let validRerental = !('rerentalDisc' in data) || (isNum(data.rerentalDisc) && data.rerentalDisc <= 100);
+      let validDisc     = !('disc' in data) || (isNum(data.disc) && data.disc <= 100);
+      let validExtra    = !('extraDisc' in data) || (isNum(data.extraDisc) && data.extraDisc <= 100);
+      let validBundle   = !('bundleDisc' in data) || (isNum(data.bundleDisc) && data.bundleDisc <= 100);
+      let validMulti    = !('multiDisc' in data) || (isNum(data.multiDisc) && data.multiDisc <= 100);
+      
+      return hasRequired && hasOnlyAllowed && validCategory && validContract && 
+             validHalf && validRerental && validDisc && validExtra && validBundle && validMulti;
     }
 
     match /products/{productId} {
       allow read: if isOwner();
-      allow create: if isOwner() && hasValidProductFields(request.resource.data);
-      allow update: if isOwner()
-                    && hasValidProductFields(request.resource.data)
+      allow create: if isOwner() && isValidProduct(request.resource.data);
+      allow update: if isOwner() && isValidProduct(request.resource.data) 
                     && request.resource.data.createdAt == resource.data.createdAt;
       allow delete: if isOwner();
     }
