@@ -190,6 +190,62 @@
 
     .count-up-number { font-variant-numeric: tabular-nums; }
 
+    /* 🏷️ 카테고리 필터 스타일 */
+    .category-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 4px;
+      margin-bottom: 10px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+    }
+    .category-container::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+    
+    .category-chip {
+      flex: 0 0 auto;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: #f1f3f5;
+      color: #495057;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #e9ecef;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .category-chip.active {
+      background: #0057a8;
+      color: #fff;
+      border-color: #0057a8;
+      box-shadow: 0 4px 10px rgba(0, 87, 168, 0.3);
+    }
+    .category-chip:hover:not(.active) {
+      background: #e9ecef;
+    }
+
+    /* 모달 내부 카테고리 스타일 */
+    .modal-category-container {
+      margin: -10px -10px 15px -10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .modal-category-chip {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .modal-category-chip.active {
+      background: #fff;
+      color: #13233d;
+      border-color: #fff;
+    }
+
     .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
     .btn-impact:hover { transform: translateY(-1px); opacity: 1; }
     .btn-big-benefit { background: linear-gradient(135deg, #0a63c0, #3d9eff); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(10,99,192,0.32); transition: all 0.2s; letter-spacing: 0.3px; }
@@ -303,6 +359,23 @@
   <h2>➕ 제품 추가</h2>
   <div class="form-grid">
     <div class="form-group full"><label>제품명</label><input type="text" id="productName" placeholder="예) 코웨이 공기청정기 AP-1019C" /></div>
+    <div class="form-group full"><label>카테고리</label>
+      <select id="productCategory" class="table-name-filter" style="width:100%; max-width:none;">
+        <option value="">자동 분류 (제목 기준)</option>
+        <option value="제습기">제습기</option>
+        <option value="공기청정기">공기청정기</option>
+        <option value="정수기">정수기</option>
+        <option value="에어컨">에어컨</option>
+        <option value="비데">비데</option>
+        <option value="침대">침대</option>
+        <option value="프레임">프레임</option>
+        <option value="안마의자">안마의자</option>
+        <option value="인덕션">인덕션</option>
+        <option value="연수기">연수기</option>
+        <option value="의류청정기">의류청정기</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
     <div class="form-group"><label>월 렌탈료 (원)</label><input type="number" id="rentalFee" placeholder="예) 35000" min="0" /></div>
     <div class="form-group"><label>약정 할인금액 (원)</label><input type="number" id="contractDiscount" placeholder="예) 3000" min="0" /></div>
     <div class="form-group"><label>반값 할인율 (%)</label><input type="number" id="halfDiscountRate" placeholder="예) 50" min="0" max="100" /></div>
@@ -334,6 +407,10 @@
     <label for="tableNameFilter">제품명 검색</label>
     <input type="search" id="tableNameFilter" class="table-name-filter" placeholder="제품명을 입력하세요" autocomplete="off" oninput="window.renderTable()" />
   </div>
+
+  <!-- 🏷️ 홈 카테고리 필터 -->
+  <div id="homeCategoryFilter" class="category-container"></div>
+
   <p class="table-filter-meta" id="tableFilterMeta" aria-live="polite"></p>
   <div class="result-wrap">
     <table id="resultTable">
@@ -366,6 +443,8 @@
     <div class="impact-brand">COWAY BENEFIT REPORT</div>
     <div class="impact-badge">✨ 고객님만을 위한 특별 혜택</div>
     <div class="impact-title">할인 혜택 한눈에 보기</div>
+    <!-- 🏷️ 임팩트 모달 카테고리 필터 -->
+    <div id="impactCategoryFilter" class="category-container modal-category-container"></div>
     <div id="impactBody"></div>
     <hr class="impact-divider">
     <div id="impactFooter"></div>
@@ -433,6 +512,23 @@
     </h2>
     <div class="form-grid">
       <div class="form-group full"><label>제품명</label><input type="text" id="e_productName" /></div>
+      <div class="form-group full"><label>카테고리</label>
+        <select id="e_productCategory" class="table-name-filter" style="width:100%; max-width:none;">
+          <option value="">자동 분류 (제목 기준)</option>
+          <option value="제습기">제습기</option>
+          <option value="공기청정기">공기청정기</option>
+          <option value="정수기">정수기</option>
+          <option value="에어컨">에어컨</option>
+          <option value="비데">비데</option>
+          <option value="침대">침대</option>
+          <option value="프레임">프레임</option>
+          <option value="안마의자">안마의자</option>
+          <option value="인덕션">인덕션</option>
+          <option value="연수기">연수기</option>
+          <option value="의류청정기">의류청정기</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
       <div class="form-group"><label>월 렌탈료 (원)</label><input type="number" id="e_rentalFee" min="0" /></div>
       <div class="form-group"><label>약정 할인금액 (원)</label><input type="number" id="e_contractDiscount" min="0" /></div>
       <div class="form-group"><label>반값 할인율 (%)</label><input type="number" id="e_halfDiscountRate" min="0" max="100" /></div>
@@ -689,6 +785,7 @@
   async function addProduct() {
     if (!window._firestoreFns) { alert('데이터베이스 연결 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     const name         = document.getElementById('productName').value.trim();
+    const category     = document.getElementById('productCategory').value;
     const rental       = parseFloat(document.getElementById('rentalFee').value) || 0;
     const contract     = parseFloat(document.getElementById('contractDiscount').value) || 0;
     const halfDisc     = parseFloat(document.getElementById('halfDiscountRate').value) || 0;
@@ -704,7 +801,7 @@
     if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
     try {
       const { addDoc } = window._firestoreFns;
-      await addDoc(window._col, { name, rental, contract, halfDisc, rerentalDisc, disc,
+      await addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
         extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now() });
       resetForm();
     } catch(e) {
@@ -725,7 +822,7 @@
     const p = (window.products || []).find(x => x._id === id);
     if (!p) return;
     editingId = id;
-    const map = { e_productName:'name', e_rentalFee:'rental', e_contractDiscount:'contract',
+    const map = { e_productName:'name', e_productCategory:'category', e_rentalFee:'rental', e_contractDiscount:'contract',
       e_halfDiscountRate:'halfDisc', e_rerentalDiscountRate:'rerentalDisc', e_discountRate:'disc',
       e_extraDiscountRate:'extraDisc', e_bundleDiscountRate:'bundleDisc',
       e_multiDiscountRate:'multiDisc', e_competitorDiscount:'competitor',
@@ -738,13 +835,14 @@
   }
 
   async function saveEdit() {
-    const name   = document.getElementById('e_productName').value.trim();
-    const rental = parseFloat(document.getElementById('e_rentalFee').value) || 0;
+    const name     = document.getElementById('e_productName').value.trim();
+    const category = document.getElementById('e_productCategory').value;
+    const rental   = parseFloat(document.getElementById('e_rentalFee').value) || 0;
     if (!name)       { alert('제품명을 입력해주세요.'); return; }
     if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
     const { updateDoc, doc } = window._firestoreFns;
     await updateDoc(doc(window._db, 'products', editingId), {
-      name, rental,
+      name, category, rental,
       contract:    parseFloat(document.getElementById('e_contractDiscount').value) || 0,
       halfDisc:    parseFloat(document.getElementById('e_halfDiscountRate').value) || 0,
       rerentalDisc:parseFloat(document.getElementById('e_rerentalDiscountRate').value) || 0,
@@ -787,31 +885,38 @@
     }
     const nameQ = (document.getElementById('tableNameFilter') && document.getElementById('tableNameFilter').value) || '';
     const metaEl = document.getElementById('tableFilterMeta');
+    renderCategoryFilters(); // 칩 상태 업데이트
+
+    // 필터링 (카테고리 + 검색어)
+    const filteredByCat = currentCategory === '전체' 
+      ? products 
+      : products.filter(p => getSmartCategory(p) === currentCategory);
+    const filtered = filteredByCat.filter((raw) => nameMatchesQuery(raw.name, nameQ));
+
     if (metaEl) {
-      if (nameQ.trim() && products.length > 0) {
-        const nMatch = products.filter((raw) => nameMatchesQuery(raw.name, nameQ)).length;
-        metaEl.textContent = nMatch === products.length
+      if ((nameQ.trim() || currentCategory !== '전체') && products.length > 0) {
+        metaEl.textContent = filtered.length === products.length
           ? `전체 ${products.length}개 표시`
-          : `검색 결과 ${nMatch}개 (전체 ${products.length}개)`;
+          : `필터링 결과 ${filtered.length}개 (전체 ${products.length}개)`;
       } else metaEl.textContent = '';
     }
     let totalRental = 0, totalDisc = 0, totalFinal = 0;
-    // 정렬 적용
-    const sorted = [...products].sort((a, b) => {
+    // 정렬 적용 (필터링된 결과에 대해)
+    const sorted = [...filtered].sort((a, b) => {
       const pa = calcProduct(a), pb = calcProduct(b);
       const va = sortKey === 'name' ? (pa.name || '') : (pa[sortKey] || 0);
       const vb = sortKey === 'name' ? (pb.name || '') : (pb[sortKey] || 0);
       if (typeof va === 'string') return va.localeCompare(vb, 'ko') * sortDir;
       return (va - vb) * sortDir;
     });
-    const filtered = sorted.filter((raw) => nameMatchesQuery(raw.name, nameQ));
-    if (filtered.length === 0) {
+    
+    if (sorted.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">' +
-        (nameQ.trim() ? '검색 조건에 맞는 제품이 없습니다' : '아직 추가된 제품이 없습니다') + '</td></tr>';
+        (nameQ.trim() || currentCategory !== '전체' ? '조건에 맞는 제품이 없습니다' : '아직 추가된 제품이 없습니다') + '</td></tr>';
       window.renderSummary();
       return;
     }
-    let rows = filtered.map((raw) => {
+    let rows = sorted.map((raw) => {
       const p = calcProduct(raw);
       totalRental += p.rental; totalDisc += p.totalDisc; totalFinal += p.finalAmt;
       return `<tr oncontextmenu="copyToForm('${p._id}');return false;" ontouchstart="startLongPress('${p._id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="cursor:pointer;">
@@ -848,7 +953,7 @@
   };
 
   function resetForm() {
-    ['productName','rentalFee','contractDiscount','halfDiscountRate','rerentalDiscountRate',
+    ['productName','productCategory','rentalFee','contractDiscount','halfDiscountRate','rerentalDiscountRate',
      'discountRate','extraDiscountRate','bundleDiscountRate','multiDiscountRate',
      'competitorDiscount','corasolDiscount','cardDiscount']
       .forEach(id => document.getElementById(id).value = '');
@@ -866,6 +971,47 @@
   let currentSmsText = '';
   let currentProductName = '';
   let currentModalProductId = null;
+  let currentCategory = '전체';
+  const CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
+
+  // 🏷️ 스마트 카테고리 분류 함수
+  function getSmartCategory(p) {
+    if (p.category && p.category !== '') return p.category;
+    const name = p.name || '';
+    for (const cat of CATEGORIES) {
+      if (cat === '전체' || cat === '기타') continue;
+      if (name.includes(cat)) return cat;
+    }
+    return '기타';
+  }
+
+  // 🏷️ 카테고리 필터 UI 렌더링
+  function renderCategoryFilters() {
+    const containers = [
+      { id: 'homeCategoryFilter', isModal: false },
+      { id: 'impactCategoryFilter', isModal: true },
+      { id: 'bigBenefitCategoryFilter', isModal: true }
+    ];
+
+    containers.forEach(target => {
+      const el = document.getElementById(target.id);
+      if (!el) return;
+      el.innerHTML = CATEGORIES.map(cat => {
+        const activeClass = currentCategory === cat ? 'active' : '';
+        const modalClass = target.isModal ? 'modal-category-chip' : '';
+        return `<div class="category-chip ${activeClass} ${modalClass}" onclick="setCategory('${cat}')">${cat}</div>`;
+      }).join('');
+    });
+  }
+
+  function setCategory(cat) {
+    currentCategory = cat;
+    renderCategoryFilters();
+    window.renderTable();
+    window.renderSummary();
+    if (document.getElementById('impactModal').classList.contains('open')) openImpactModal();
+    if (document.getElementById('bigBenefitModal').classList.contains('open')) refreshBigBenefitProductList();
+  }
 
   function openModal(id) {
     const raw = (window.products || []).find(x => x._id === id);
@@ -1017,7 +1163,7 @@
     const p = (window.products || []).find(x => x._id === id);
     if (!p) return;
     const map = {
-      productName: 'name', rentalFee: 'rental', contractDiscount: 'contract',
+      productName: 'name', productCategory: 'category', rentalFee: 'rental', contractDiscount: 'contract',
       halfDiscountRate: 'halfDisc', rerentalDiscountRate: 'rerentalDisc',
       discountRate: 'disc', extraDiscountRate: 'extraDisc',
       bundleDiscountRate: 'bundleDisc', multiDiscountRate: 'multiDisc',
@@ -1047,7 +1193,15 @@
   function getBenefitOverviewData(orderKey = sortKey, orderDir = sortDir) {
     const prods = window.products || [];
     if (prods.length === 0) return null;
-    const sorted = [...prods].sort((a, b) => {
+
+    // 카테고리 필터링 적용
+    const filteredByCat = currentCategory === '전체' 
+      ? prods 
+      : prods.filter(p => getSmartCategory(p) === currentCategory);
+
+    if (filteredByCat.length === 0) return { ps: [], bestProduct: null };
+
+    const sorted = [...filteredByCat].sort((a, b) => {
       const pa = calcProduct(a), pb = calcProduct(b);
       const va = orderKey === 'name' ? (pa.name || '') : (pa[orderKey] || 0);
       const vb = orderKey === 'name' ? (pb.name || '') : (pb[orderKey] || 0);
@@ -1309,7 +1463,9 @@
     document.getElementById('bigBenefitBody').innerHTML = `
       ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${escapeHtml(bestProduct.name)}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
       <div class="bb-products-title">제품별 할인 요약</div>
-      <div class="bb-sort-row">
+    <!-- 🏷️ 혜택크게보기 모달 카테고리 필터 -->
+    <div id="bigBenefitCategoryFilter" class="category-container modal-category-container"></div>
+    <div class="bb-sort-row">
         <span class="bb-sort-label">정렬:</span>
         <button type="button" class="bb-sort-btn ${bigSortKey === 'name' ? 'active' : ''}" onclick="setBigBenefitSort('name')">제품명${bigSortKey === 'name' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
         <button type="button" class="bb-sort-btn ${bigSortKey === 'rental' ? 'active' : ''}" onclick="setBigBenefitSort('rental')">렌탈가격${bigSortKey === 'rental' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
