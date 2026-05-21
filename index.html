@@ -193,30 +193,32 @@
     /* 🏷️ 카테고리 필터 스타일 */
     .category-container {
       display: flex;
-      flex-wrap: wrap; /* 👈 가로 스크롤 대신 줄바꿈 적용 */
-      gap: 8px;
-      padding: 10px 4px;
-      margin-bottom: 10px;
+      flex-wrap: wrap; /* 👈 줄바꿈 강제 */
+      gap: 6px;
+      padding: 10px 0;
+      margin-bottom: 12px;
+      overflow: visible; /* 스크롤 제거 */
     }
-    .category-container::-webkit-scrollbar { display: none; }
     
     .category-chip {
-      padding: 6px 14px; /* 크기 약간 조절 */
-      border-radius: 20px;
+      flex: 0 1 auto; /* 너비 자동 조절 */
+      padding: 7px 12px;
+      border-radius: 12px;
       background: #f1f3f5;
       color: #495057;
       font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
-      border: 1px solid #e9ecef;
+      border: 1px solid #dee2e6;
       transition: all 0.2s;
       white-space: nowrap;
+      text-align: center;
     }
     .category-chip.active {
       background: #0057a8;
       color: #fff;
       border-color: #0057a8;
-      box-shadow: 0 4px 10px rgba(0, 87, 168, 0.3);
+      box-shadow: 0 3px 8px rgba(0, 87, 168, 0.25);
     }
     .category-chip:hover:not(.active) {
       background: #e9ecef;
@@ -224,24 +226,28 @@
 
     /* 모달 내부 카테고리 스타일 */
     .modal-category-container {
-      margin: -10px -10px 15px -10px;
-      padding: 10px;
-      background: rgba(255,255,255,0.05);
+      margin: 0 0 16px 0;
+      padding: 12px 0;
+      background: none;
       border-bottom: 1px solid rgba(255,255,255,0.1);
-      position: sticky;
-      top: 0;
+      position: relative;
       z-index: 10;
-      flex-wrap: wrap; /* 👈 모달 내에서도 줄바꿈 */
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
     .modal-category-chip {
-      background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.8);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 6px 10px;
+      font-size: 0.78rem;
     }
     .modal-category-chip.active {
       background: #fff;
       color: #13233d;
       border-color: #fff;
+      box-shadow: 0 4px 12px rgba(255,255,255,0.2);
     }
 
     .btn-impact { background: linear-gradient(135deg, #ff4e00, #ec9f05); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(255,78,0,0.35); transition: all 0.2s; letter-spacing: 0.5px; }
@@ -487,10 +493,23 @@
       <div class="bb-main-title">할인 혜택 크게 보기</div>
       <div class="bb-sub-title">고객님께 보여드리기 좋은 큰 카드 레이아웃입니다</div>
     </div>
-    <div class="bb-toolbar" id="bigBenefitToolbar" style="display:none;">
-      <label class="bb-search-label" for="bigBenefitNameFilter">제품명 검색</label>
-      <input type="search" id="bigBenefitNameFilter" class="bb-name-filter" placeholder="제품명을 입력하세요" autocomplete="off" />
+    
+    <!-- 🏷️ 혜택크게보기 모달 상단 고정 영역 (카테고리 & 정렬) -->
+    <div id="bigBenefitHeader" style="margin-bottom:10px;">
+      <div class="bb-products-title">제품군 선택</div>
+      <div id="bigBenefitCategoryFilter" class="category-container modal-category-container"></div>
+      
+      <div class="bb-toolbar" id="bigBenefitToolbar" style="display:none; margin:10px 0;">
+        <label class="bb-search-label" for="bigBenefitNameFilter">제품명 검색</label>
+        <input type="search" id="bigBenefitNameFilter" class="bb-name-filter" placeholder="제품명을 입력하세요" autocomplete="off" />
+      </div>
+
+      <div class="bb-sort-row">
+        <span class="bb-sort-label">정렬:</span>
+        <div id="bigBenefitSortBtns" style="display:flex; gap:8px;"></div>
+      </div>
     </div>
+
     <div id="bigBenefitBody"></div>
     <hr class="impact-divider">
     <div id="bigBenefitFooter"></div>
@@ -820,13 +839,30 @@
     const p = (window.products || []).find(x => x._id === id);
     if (!p) return;
     editingId = id;
-    const map = { e_productName:'name', e_productCategory:'category', e_rentalFee:'rental', e_contractDiscount:'contract',
-      e_halfDiscountRate:'halfDisc', e_rerentalDiscountRate:'rerentalDisc', e_discountRate:'disc',
-      e_extraDiscountRate:'extraDisc', e_bundleDiscountRate:'bundleDisc',
-      e_multiDiscountRate:'multiDisc', e_competitorDiscount:'competitor',
-      e_corasolDiscount:'corasol', e_cardDiscount:'card' };
+    console.log('Editing Product ID:', id); // 🔍 디버깅용 로그
+
+    const map = { 
+      e_productName:'name', 
+      e_productCategory:'category', 
+      e_rentalFee:'rental', 
+      e_contractDiscount:'contract',
+      e_halfDiscountRate:'halfDisc', 
+      e_rerentalDiscountRate:'rerentalDisc', 
+      e_discountRate:'disc',
+      e_extraDiscountRate:'extraDisc', 
+      e_bundleDiscountRate:'bundleDisc',
+      e_multiDiscountRate:'multiDisc', 
+      e_competitorDiscount:'competitor',
+      e_corasolDiscount:'corasol', 
+      e_cardDiscount:'card' 
+    };
+    
     Object.entries(map).forEach(([elId, key]) => {
-      document.getElementById(elId).value = p[key] || '';
+      const el = document.getElementById(elId);
+      if (el) {
+        // 기존 데이터가 없으면 기본값('') 처리
+        el.value = (p[key] !== undefined && p[key] !== null) ? p[key] : '';
+      }
     });
     document.getElementById('editModal').classList.add('open');
     pushModalState('edit');
@@ -834,7 +870,7 @@
 
   async function saveEdit() {
     if (!window._firestoreFns) { alert('데이터베이스 초기화 중입니다. 잠시 후 다시 시도해주세요.'); return; }
-    if (!editingId) { alert('수정할 제품 정보가 유실되었습니다. 다시 시도해주세요.'); return; }
+    if (!editingId) { alert('수정할 제품 아이디(ID)가 없습니다. 창을 닫고 다시 시도해주세요.'); return; }
 
     const btn = document.querySelector('#editModal .btn-add');
     const originalText = btn ? btn.textContent : '저장';
@@ -853,8 +889,11 @@
       }
 
       const { updateDoc, doc } = window._firestoreFns;
+      // 저장할 데이터 정리
       const updateData = {
-        name, category, rental,
+        name,
+        category:     category || '',
+        rental:       rental,
         contract:     parseFloat(document.getElementById('e_contractDiscount').value) || 0,
         halfDisc:     parseFloat(document.getElementById('e_halfDiscountRate').value) || 0,
         rerentalDisc: parseFloat(document.getElementById('e_rerentalDiscountRate').value) || 0,
@@ -868,30 +907,38 @@
         updatedAt:    Date.now()
       };
 
-      await updateDoc(doc(window._db, 'products', editingId), updateData);
+      console.log('Updating Data:', updateData); // 디버깅용
+
+      const docRef = doc(window._db, 'products', editingId);
+      await updateDoc(docRef, updateData);
       
       closeEditModalDirect();
       
-      // 성공 알림
-      const toast = document.createElement('div');
-      toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:12px 24px; border-radius:30px; z-index:9999; font-size:0.9rem; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.3);';
-      toast.textContent = '✅ 수정사항이 저장되었습니다.';
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s';
-        setTimeout(() => toast.remove(), 500);
-      }, 2000);
+      // 성공 토스트 알림
+      showToast('✅ 수정사항이 저장되었습니다.');
 
     } catch(e) {
       console.error('Save Edit Error:', e);
-      alert('저장 중 오류가 발생했습니다. (네트워크 상태를 확인해주세요)\n상세내용: ' + e.message);
+      alert('저장 중 오류가 발생했습니다.\n\n[오류내용]\n' + e.message);
     } finally {
       if (btn) {
         btn.disabled = false;
         btn.textContent = originalText;
       }
     }
+  }
+
+  function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:14px 28px; border-radius:40px; z-index:10000; font-size:0.95rem; font-weight:bold; box-shadow:0 6px 20px rgba(0,0,0,0.3); opacity:0; transition:all 0.4s;';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '1'; toast.style.bottom = '40px'; }, 10);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.bottom = '30px';
+      setTimeout(() => toast.remove(), 400);
+    }, 2500);
   }
 
   function closeEditModal(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
@@ -1498,25 +1545,23 @@
     const bestProduct = hasData ? data.bestProduct : null;
     const emptyAll = ps.length === 0;
 
-    document.getElementById('bigBenefitBody').innerHTML = `
-      ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${escapeHtml(bestProduct.name)}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
-      <div class="bb-products-title">제품별 할인 요약</div>
-    <!-- 🏷️ 혜택크게보기 모달 카테고리 필터 -->
-    <div id="bigBenefitCategoryFilter" class="category-container modal-category-container"></div>
-    <div class="bb-sort-row">
-        <span class="bb-sort-label">정렬:</span>
+    // 1. 상단 정렬 버튼 렌더링
+    const sortBtnsEl = document.getElementById('bigBenefitSortBtns');
+    if (sortBtnsEl) {
+      sortBtnsEl.innerHTML = `
         <button type="button" class="bb-sort-btn ${bigSortKey === 'name' ? 'active' : ''}" onclick="setBigBenefitSort('name')">제품명${bigSortKey === 'name' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
         <button type="button" class="bb-sort-btn ${bigSortKey === 'rental' ? 'active' : ''}" onclick="setBigBenefitSort('rental')">렌탈가격${bigSortKey === 'rental' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
-      </div>
-      ${emptyAll ? `<div style="text-align:center;color:rgba(255,255,255,0.7);padding:22px 6px;border:1px dashed rgba(255,255,255,0.25);border-radius:16px;background:rgba(255,255,255,0.06);">아직 추가된 제품이 없습니다.<br>아래에서 <strong style="color:#fff;">계산 추가</strong> 후 다시 확인해주세요.</div>` : '<div id="bigBenefitProductList"></div>'}
+      `;
+    }
+
+    // 2. 바디(베스트 배너 + 리스트) 렌더링
+    document.getElementById('bigBenefitBody').innerHTML = `
+      ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${escapeHtml(bestProduct.name)}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
+      ${emptyAll ? `<div class="bb-empty-filter">아직 추가된 제품이 없습니다.<br>아래에서 <strong style="color:#fff;">계산 추가</strong> 후 다시 확인해주세요.</div>` : '<div id="bigBenefitProductList"></div>'}
     `;
 
     if (!emptyAll) {
-      const listEl = document.getElementById('bigBenefitProductList');
-      if (listEl) {
-        const shown = ps.filter((p) => nameMatchesQuery(p.name, bigBenefitNameSearch));
-        listEl.innerHTML = buildBigBenefitProductCardsHtml(shown);
-      }
+      refreshBigBenefitProductList();
     }
 
     const tb = document.getElementById('bigBenefitToolbar');
@@ -1544,9 +1589,13 @@
 
     document.getElementById('bigBenefitModal').classList.add('open');
     document.getElementById('bigBenefitPaper').classList.add('hypno-bg-animate');
-    document.getElementById('bigBenefitPaper').scrollTo(0, 0); // 🔝 스크롤 상단으로 초기화 (UI 사라짐 방지)
     
-    renderCategoryFilters(); // 🏷️ 카테고리 필터 렌더링 추가
+    // 처음 열 때만 스크롤 상단으로 (정렬 변경 시에는 사용자 경험을 위해 유지하거나 살짝만 보정)
+    if (pushHistory) {
+      document.getElementById('bigBenefitPaper').scrollTo(0, 0);
+    }
+    
+    renderCategoryFilters(); 
     if (pushHistory) {
       pushModalState('bigBenefit');
     }
