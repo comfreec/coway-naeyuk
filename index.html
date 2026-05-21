@@ -835,26 +835,51 @@
   }
 
   async function saveEdit() {
-    const name     = document.getElementById('e_productName').value.trim();
-    const category = document.getElementById('e_productCategory').value;
-    const rental   = parseFloat(document.getElementById('e_rentalFee').value) || 0;
-    if (!name)       { alert('제품명을 입력해주세요.'); return; }
-    if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
-    const { updateDoc, doc } = window._firestoreFns;
-    await updateDoc(doc(window._db, 'products', editingId), {
-      name, category, rental,
-      contract:    parseFloat(document.getElementById('e_contractDiscount').value) || 0,
-      halfDisc:    parseFloat(document.getElementById('e_halfDiscountRate').value) || 0,
-      rerentalDisc:parseFloat(document.getElementById('e_rerentalDiscountRate').value) || 0,
-      disc:        parseFloat(document.getElementById('e_discountRate').value) || 0,
-      extraDisc:   parseFloat(document.getElementById('e_extraDiscountRate').value) || 0,
-      bundleDisc:  parseFloat(document.getElementById('e_bundleDiscountRate').value) || 0,
-      multiDisc:   parseFloat(document.getElementById('e_multiDiscountRate').value) || 0,
-      competitor:  parseFloat(document.getElementById('e_competitorDiscount').value) || 0,
-      corasol:     parseFloat(document.getElementById('e_corasolDiscount').value) || 0,
-      card:        parseFloat(document.getElementById('e_cardDiscount').value) || 0,
-    });
-    closeEditModalDirect();
+    const btn = document.querySelector('#editModal .btn-add');
+    const originalText = btn.textContent;
+    try {
+      const name     = document.getElementById('e_productName').value.trim();
+      const category = document.getElementById('e_productCategory').value;
+      const rental   = parseFloat(document.getElementById('e_rentalFee').value) || 0;
+      
+      if (!name)       { alert('제품명을 입력해주세요.'); return; }
+      if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
+      
+      btn.disabled = true;
+      btn.textContent = '저장 중...';
+
+      const { updateDoc, doc } = window._firestoreFns;
+      const updateData = {
+        name, category, rental,
+        contract:    parseFloat(document.getElementById('e_contractDiscount').value) || 0,
+        halfDisc:    parseFloat(document.getElementById('e_halfDiscountRate').value) || 0,
+        rerentalDisc:parseFloat(document.getElementById('e_rerentalDiscountRate').value) || 0,
+        disc:        parseFloat(document.getElementById('e_discountRate').value) || 0,
+        extraDisc:   parseFloat(document.getElementById('e_extraDiscountRate').value) || 0,
+        bundleDisc:  parseFloat(document.getElementById('e_bundleDiscountRate').value) || 0,
+        multiDisc:   parseFloat(document.getElementById('e_multiDiscountRate').value) || 0,
+        competitor:  parseFloat(document.getElementById('e_competitorDiscount').value) || 0,
+        corasol:     parseFloat(document.getElementById('e_corasolDiscount').value) || 0,
+        card:        parseFloat(document.getElementById('e_cardDiscount').value) || 0,
+      };
+
+      await updateDoc(doc(window._db, 'products', editingId), updateData);
+      
+      closeEditModalDirect();
+      // 성공 알림 (사용자 피드백)
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#fff; padding:10px 20px; border-radius:20px; z-index:9999; font-size:0.9rem;';
+      toast.textContent = '수정사항이 저장되었습니다.';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+
+    } catch(e) {
+      console.error('Save Edit Error:', e);
+      alert('수정 저장 중 오류가 발생했습니다: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
   }
 
   function closeEditModal(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
@@ -1417,6 +1442,7 @@
     modalOverlay.classList.add('open');
     impactPaper.classList.add('hypno-bg-animate');
     
+    renderCategoryFilters(); // 🏷️ 카테고리 필터 렌더링 추가
     pushModalState('impact');
   }
 
@@ -1505,6 +1531,10 @@
     `;
 
     document.getElementById('bigBenefitModal').classList.add('open');
+    document.getElementById('bigBenefitPaper').classList.add('hypno-bg-animate');
+    document.getElementById('bigBenefitPaper').scrollTo(0, 0); // 🔝 스크롤 상단으로 초기화 (UI 사라짐 방지)
+    
+    renderCategoryFilters(); // 🏷️ 카테고리 필터 렌더링 추가
     if (pushHistory) {
       pushModalState('bigBenefit');
     }
