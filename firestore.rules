@@ -20,8 +20,10 @@ service cloud.firestore {
     }
 
     function hasValidProductFields(data) {
-      return data.keys().hasOnly([
+      return data.keys().hasAll(['name', 'rental', 'createdAt'])
+      && data.keys().hasOnly([
         'name',
+        'category',
         'rental',
         'contract',
         'halfDisc',
@@ -33,11 +35,13 @@ service cloud.firestore {
         'competitor',
         'corasol',
         'card',
-        'createdAt'
+        'createdAt',
+        'updatedAt'
       ])
       && data.name is string
       && data.name.size() > 0
       && data.name.size() <= 80
+      && (data.category == null || data.category is string)
       && isValidAmount(data.rental)
       && isValidAmount(data.contract)
       && isValidRate(data.halfDisc)
@@ -49,7 +53,8 @@ service cloud.firestore {
       && isValidAmount(data.competitor)
       && isValidAmount(data.corasol)
       && isValidAmount(data.card)
-      && data.createdAt is int;
+      && data.createdAt is int
+      && (data.updatedAt == null || data.updatedAt is int);
     }
 
     match /products/{productId} {
