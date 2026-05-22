@@ -1165,8 +1165,9 @@
   }
 
   function refreshModalContent() {
-    if (!currentModalProductId) return;
-    openModal(currentModalProductId, false); // 기존 openModal 재사용 (히스토리 방지)
+    const modalProductId = currentModalProductId || document.getElementById('noteModal')?.dataset?.productId;
+    if (!modalProductId) return;
+    openModal(modalProductId, false); // 기존 openModal 재사용 (히스토리 방지)
   }
 
   // 🏷️ 스마트 카테고리 분류 함수
@@ -1212,9 +1213,12 @@
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
 
+    currentProductName = raw.name;
+    currentModalProductId = id;
+    const noteModalEl = document.getElementById('noteModal');
+    if (noteModalEl) noteModalEl.dataset.productId = id;
+
     if (pushHistoryFlag) {
-      currentProductName = raw.name;
-      currentModalProductId = id;
       // 홈/리스트에서 새로 진입할 때만 코라솔 임시 상태 초기화
       modalCorasolActive = false;
       modalCorasolQty = 1;
