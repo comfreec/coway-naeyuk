@@ -117,6 +117,64 @@
     .note-row .n-minus { color: #c0392b; }
     .note-row .n-final { color: #0057a8; font-size: 1.95rem; font-weight: 700; }
     .note-underline { border-bottom: 3px double #1a3a6e; padding-bottom: 2px; }
+    
+    /* 🏷️ 코라솔 전용 수량 조절 UI 스타일 */
+    .corasol-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: rgba(26, 58, 110, 0.05);
+      border-radius: 14px;
+      border: 1px dashed rgba(26, 58, 110, 0.2);
+    }
+    .corasol-check-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      flex: 1;
+    }
+    .corasol-check-wrap input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+    .corasol-check-wrap span {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a3a6e;
+    }
+    .corasol-qty-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      padding: 4px 8px;
+      border-radius: 30px;
+      border: 1px solid #d9e5f6;
+    }
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid #0057a8;
+      background: #fff;
+      color: #0057a8;
+      font-size: 1.2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .qty-btn:active { transform: scale(0.9); background: #f0f7ff; }
+    .qty-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #ccc; color: #ccc; }
+    .qty-val { font-size: 1.15rem; font-weight: 800; color: #333; min-width: 24px; text-align: center; }
+
     .note-stamp { margin-top: 12px; text-align: right; font-size: 1.25rem; color: #888; line-height: 44px; }
     .note-paper .note-row:nth-child(odd) { transform: rotate(-0.2deg); }
     .note-paper .note-row:nth-child(even) { transform: rotate(0.15deg); }
@@ -638,6 +696,22 @@
   <div class="note-paper" id="notePaper">
     <button class="note-close" onclick="closeModalDirect()">✕</button>
     <div id="noteContent"></div>
+    
+    <!-- 🏷️ 코라솔 실시간 할인 조절 UI -->
+    <div id="corasolControlUI" style="display:none; padding: 0 10px;">
+      <div class="corasol-control">
+        <label class="corasol-check-wrap">
+          <input type="checkbox" id="modalCorasolCheck" onchange="toggleModalCorasol()">
+          <span>코라솔 할인 적용</span>
+        </label>
+        <div class="corasol-qty-wrap" id="modalCorasolQtyArea" style="opacity: 0.5; pointer-events: none;">
+          <button class="qty-btn" onclick="updateModalCorasolQty(-1)">−</button>
+          <span class="qty-val" id="modalCorasolQty">1</span>
+          <button class="qty-btn" onclick="updateModalCorasolQty(1)">+</button>
+        </div>
+      </div>
+    </div>
+
     <div class="note-stamp" id="noteStamp"></div>
     <div class="note-sms-row">
       <a id="smsBtn" class="btn-sms" href="#" onclick="sendSms(event)" style="display:none;"></a>
@@ -1056,7 +1130,44 @@
   let currentProductName = '';
   let currentModalProductId = null;
   let currentCategory = '전체';
+  
+  // 🏷️ 코라솔 실시간 상태 관리
+  let modalCorasolActive = false;
+  let modalCorasolQty = 1;
+  const CORASOL_UNIT = 20000;
+
   const CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
+
+  // 🏷️ 코라솔 할인 상태 변경 핸들러
+  function toggleModalCorasol() {
+    const chk = document.getElementById('modalCorasolCheck');
+    const qtyArea = document.getElementById('modalCorasolQtyArea');
+    modalCorasolActive = chk.checked;
+    
+    if (modalCorasolActive) {
+      qtyArea.style.opacity = '1';
+      qtyArea.style.pointerEvents = 'auto';
+    } else {
+      qtyArea.style.opacity = '0.5';
+      qtyArea.style.pointerEvents = 'none';
+    }
+    
+    refreshModalContent();
+  }
+
+  function updateModalCorasolQty(delta) {
+    const newQty = modalCorasolQty + delta;
+    if (newQty >= 1 && newQty <= 10) {
+      modalCorasolQty = newQty;
+      document.getElementById('modalCorasolQty').textContent = modalCorasolQty;
+      refreshModalContent();
+    }
+  }
+
+  function refreshModalContent() {
+    if (!currentModalProductId) return;
+    openModal(currentModalProductId, false); // 기존 openModal 재사용 (히스토리 방지)
+  }
 
   // 🏷️ 스마트 카테고리 분류 함수
   function getSmartCategory(p) {
@@ -1097,10 +1208,19 @@
     if (document.getElementById('bigBenefitModal').classList.contains('open')) refreshBigBenefitProductList();
   }
 
-  function openModal(id) {
+  function openModal(id, pushHistoryFlag = true) {
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
-    const p = calcProduct(raw);
+    
+    // 🏷️ 코라솔 실시간 할인 계산 반영
+    let p = calcProduct(raw);
+    if (modalCorasolActive) {
+      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
+      p.corasol += addedCorasolAmt;
+      p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
+      p.totalDisc += addedCorasolAmt;
+    }
+
     const rows = [];
     rows.push(`<div class="note-title"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인 계산 내역서</div>`);
     rows.push(`<div class="note-product"><a href="https://search.shopping.naver.com/search/all?query=코웨이+${encodeURIComponent(p.name)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
@@ -1126,7 +1246,10 @@
     if (p.bundleDisc > 0)   push(`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt);
     if (p.multiDisc > 0)    push(`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt);
     if (p.competitor > 0)   push('타사보상 할인', p.competitor);
+    
+    // 코라솔 할인 표시 (기본 + 추가)
     if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
+    
     if (p.card > 0)         push('신용카드 할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
     rows.push(`<div class="note-row"><span class="n-label">총 할인금액</span><span class="n-minus">- ${fmt(p.totalDisc)}</span></div>`);
@@ -1134,8 +1257,20 @@
     document.getElementById('noteContent').innerHTML = rows.join('');
     const today = new Date().toLocaleDateString('ko-KR');
     document.getElementById('noteStamp').textContent = '작성일 : ' + today;
-    currentProductName = p.name;
-    currentModalProductId = id;
+    
+    if (pushHistoryFlag) {
+      currentProductName = p.name;
+      currentModalProductId = id;
+      // 모달 열 때 코라솔 초기화 (원하면 이전 상태 유지할 수도 있음)
+      modalCorasolActive = false;
+      modalCorasolQty = 1;
+      document.getElementById('modalCorasolCheck').checked = false;
+      document.getElementById('modalCorasolQty').textContent = '1';
+      document.getElementById('modalCorasolQtyArea').style.opacity = '0.5';
+      document.getElementById('modalCorasolQtyArea').style.pointerEvents = 'none';
+      document.getElementById('corasolControlUI').style.display = 'block';
+    }
+
     let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
     if (p.contract > 0)     sms += `② 약정 할인 : - ${fmt(p.contractAmt)}\n`;
     if (p.halfDisc > 0)     sms += `③ 반값 할인 (${p.halfDisc}%) : - ${fmt(p.halfDiscAmt)}\n`;
@@ -1155,16 +1290,24 @@
     modalOverlay.classList.add('open');
     notePaper.classList.add('hypno-bg-animate');
 
-    pushModalState('note');
+    if (pushHistoryFlag) {
+      pushModalState('note');
+    }
     
-    // 최종 금액 카운트다운 애니메이션
-    setTimeout(() => {
-      const el = document.getElementById('noteFinalAmt');
-      animateNumber(el, p.rental, p.finalAmt, 1000);
-    }, 300);
+    // 최종 금액 카운트다운 애니메이션 (신규 오픈 시에만 또는 실시간 반영 시에도)
+    const el = document.getElementById('noteFinalAmt');
+    if (pushHistoryFlag) {
+      setTimeout(() => {
+        animateNumber(el, p.rental, p.finalAmt, 1000);
+      }, 300);
+    } else {
+      el.textContent = fmt(p.finalAmt);
+    }
 
     // 스와이프로 최고의 할인 모달 전환
-    initModalSwipe(notePaper, id, 'note');
+    if (pushHistoryFlag) {
+      initModalSwipe(notePaper, id, 'note');
+    }
   }
 
   function sendSms(e) { e.preventDefault(); window.location.href = `sms:?body=${encodeURIComponent(currentSmsText)}`; }
@@ -1747,6 +1890,7 @@
       const notePaper = document.getElementById('notePaper');
       modalOverlay.classList.remove('open');
       notePaper.classList.remove('hypno-bg-animate');
+      document.getElementById('corasolControlUI').style.display = 'none'; // 👈 UI 숨김 추가
       if (history.state && history.state.modal === 'note') history.back();
     }
 
