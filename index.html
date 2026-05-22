@@ -1211,6 +1211,14 @@
   function openModal(id, pushHistoryFlag = true) {
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
+
+    if (pushHistoryFlag) {
+      currentProductName = raw.name;
+      currentModalProductId = id;
+      // 홈/리스트에서 새로 진입할 때만 코라솔 임시 상태 초기화
+      modalCorasolActive = false;
+      modalCorasolQty = 1;
+    }
     
     // 🏷️ 코라솔 실시간 할인 계산 반영
     let p = calcProduct(raw);
@@ -1258,17 +1266,15 @@
     const today = new Date().toLocaleDateString('ko-KR');
     document.getElementById('noteStamp').textContent = '작성일 : ' + today;
     
-    if (pushHistoryFlag) {
-      currentProductName = p.name;
-      currentModalProductId = id;
-      // 모달 열 때 코라솔 초기화 (원하면 이전 상태 유지할 수도 있음)
-      modalCorasolActive = false;
-      modalCorasolQty = 1;
-      document.getElementById('modalCorasolCheck').checked = false;
-      document.getElementById('modalCorasolQty').textContent = '1';
-      document.getElementById('modalCorasolQtyArea').style.opacity = '0.5';
-      document.getElementById('modalCorasolQtyArea').style.pointerEvents = 'none';
-      document.getElementById('corasolControlUI').style.display = 'block';
+    // 🏷️ 코라솔 UI 노출 및 상태 업데이트 (항상 실행)
+    const corasolUI = document.getElementById('corasolControlUI');
+    if (corasolUI) {
+      corasolUI.style.display = 'block';
+      document.getElementById('modalCorasolCheck').checked = modalCorasolActive;
+      document.getElementById('modalCorasolQty').textContent = modalCorasolQty;
+      const qtyArea = document.getElementById('modalCorasolQtyArea');
+      qtyArea.style.opacity = modalCorasolActive ? '1' : '0.5';
+      qtyArea.style.pointerEvents = modalCorasolActive ? 'auto' : 'none';
     }
 
     let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
