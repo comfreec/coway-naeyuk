@@ -1548,13 +1548,13 @@
     if (filteredByCat.length === 0) return { ps: [], bestProduct: null };
 
     const sorted = [...filteredByCat].sort((a, b) => {
-      const pa = calcProduct(a), pb = calcProduct(b);
+      const pa = calcProduct(a, true), pb = calcProduct(b, true);
       const va = orderKey === 'name' ? (pa.name || '') : (pa[orderKey] || 0);
       const vb = orderKey === 'name' ? (pb.name || '') : (pb[orderKey] || 0);
       if (typeof va === 'string') return va.localeCompare(vb, 'ko') * orderDir;
       return (va - vb) * orderDir;
     });
-    const ps = sorted.map(calcProduct);
+    const ps = sorted.map(x => calcProduct(x, true));
     const bestProduct = [...ps].sort((a, b) => b.totalDisc - a.totalDisc)[0];
     return { ps, bestProduct };
   }
