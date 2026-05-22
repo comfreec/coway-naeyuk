@@ -366,6 +366,16 @@
       .bb-lg-thumb { width: 62px; min-width: 62px; height: 62px; }
       .bb-scroll-btns { right: 12px; bottom: 70px; }
     }
+
+    /* 홈 상하 스크롤 버튼 */
+    .home-scroll-btns { position: fixed; right: 20px; bottom: 80px; display: none; flex-direction: column; gap: 10px; z-index: 900; }
+    .home-scroll-btns.visible { display: flex; }
+    .home-scroll-btn { width: 46px; height: 46px; border-radius: 50%; border: none; background: linear-gradient(135deg, #0a63c0, #2491ff); backdrop-filter: blur(6px); color: #fff; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(10,99,192,0.35); transition: background 0.15s, transform 0.15s; flex: unset; padding: 0; }
+    .home-scroll-btn:hover { transform: scale(1.1); opacity: 1; }
+    .home-scroll-btn:active { transform: scale(0.95); }
+    @media (max-width: 767px) {
+      .home-scroll-btns { right: 12px; bottom: 70px; }
+    }
     .auth-card { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
     .auth-status { font-size: 0.8rem; color: #4b5d78; font-weight: 600; }
     .auth-status.warn { color: #c0392b; }
@@ -418,8 +428,8 @@
 </div>
 
 <div class="card">
-  <h2>➕ 제품 추가</h2>
-  <div class="form-grid">
+  <h2 onclick="toggleAddProductForm()" style="cursor:pointer; user-select:none;">➕ 제품 추가 <span id="toggleArrow">▼</span></h2>
+  <div id="addProductForm" class="form-grid" style="display:none;">
     <div class="form-group full"><label>제품명</label><input type="text" id="productName" placeholder="예) 코웨이 공기청정기 AP-1019C" /></div>
     <div class="form-group full"><label>카테고리</label>
       <select id="productCategory" class="table-name-filter" style="width:100%; max-width:none;">
@@ -449,10 +459,10 @@
     <div class="form-group"><label>타사보상 할인금액 (원)</label><input type="number" id="competitorDiscount" placeholder="예) 10000" min="0" /></div>
     <div class="form-group"><label>코라솔 할인금액 (원)</label><input type="number" id="corasolDiscount" placeholder="예) 16600" min="0" /></div>
     <div class="form-group"><label>신용카드 할인금액 (원)</label><input type="number" id="cardDiscount" placeholder="예) 23000" min="0" /></div>
-  </div>
-  <div class="btn-row">
-    <button class="btn-add" onclick="addProduct()">계산 추가</button>
-    <button class="btn-reset" onclick="resetForm()">초기화</button>
+    <div class="btn-row" style="grid-column:1/-1;">
+      <button class="btn-add" onclick="addProduct()">계산 추가</button>
+      <button class="btn-reset" onclick="resetForm()">초기화</button>
+    </div>
   </div>
 </div>
 
@@ -519,7 +529,7 @@
     <button type="button" class="impact-close bb-close" onclick="closeBigBenefitModalDirect()">✕</button>
     <div class="bb-brand">COWAY PREVIEW</div>
     <div class="bb-hero" aria-hidden="true">
-      <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img">
+      <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img" class="hypno-pulse">
         <defs>
           <linearGradient id="bbg1" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:#4a9fff;stop-opacity:1"/>
@@ -535,9 +545,9 @@
           </filter>
         </defs>
         <ellipse cx="200" cy="200" rx="190" ry="46" fill="rgba(255,255,255,0.06)"/>
-        <circle cx="200" cy="95" r="62" fill="url(#bbg1)" filter="url(#bbglow)"/>
-        <circle cx="200" cy="95" r="48" fill="rgba(255,255,255,0.12)"/>
-        <text x="200" y="108" text-anchor="middle" fill="#fff" font-size="44" font-weight="800" font-family="system-ui,sans-serif">%</text>
+        <circle cx="200" cy="95" r="70" fill="url(#bbg1)" filter="url(#bbglow)"/>
+        <circle cx="200" cy="95" r="56" fill="rgba(255,255,255,0.12)"/>
+        <text x="200" y="108" text-anchor="middle" fill="#fff" font-size="48" font-weight="900" font-family="system-ui,sans-serif">100%</text>
         <circle cx="95" cy="130" r="34" fill="url(#bbg2)" opacity="0.95"/>
         <path d="M85 138 L93 146 L109 118" stroke="#1a2a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="305" cy="125" r="26" fill="rgba(146,255,196,0.35)" stroke="rgba(146,255,196,0.8)" stroke-width="2"/>
@@ -576,6 +586,12 @@
     <button type="button" class="bb-scroll-btn" id="bbScrollUp" aria-label="위로 이동">▲</button>
     <button type="button" class="bb-scroll-btn" id="bbScrollDown" aria-label="아래로 이동">▼</button>
   </div>
+</div>
+
+<!-- 홈 상하 스크롤 버튼 -->
+<div class="home-scroll-btns" id="homeScrollBtns">
+  <button type="button" class="home-scroll-btn" id="homeScrollUp" aria-label="위로 이동">▲</button>
+  <button type="button" class="home-scroll-btn" id="homeScrollDown" aria-label="아래로 이동">▼</button>
 </div>
 
 <!-- 수정 모달 -->
@@ -702,13 +718,19 @@
       <div class="corasol-control">
         <label class="corasol-check-wrap">
           <input type="checkbox" id="modalCorasolCheck" onchange="toggleModalCorasol()">
-          <span>코라솔 할인 적용</span>
+          <span>코라솔 할인</span>
         </label>
         <div class="corasol-qty-wrap" id="modalCorasolQtyArea" style="opacity: 0.5; pointer-events: none;">
           <button class="qty-btn" onclick="updateModalCorasolQty(-1)">−</button>
           <span class="qty-val" id="modalCorasolQty">1</span>
           <button class="qty-btn" onclick="updateModalCorasolQty(1)">+</button>
         </div>
+      </div>
+      <div class="corasol-control" style="margin-top: 8px;">
+        <label class="corasol-check-wrap">
+          <input type="checkbox" id="modalCardCheck" onchange="toggleModalCard()">
+          <span>카드할인</span>
+        </label>
       </div>
     </div>
 
@@ -848,7 +870,7 @@
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   }
 
-  function calcProduct(raw) {
+  function calcProduct(raw, applyCard = true) {
     const { rental=0, contract=0, halfDisc=0, rerentalDisc=0, disc=0,
             extraDisc=0, bundleDisc=0, multiDisc=0, competitor=0, corasol=0, card=0 } = raw;
     const contractAmt     = contract;
@@ -867,7 +889,8 @@
     const afterMulti      = afterBundle - multiDiscAmt;
     const afterCompetitor = afterMulti - competitor;
     const afterCorasol    = afterCompetitor - corasol;
-    const finalAmt        = Math.max(0, afterCorasol - card);
+    const cardAmt         = applyCard ? card : 0;
+    const finalAmt        = Math.max(0, afterCorasol - cardAmt);
     const totalDisc       = rental - finalAmt;
     return { ...raw, contractAmt, halfDiscAmt, rerentalDiscAmt, discAmt,
              extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt };
@@ -890,6 +913,7 @@
     const card         = parseFloat(document.getElementById('cardDiscount').value) || 0;
     if (!name)       { alert('제품명을 입력해주세요.'); return; }
     if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
+    if (!confirm('정말로 제품을 저장할까요?')) return;
     try {
       const { addDoc } = window._firestoreFns;
       await addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
@@ -956,6 +980,7 @@
       
       if (!name)       { alert('제품명을 입력해주세요.'); return; }
       if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
+      if (!confirm('정말로 수정사항을 저장할까요?')) return;
       
       if (btn) {
         btn.disabled = true;
@@ -1096,19 +1121,20 @@
 
   window.renderSummary = function() {
     const card = document.getElementById('summaryCard');
-    const grid = document.getElementById('summaryGrid');
-    const products = window.products || [];
-    if (products.length === 0) { card.style.display = 'none'; return; }
-    card.style.display = 'block';
-    const ps = products.map(calcProduct);
-    const totalRental = ps.reduce((s,p) => s+p.rental, 0);
-    const totalDisc   = ps.reduce((s,p) => s+p.totalDisc, 0);
-    const totalFinal  = ps.reduce((s,p) => s+p.finalAmt, 0);
-    grid.innerHTML = `
-      <div class="summary-item"><div class="s-label">총 렌탈료 (할인 전)</div><div class="s-value">${fmt(totalRental)}</div></div>
-      <div class="summary-item"><div class="s-label">총 할인금액</div><div class="s-value" style="color:#c0392b">▼ ${fmt(totalDisc)}</div></div>
-      <div class="summary-item highlight"><div class="s-label">월 최종 납부금액</div><div class="s-value">${fmt(totalFinal)}</div></div>`;
+    card.style.display = 'none';
   };
+
+  function toggleAddProductForm() {
+    const form = document.getElementById('addProductForm');
+    const arrow = document.getElementById('toggleArrow');
+    if (form.style.display === 'none') {
+      form.style.display = 'grid';
+      arrow.textContent = '▲';
+    } else {
+      form.style.display = 'none';
+      arrow.textContent = '▼';
+    }
+  }
 
   function resetForm() {
     ['productName','productCategory','rentalFee','contractDiscount','halfDiscountRate','rerentalDiscountRate',
@@ -1135,6 +1161,9 @@
   let modalCorasolActive = false;
   let modalCorasolQty = 1;
   const CORASOL_UNIT = 20000;
+  
+  // 🏷️ 신용카드 할인 실시간 상태 관리
+  let modalCardActive = true;
 
   const CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
 
@@ -1157,11 +1186,18 @@
 
   function updateModalCorasolQty(delta) {
     const newQty = modalCorasolQty + delta;
-    if (newQty >= 1 && newQty <= 10) {
+    if (newQty >= 1 && newQty <= 3) {
       modalCorasolQty = newQty;
       document.getElementById('modalCorasolQty').textContent = modalCorasolQty;
       refreshModalContent();
     }
+  }
+
+  // 🏷️ 신용카드 할인 상태 변경 핸들러
+  function toggleModalCard() {
+    const chk = document.getElementById('modalCardCheck');
+    modalCardActive = chk.checked;
+    refreshModalContent();
   }
 
   function refreshModalContent() {
@@ -1219,13 +1255,36 @@
     if (noteModalEl) noteModalEl.dataset.productId = id;
 
     if (pushHistoryFlag) {
-      // 홈/리스트에서 새로 진입할 때만 코라솔 임시 상태 초기화
+      // 홈/리스트에서 새로 진입할 때만 임시 상태 초기화
       modalCorasolActive = false;
       modalCorasolQty = 1;
+      modalCardActive = true;
     }
     
-    // 🏷️ 코라솔 실시간 할인 계산 반영
-    let p = calcProduct(raw);
+    // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
+    // 먼저 신용카드 할인 없이 계산해서 코라솔 후 소계 확인
+    let pWithoutCard = calcProduct(raw, false);
+    let corasolAfterSubtotal = raw.rental || 0;
+    
+    // 코라솔 전까지의 소계 계산
+    if (pWithoutCard.contract > 0) corasolAfterSubtotal -= pWithoutCard.contractAmt;
+    if (pWithoutCard.halfDisc > 0) corasolAfterSubtotal -= pWithoutCard.halfDiscAmt;
+    if (pWithoutCard.rerentalDisc > 0) corasolAfterSubtotal -= pWithoutCard.rerentalDiscAmt;
+    if (pWithoutCard.disc > 0) corasolAfterSubtotal -= pWithoutCard.discAmt;
+    if (pWithoutCard.extraDisc > 0) corasolAfterSubtotal -= pWithoutCard.extraDiscAmt;
+    if (pWithoutCard.bundleDisc > 0) corasolAfterSubtotal -= pWithoutCard.bundleDiscAmt;
+    if (pWithoutCard.multiDisc > 0) corasolAfterSubtotal -= pWithoutCard.multiDiscAmt;
+    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
+    if (pWithoutCard.corasol > 0) corasolAfterSubtotal -= pWithoutCard.corasol;
+    if (modalCorasolActive) {
+      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
+      corasolAfterSubtotal -= addedCorasolAmt;
+    }
+    
+    // 코라솔 후 소계가 마이너스이면 신용카드 할인 적용 안함
+    const applyCardDiscount = modalCardActive && corasolAfterSubtotal >= 0;
+    
+    let p = calcProduct(raw, applyCardDiscount);
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
@@ -1234,11 +1293,19 @@
     }
 
     const rows = [];
-    rows.push(`<div class="note-title"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인 계산 내역서</div>`);
+    const noteDiscRate = p.rental > 0 ? Math.min(100, Math.round((p.totalDisc / p.rental) * 100)) : 0;
+    rows.push(`<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
+      <div class="note-title" style="margin:0;"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인계산</div>
+      <div style="display:inline-block; background: linear-gradient(135deg, #0057a8, #2491ff); padding:8px 20px; border-radius:999px; box-shadow:0 4px 16px rgba(0,87,168,0.3);">
+        <span style="font-size:2.2rem; font-weight:900; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.2);" class="hypno-pulse">${noteDiscRate}%</span>
+        <span style="font-size:1rem; font-weight:700; color:rgba(255,255,255,0.9); margin-left:6px;">할인</span>
+      </div>
+    </div>`);
     rows.push(`<div class="note-product"><a href="https://search.shopping.naver.com/search/all?query=코웨이+${encodeURIComponent(p.name)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
     rows.push(`<hr class="note-divider">`);
     rows.push(`<div class="note-row"><span class="n-label">① 월 렌탈료</span><span class="n-val">${fmt(p.rental)}</span></div>`);
     let step = 1, running = p.rental;
+    let beforeCorasol = p.rental;
     const nums = ['②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪'];
     const push = (label, amt, type, link) => {
       running -= amt;
@@ -1247,24 +1314,42 @@
         ? `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;">${nums[step-1]} ${label}</a>`
         : `<span class="n-label" style="${labelStyle}">${nums[step-1]} ${label}</span>`;
       rows.push(`<div class="note-row">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
-      rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(running)}</span></div>`);
+      
+      if (label === '코라솔 할인' && running < 0) {
+        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val" style="color:#d63031;font-weight:800;">${fmt(running)} <span style="background:#ffeaa7;color:#1a2a4a;padding:2px 8px;border-radius:4px;font-size:0.9rem;">적립금</span></span></div>`);
+      } else if (label === '카드할인' && running < 0) {
+        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(0)}</span></div>`);
+      } else {
+        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(running)}</span></div>`);
+      }
       step++;
     };
-    if (p.contract > 0)     push('약정 할인', p.contractAmt);
-    if (p.halfDisc > 0)     push(`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt);
-    if (p.rerentalDisc > 0) push(`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt);
-    if (p.disc > 0)         push(`기본 할인 (${p.disc}%)`, p.discAmt);
-    if (p.extraDisc > 0)    push(`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt);
-    if (p.bundleDisc > 0)   push(`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt);
-    if (p.multiDisc > 0)    push(`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt);
-    if (p.competitor > 0)   push('타사보상 할인', p.competitor);
+    if (p.contract > 0)     { push('약정 할인', p.contractAmt); beforeCorasol -= p.contractAmt; }
+    if (p.halfDisc > 0)     { push(`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt); beforeCorasol -= p.halfDiscAmt; }
+    if (p.rerentalDisc > 0) { push(`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt); beforeCorasol -= p.rerentalDiscAmt; }
+    if (p.disc > 0)         { push(`기본 할인 (${p.disc}%)`, p.discAmt); beforeCorasol -= p.discAmt; }
+    if (p.extraDisc > 0)    { push(`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt); beforeCorasol -= p.extraDiscAmt; }
+    if (p.bundleDisc > 0)   { push(`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt); beforeCorasol -= p.bundleDiscAmt; }
+    if (p.multiDisc > 0)    { push(`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt); beforeCorasol -= p.multiDiscAmt; }
+    if (p.competitor > 0)   { push('타사보상 할인', p.competitor); beforeCorasol -= p.competitor; }
     
     // 코라솔 할인 표시 (기본 + 추가)
     if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
     
-    if (p.card > 0)         push('신용카드 할인', p.card, 'highlight', 'https://coway-m.com/card');
+    if (p.card > 0 && applyCardDiscount) push('카드할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
-    rows.push(`<div class="note-row"><span class="n-label">총 할인금액</span><span class="n-minus">- ${fmt(p.totalDisc)}</span></div>`);
+    
+    // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
+    const afterCorasol = beforeCorasol - (p.corasol || 0);
+    const savingAmount = afterCorasol < 0 ? Math.abs(afterCorasol) : 0;
+    
+    // 렌탈료 할인금액은 총 할인에서 적립금을 뺀 값
+    const rentalDiscount = Math.min(p.rental, p.totalDisc - savingAmount);
+    
+    rows.push(`<div class="note-row"><span class="n-label">렌탈료 할인금액</span><span class="n-minus">- ${fmt(rentalDiscount)}</span></div>`);
+    if (savingAmount > 0) {
+      rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
+    }
     rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span></div>`);
     document.getElementById('noteContent').innerHTML = rows.join('');
     const today = new Date().toLocaleDateString('ko-KR');
@@ -1279,6 +1364,7 @@
       const qtyArea = document.getElementById('modalCorasolQtyArea');
       qtyArea.style.opacity = modalCorasolActive ? '1' : '0.5';
       qtyArea.style.pointerEvents = modalCorasolActive ? 'auto' : 'none';
+      document.getElementById('modalCardCheck').checked = modalCardActive;
     }
 
     let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
@@ -1291,8 +1377,21 @@
     if (p.multiDisc > 0)    sms += `⑧ 동시구매 할인 (${p.multiDisc}%) : - ${fmt(p.multiDiscAmt)}\n`;
     if (p.competitor > 0)   sms += `⑨ 타사보상 할인 : - ${fmt(p.competitor)}\n`;
     if (p.corasol > 0)      sms += `⑩ 코라솔 할인 : - ${fmt(p.corasol)}\n`;
-    if (p.card > 0)         sms += `⑪ 신용카드 할인 : - ${fmt(p.card)}\n`;
-    sms += `─────────────────\n총 할인금액 : - ${fmt(p.totalDisc)}\n✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
+    if (p.card > 0 && modalCardActive) sms += `⑪ 카드할인 : - ${fmt(p.card)}\n`;
+    
+    // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
+    const afterCorasolSms = beforeCorasol - (p.corasol || 0);
+    const savingAmountSms = afterCorasolSms < 0 ? Math.abs(afterCorasolSms) : 0;
+    
+    // 렌탈료 할인금액은 총 할인에서 적립금을 뺀 값
+    const rentalDiscountSms = Math.min(p.rental, p.totalDisc - savingAmountSms);
+    
+    let smsEnd = `─────────────────\n렌탈료 할인금액 : - ${fmt(rentalDiscountSms)}\n`;
+    if (savingAmountSms > 0) {
+      smsEnd += `적립금 : + ${fmt(savingAmountSms)}\n`;
+    }
+    smsEnd += `✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
+    sms += smsEnd;
     currentSmsText = sms;
 
     const modalOverlay = document.getElementById('noteModal');
@@ -1315,9 +1414,7 @@
     }
 
     // 스와이프로 최고의 할인 모달 전환
-    if (pushHistoryFlag) {
-      initModalSwipe(notePaper, id, 'note');
-    }
+    initModalSwipe(notePaper, id, 'note');
   }
 
   function sendSms(e) { e.preventDefault(); window.location.href = `sms:?body=${encodeURIComponent(currentSmsText)}`; }
@@ -1325,12 +1422,15 @@
   async function captureNote() {
     const el = document.getElementById('notePaper');
     const smsRow = document.querySelector('.note-sms-row');
+    const corasolUI = document.getElementById('corasolControlUI');
     smsRow.style.display = 'none';
+    if (corasolUI) corasolUI.style.display = 'none';
     el.style.maxHeight = 'none'; el.style.overflowY = 'visible'; el.style.height = 'auto';
     await new Promise(r => setTimeout(r, 100));
     const canvas = await html2canvas(el, { backgroundColor:'#fffef5', scale:2, logging:false, useCORS:true, scrollY:-window.scrollY, scrollX:-window.scrollX, windowHeight:document.documentElement.scrollHeight });
     el.style.maxHeight = ''; el.style.overflowY = ''; el.style.height = '';
     smsRow.style.display = 'flex';
+    if (corasolUI) corasolUI.style.display = 'block';
     return canvas;
   }
 
@@ -1399,6 +1499,15 @@
   function copyToForm(id) {
     const p = (window.products || []).find(x => x._id === id);
     if (!p) return;
+    
+    // 제품 추가 폼 자동으로 펼치기
+    const form = document.getElementById('addProductForm');
+    const arrow = document.getElementById('toggleArrow');
+    if (form.style.display === 'none') {
+      form.style.display = 'grid';
+      arrow.textContent = '▲';
+    }
+    
     const map = {
       productName: 'name', productCategory: 'category', rentalFee: 'rental', contractDiscount: 'contract',
       halfDiscountRate: 'halfDisc', rerentalDiscountRate: 'rerentalDisc',
@@ -1500,6 +1609,36 @@
       const observer = new MutationObserver(updateScrollBtns);
       const modal = document.getElementById('bigBenefitModal');
       if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    });
+  })();
+
+  // 홈 상하 스크롤 버튼
+  (function() {
+    function updateHomeScrollBtns() {
+      const btns = document.getElementById('homeScrollBtns');
+      if (!btns) return;
+      const products = window.products || [];
+      btns.classList.toggle('visible', products.length > 0);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const upBtn = document.getElementById('homeScrollUp');
+      const downBtn = document.getElementById('homeScrollDown');
+      if (!upBtn || !downBtn) return;
+
+      upBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      downBtn.addEventListener('click', () => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      });
+
+      // 제품 목록 변경 시 버튼 표시/숨김
+      const originalRenderTable = window.renderTable;
+      window.renderTable = function() {
+        originalRenderTable.apply(window, arguments);
+        updateHomeScrollBtns();
+      };
     });
   })();
 
@@ -1757,9 +1896,11 @@
   async function captureBestModal() {
     const paper = document.getElementById('bestPaper');
     const closeBtn = paper.querySelector('.bm-close');
+    const smsRow = paper.querySelector('.note-sms-row');
     const prevMaxHeight = paper.style.maxHeight;
     const prevOverflow = paper.style.overflowY;
     if (closeBtn) closeBtn.style.display = 'none';
+    if (smsRow) smsRow.style.display = 'none';
     paper.style.maxHeight = 'none';
     paper.style.overflowY = 'visible';
     await new Promise(r => setTimeout(r, 80));
@@ -1774,6 +1915,7 @@
     paper.style.maxHeight = prevMaxHeight;
     paper.style.overflowY = prevOverflow;
     if (closeBtn) closeBtn.style.display = '';
+    if (smsRow) smsRow.style.display = 'flex';
     return canvas;
   }
 
@@ -1811,33 +1953,98 @@
     const bestPaper = document.getElementById('bestPaper');
     modalOverlay.classList.remove('open');
     bestPaper.classList.remove('hypno-bg-animate');
+    modalCorasolActive = false;
+    modalCorasolQty = 1;
+    modalCardActive = true;
     if (history.state && history.state.modal === 'best') history.back();
   }
 
   function initModalSwipe(el, id, currentType) {
     let sx = 0;
+    let sy = 0;
+    let isScrolling = false;
+
+    if (el._swipeHandlers) {
+      el.removeEventListener('touchstart', el._swipeHandlers.start);
+      el.removeEventListener('touchmove', el._swipeHandlers.move);
+      el.removeEventListener('touchend', el._swipeHandlers.end);
+    }
+
     const onSwipe = () => {
       if (currentType === 'note') {
         document.getElementById('noteModal').classList.remove('open');
-        document.getElementById('corasolControlUI').style.display = 'none'; // UI 숨김
-        openBestModal(id, false); // 👈 false 전달하여 히스토리 유지 및 상태 보존
+        const corasolUI = document.getElementById('corasolControlUI');
+        if (corasolUI) corasolUI.style.display = 'none';
+        openBestModal(id, false);
       } else {
         document.getElementById('bestModal').classList.remove('open');
-        openModal(id, false); // 👈 false 전달하여 히스토리 유지 및 상태 보존
+        openModal(id, false);
       }
     };
-    el.ontouchstart = (e) => { sx = e.touches[0].clientX; };
-    el.ontouchend = (e) => {
-      if (Math.abs(e.changedTouches[0].clientX - sx) > 60) onSwipe();
+
+    const handleTouchStart = (e) => {
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+      isScrolling = false;
     };
+
+    const handleTouchMove = (e) => {
+      if (isScrolling) return;
+      const dx = e.touches[0].clientX - sx;
+      const dy = e.touches[0].clientY - sy;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        isScrolling = true;
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      if (isScrolling) return;
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        onSwipe();
+      }
+    };
+
+    el._swipeHandlers = {
+      start: handleTouchStart,
+      move: handleTouchMove,
+      end: handleTouchEnd
+    };
+
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchmove', handleTouchMove, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true });
   }
 
   function openBestModal(id, pushHistoryFlag = true) {
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
     
-    // 🏷️ 코라솔 실시간 할인 계산 반영
-    let p = calcProduct(raw);
+    // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
+    // 먼저 신용카드 할인 없이 계산해서 코라솔 후 소계 확인
+    let pWithoutCard = calcProduct(raw, false);
+    let corasolAfterSubtotal = raw.rental || 0;
+    
+    // 코라솔 전까지의 소계 계산
+    if (pWithoutCard.contract > 0) corasolAfterSubtotal -= pWithoutCard.contractAmt;
+    if (pWithoutCard.halfDisc > 0) corasolAfterSubtotal -= pWithoutCard.halfDiscAmt;
+    if (pWithoutCard.rerentalDisc > 0) corasolAfterSubtotal -= pWithoutCard.rerentalDiscAmt;
+    if (pWithoutCard.disc > 0) corasolAfterSubtotal -= pWithoutCard.discAmt;
+    if (pWithoutCard.extraDisc > 0) corasolAfterSubtotal -= pWithoutCard.extraDiscAmt;
+    if (pWithoutCard.bundleDisc > 0) corasolAfterSubtotal -= pWithoutCard.bundleDiscAmt;
+    if (pWithoutCard.multiDisc > 0) corasolAfterSubtotal -= pWithoutCard.multiDiscAmt;
+    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
+    if (pWithoutCard.corasol > 0) corasolAfterSubtotal -= pWithoutCard.corasol;
+    if (modalCorasolActive) {
+      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
+      corasolAfterSubtotal -= addedCorasolAmt;
+    }
+    
+    // 코라솔 후 소계가 마이너스이면 신용카드 할인 적용 안함
+    const applyCardDiscount = modalCardActive && corasolAfterSubtotal >= 0;
+    
+    let p = calcProduct(raw, applyCardDiscount);
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
@@ -1845,8 +2052,26 @@
       p.totalDisc += addedCorasolAmt;
     }
 
-    const discRate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
-    const saving = p.totalDisc;
+    const discRate = p.rental > 0 ? Math.min(100, Math.round((p.totalDisc / p.rental) * 100)) : 0;
+    
+    // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
+    let beforeCorasolBest = raw.rental || 0;
+    if (p.contract > 0) beforeCorasolBest -= p.contractAmt;
+    if (p.halfDisc > 0) beforeCorasolBest -= p.halfDiscAmt;
+    if (p.rerentalDisc > 0) beforeCorasolBest -= p.rerentalDiscAmt;
+    if (p.disc > 0) beforeCorasolBest -= p.discAmt;
+    if (p.extraDisc > 0) beforeCorasolBest -= p.extraDiscAmt;
+    if (p.bundleDisc > 0) beforeCorasolBest -= p.bundleDiscAmt;
+    if (p.multiDisc > 0) beforeCorasolBest -= p.multiDiscAmt;
+    if (p.competitor > 0) beforeCorasolBest -= p.competitor;
+    
+    const afterCorasolBest = beforeCorasolBest - (p.corasol || 0);
+    const savingAmountBest = afterCorasolBest < 0 ? Math.abs(afterCorasolBest) : 0;
+    
+    // 렌탈료 할인금액은 총 할인에서 적립금을 뺀 값
+    const rentalDiscountBest = Math.min(p.rental, p.totalDisc - savingAmountBest);
+    const totalSaving = p.totalDisc;
+    
     const items = [];
     if (p.contract > 0)     items.push(['약정 할인', p.contractAmt]);
     if (p.halfDisc > 0)     items.push([`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt]);
@@ -1857,10 +2082,16 @@
     if (p.multiDisc > 0)    items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
     if (p.competitor > 0)   items.push(['타사보상 할인', p.competitor]);
     if (p.corasol > 0)      items.push(['코라솔 할인', p.corasol]);
-    if (p.card > 0)         items.push(['카드 할인', p.card]);
+    if (p.card > 0 && applyCardDiscount) items.push(['카드 할인', p.card]);
     const itemRows = items.map(([label, amt]) =>
       `<div class="s-row"><span>${label}</span><span>- ${fmt(amt)}</span></div>`
     ).join('');
+    
+    let totalRows = `<div class="s-row total"><span>렌탈료 할인금액</span><span>- ${fmt(rentalDiscountBest)}</span></div>`;
+    if (savingAmountBest > 0) {
+      totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span>+ ${fmt(savingAmountBest)}</span></div>`;
+    }
+    
     document.getElementById('bestContent').innerHTML = `
       <div class="bm-badge">🔥 최고의 할인 혜택</div>
       <div class="bm-name">${p.name}</div>
@@ -1871,10 +2102,10 @@
         <span class="bm-arrow">→</span>
         <div class="bm-final"><small>월 </small><span id="bestFinalAmt" class="hypno-pulse">${p.finalAmt.toLocaleString('ko-KR')}</span><small>원</small></div>
       </div>
-      <div class="bm-per">매달 <strong>${fmt(saving)}</strong> 절약!</div>
+      <div class="bm-per">매달 <strong>${fmt(rentalDiscountBest)}</strong> 절약${savingAmountBest > 0 ? ` + <strong style="color:#d63031;">${fmt(savingAmountBest)}</strong> 적립` : ''}!</div>
       <hr class="bm-divider">
       ${itemRows}
-      <div class="s-row total"><span>총 할인금액</span><span>- ${fmt(saving)}</span></div>
+      ${totalRows}
       <hr class="bm-divider">
       <div class="note-sms-row" style="margin-top:12px;">
         <button class="btn-img" onclick="shareBestImage()">🖼</button>
@@ -1919,7 +2150,11 @@
       const notePaper = document.getElementById('notePaper');
       modalOverlay.classList.remove('open');
       notePaper.classList.remove('hypno-bg-animate');
-      document.getElementById('corasolControlUI').style.display = 'none'; // 👈 UI 숨김 추가
+      const corasolUI = document.getElementById('corasolControlUI');
+      if (corasolUI) corasolUI.style.display = 'none';
+      modalCorasolActive = false;
+      modalCorasolQty = 1;
+      modalCardActive = true;
       if (history.state && history.state.modal === 'note') history.back();
     }
 
@@ -2008,6 +2243,10 @@
       const el = document.getElementById(id);
       if (el) el.classList.remove('hypno-bg-animate');
     });
+    // 코라솔 & 신용카드 상태 초기화
+    modalCorasolActive = false;
+    modalCorasolQty = 1;
+    modalCardActive = true;
 
     const modal = history.state && history.state.modal;
 
