@@ -1804,16 +1804,16 @@
     if (history.state && history.state.modal === 'best') history.back();
   }
 
-  // 모달 간 스와이프 전환
   function initModalSwipe(el, id, currentType) {
     let sx = 0;
     const onSwipe = () => {
       if (currentType === 'note') {
         document.getElementById('noteModal').classList.remove('open');
-        openBestModal(id);
+        document.getElementById('corasolControlUI').style.display = 'none'; // UI 숨김
+        openBestModal(id, false); // 👈 false 전달하여 히스토리 유지 및 상태 보존
       } else {
         document.getElementById('bestModal').classList.remove('open');
-        openModal(id);
+        openModal(id, false); // 👈 false 전달하여 히스토리 유지 및 상태 보존
       }
     };
     el.ontouchstart = (e) => { sx = e.touches[0].clientX; };
@@ -1822,10 +1822,19 @@
     };
   }
 
-  function openBestModal(id) {
+  function openBestModal(id, pushHistoryFlag = true) {
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
-    const p = calcProduct(raw);
+    
+    // 🏷️ 코라솔 실시간 할인 계산 반영
+    let p = calcProduct(raw);
+    if (modalCorasolActive) {
+      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
+      p.corasol += addedCorasolAmt;
+      p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
+      p.totalDisc += addedCorasolAmt;
+    }
+
     const discRate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
     const saving = p.totalDisc;
     const items = [];
@@ -1867,15 +1876,25 @@
     modalOverlay.classList.add('open');
     bestPaper.classList.add('hypno-bg-animate');
     
-    pushModalState('best');
+    if (pushHistoryFlag) {
+      pushModalState('best');
+      // 💡 홈에서 직접 열 때는 코라솔 상태 초기화
+      modalCorasolActive = false;
+      modalCorasolQty = 1;
+    }
 
     // 할인율 및 최종 금액 애니메이션
-    setTimeout(() => {
-      const rateEl = document.getElementById('bestDiscRate');
-      const finalEl = document.getElementById('bestFinalAmt');
-      animateNumber(rateEl, 0, discRate, 1000, (n) => n + '%');
-      animateNumber(finalEl, p.rental, p.finalAmt, 1000, (n) => n.toLocaleString('ko-KR'));
-    }, 300);
+    const rateEl = document.getElementById('bestDiscRate');
+    const finalEl = document.getElementById('bestFinalAmt');
+    if (pushHistoryFlag) {
+      setTimeout(() => {
+        animateNumber(rateEl, 0, discRate, 1000, (n) => n + '%');
+        animateNumber(finalEl, p.rental, p.finalAmt, 1000, (n) => n.toLocaleString('ko-KR'));
+      }, 300);
+    } else {
+      rateEl.textContent = discRate + '%';
+      finalEl.textContent = p.finalAmt.toLocaleString('ko-KR');
+    }
 
     // 스와이프로 계산 내역서 모달 전환
     initModalSwipe(bestPaper, id, 'best');
