@@ -892,8 +892,10 @@
     const cardAmt         = applyCard ? card : 0;
     const finalAmt        = Math.max(0, afterCorasol - cardAmt);
     const totalDisc       = rental - finalAmt;
+    const nonCorasolDisc  = totalDisc - corasol;
     return { ...raw, contractAmt, halfDiscAmt, rerentalDiscAmt, discAmt,
-             extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt };
+             extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt,
+             corasolAmt: corasol, nonCorasolDisc };
   }
 
   async function addProduct() {
@@ -1288,6 +1290,7 @@
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
+      p.corasolAmt = p.corasol;
       p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
       p.totalDisc += addedCorasolAmt;
     }
@@ -1350,10 +1353,53 @@
     if (savingAmount > 0) {
       rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
     }
-    rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span></div>`);
+    // 총렌탈비 할인액 (월렌탈료 - 최종납부금액 × 7년) + 코라솔 총할인액 (5년 기준)
+    const corasolAmt = p.corasolAmt || 0;
+    const totalRentalDiscount = (p.rental - p.finalAmt) * 84;
+    const corasolTotalDiscount = corasolAmt * 60;
+    
+    // 최종납부액 (클릭 시 펼치기/접기)
+    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleTotalDiscount()">
+      <span class="n-label" style="font-size:1.6rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부액</span>
+      <span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span>
+      <span id="toggleArrow" style="font-size:1.2rem;margin-left:8px;transition:transform 0.3s;">▼</span>
+    </div>`);
+    
+    // 펼쳐서 보이는 총렌탈비 할인액과 코라솔 총할인액
+    rows.push(`<div id="totalDiscountSection" style="display:none;margin-top:16px;">
+      <div style="background:linear-gradient(135deg,#ffecd2,#fcb69f);padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(252,182,159,0.3);">
+        <div style="font-size:1.1rem;font-weight:800;color:#d63031;margin-bottom:8px;text-align:center;">💰 총렌탈비 할인액</div>
+        <div style="text-align:center;">
+          <div style="font-size:2.2rem;font-weight:900;color:#0057a8;">${fmt(totalRentalDiscount)}</div>
+        </div>
+      </div>
+      ${corasolAmt > 0 ? `
+        <div style="background:linear-gradient(135deg,#a8edea,#fed6e3);padding:16px;border-radius:12px;margin-top:12px;box-shadow:0 4px 12px rgba(168,237,234,0.3);">
+          <div style="font-size:1.1rem;font-weight:800;color:#2d3436;margin-bottom:8px;text-align:center;">🍊 코라솔 총할인액</div>
+          <div style="text-align:center;">
+            <div style="font-size:0.9rem;color:#666;margin-bottom:4px;">개당 20,000원 × ${Math.round(corasolAmt / 20000)}개 × 5년(60개월)</div>
+            <div style="font-size:2.2rem;font-weight:900;color:#00b894;">${fmt(corasolTotalDiscount)}</div>
+          </div>
+        </div>
+      ` : ''}
+    </div>`);
+    
     document.getElementById('noteContent').innerHTML = rows.join('');
     const today = new Date().toLocaleDateString('ko-KR');
     document.getElementById('noteStamp').textContent = '작성일 : ' + today;
+    
+    // 펼치기/접기 토글 함수
+    window.toggleTotalDiscount = function() {
+      const section = document.getElementById('totalDiscountSection');
+      const arrow = document.getElementById('toggleArrow');
+      if (section.style.display === 'none') {
+        section.style.display = 'block';
+        arrow.style.transform = 'rotate(180deg)';
+      } else {
+        section.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+      }
+    };
     
     // 🏷️ 코라솔 UI 노출 및 상태 업데이트 (항상 실행)
     const corasolUI = document.getElementById('corasolControlUI');
@@ -2048,6 +2094,7 @@
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
+      p.corasolAmt = p.corasol;
       p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
       p.totalDisc += addedCorasolAmt;
     }
@@ -2089,7 +2136,7 @@
     
     let totalRows = `<div class="s-row total"><span>렌탈료 할인금액</span><span>- ${fmt(rentalDiscountBest)}</span></div>`;
     if (savingAmountBest > 0) {
-      totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span>+ ${fmt(savingAmountBest)}</span></div>`;
+      totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span style="color:#d63031;">+ ${fmt(savingAmountBest)}</span></div>`;
     }
     
     document.getElementById('bestContent').innerHTML = `
@@ -2107,6 +2154,33 @@
       ${itemRows}
       ${totalRows}
       <hr class="bm-divider">
+      
+      <!-- 최종납부액 (클릭 시 펼치기/접기) -->
+      <div style="cursor:pointer;padding:12px 0;text-align:center;" onclick="toggleBestTotalDiscount()">
+        <div style="font-size:1.8rem;font-weight:900;color:#ffd700;">✅ 최종 납부액</div>
+        <div style="font-size:2.5rem;font-weight:900;color:#ffd700;margin-top:4px;">${p.finalAmt.toLocaleString('ko-KR')}원</div>
+        <div id="bestToggleArrow" style="font-size:1.2rem;transition:transform 0.3s;margin-top:4px;color:#ffd700;">▼</div>
+      </div>
+      
+      <!-- 펼쳐서 보이는 총렌탈비 할인액과 코라솔 총할인액 -->
+      <div id="bestTotalDiscountSection" style="display:none;margin-top:16px;">
+        <div style="background:linear-gradient(135deg,#ffecd2,#fcb69f);padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(252,182,159,0.3);">
+          <div style="font-size:1.1rem;font-weight:800;color:#d63031;margin-bottom:8px;text-align:center;">💰 총렌탈비 할인액</div>
+          <div style="text-align:center;">
+            <div style="font-size:2.2rem;font-weight:900;color:#0057a8;">${fmt((p.rental - p.finalAmt) * 84)}</div>
+          </div>
+        </div>
+        ${p.corasolAmt > 0 ? `
+          <div style="background:linear-gradient(135deg,#a8edea,#fed6e3);padding:16px;border-radius:12px;margin-top:12px;box-shadow:0 4px 12px rgba(168,237,234,0.3);">
+            <div style="font-size:1.1rem;font-weight:800;color:#2d3436;margin-bottom:8px;text-align:center;">🍊 코라솔 총할인액</div>
+            <div style="text-align:center;">
+              <div style="font-size:0.9rem;color:#666;margin-bottom:4px;">개당 20,000원 × ${Math.round((p.corasolAmt || 0) / 20000)}개 × 5년(60개월)</div>
+              <div style="font-size:2.2rem;font-weight:900;color:#00b894;">${fmt((p.corasolAmt || 0) * 60)}</div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+      
       <div class="note-sms-row" style="margin-top:12px;">
         <button class="btn-img" onclick="shareBestImage()">🖼</button>
         <button class="btn-save" onclick="saveBestImage()">💾</button>
@@ -2116,6 +2190,19 @@
     const bestPaper = document.getElementById('bestPaper');
     modalOverlay.classList.add('open');
     bestPaper.classList.add('hypno-bg-animate');
+    
+    // 펼치기/접기 토글 함수
+    window.toggleBestTotalDiscount = function() {
+      const section = document.getElementById('bestTotalDiscountSection');
+      const arrow = document.getElementById('bestToggleArrow');
+      if (section.style.display === 'none') {
+        section.style.display = 'block';
+        arrow.style.transform = 'rotate(180deg)';
+      } else {
+        section.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+      }
+    };
     
     if (pushHistoryFlag) {
       pushModalState('best');
