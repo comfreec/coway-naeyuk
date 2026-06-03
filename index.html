@@ -1355,7 +1355,10 @@
     if (p.competitor > 0)   { push('타사보상 할인', p.competitor); beforeCorasol -= p.competitor; }
     
     // 코라솔 할인 표시 (기본 + 추가)
-    if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
+    if (p.corasol > 0)      {
+      const totalCorasol = p.corasol * 60; // 5년 = 60개월
+      push(`코라솔 할인 (1개월:${fmt(p.corasol)}, 5년총:${fmt(totalCorasol)})`, p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
+    }
     
     if (p.card > 0 && applyCardDiscount) push('카드할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
@@ -1397,7 +1400,10 @@
     if (p.bundleDisc > 0)   sms += `⑦ 결합 할인 (${p.bundleDisc}%) : - ${fmt(p.bundleDiscAmt)}\n`;
     if (p.multiDisc > 0)    sms += `⑧ 동시구매 할인 (${p.multiDisc}%) : - ${fmt(p.multiDiscAmt)}\n`;
     if (p.competitor > 0)   sms += `⑨ 타사보상 할인 : - ${fmt(p.competitor)}\n`;
-    if (p.corasol > 0)      sms += `⑩ 코라솔 할인 : - ${fmt(p.corasol)}\n`;
+    if (p.corasol > 0)      {
+      const totalCorasol = p.corasol * 60; // 5년 = 60개월
+      sms += `⑩ 코라솔 할인 (1개월:${fmt(p.corasol)}, 5년총:${fmt(totalCorasol)}) : - ${fmt(p.corasol)}\n`;
+    }
     if (p.card > 0 && modalCardActive) sms += `⑪ 카드할인 : - ${fmt(p.card)}\n`;
     
     // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
@@ -2102,7 +2108,10 @@
     if (p.bundleDisc > 0)   items.push([`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt]);
     if (p.multiDisc > 0)    items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
     if (p.competitor > 0)   items.push(['타사보상 할인', p.competitor]);
-    if (p.corasol > 0)      items.push(['코라솔 할인', p.corasol]);
+    if (p.corasol > 0)      {
+      const totalCorasol = p.corasol * 60; // 5년 = 60개월
+      items.push([`코라솔 할인 (1개월:${fmt(p.corasol)}, 5년총:${fmt(totalCorasol)})`, p.corasol]);
+    }
     if (p.card > 0 && applyCardDiscount) items.push(['카드 할인', p.card]);
     const itemRows = items.map(([label, amt]) =>
       `<div class="s-row"><span>${label}</span><span>- ${fmt(amt)}</span></div>`
