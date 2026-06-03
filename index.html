@@ -1242,6 +1242,13 @@
     return '기타';
   }
 
+  // 기타를 맨 뒤로 보내는 함수 (글로벌 스코프)
+  function ensureGitaAtEnd(categories) {
+    const filtered = categories.filter(c => c !== '기타');
+    filtered.push('기타');
+    return filtered;
+  }
+
   // 🏷️ 카테고리 필터 UI 렌더링
   function renderCategoryFilters() {
     const containers = [
@@ -1255,7 +1262,9 @@
       if (!el) return;
       // window.CATEGORIES 사용 (파이어베이스에서 업데이트된 최신 카테고리)
       const categories = window.CATEGORIES || CATEGORIES;
-      el.innerHTML = categories.map(cat => {
+      // 기타를 맨 뒤로
+      const sorted = ensureGitaAtEnd(categories);
+      el.innerHTML = sorted.map(cat => {
         const activeClass = currentCategory === cat ? 'active' : '';
         const modalClass = target.isModal ? 'modal-category-chip' : '';
         return `<div class="category-chip ${activeClass} ${modalClass}" onclick="setCategory('${cat}')">${cat}</div>`;
@@ -2503,10 +2512,16 @@
     }
 
     // 기타를 맨 뒤로 보내는 함수
-    function ensureGitaAtEnd() {
-      const filtered = window.CATEGORIES.filter(c => c !== '기타');
-      filtered.push('기타');
-      window.CATEGORIES = filtered;
+    function ensureGitaAtEnd(categories) {
+      if (categories) {
+        const filtered = categories.filter(c => c !== '기타');
+        filtered.push('기타');
+        return filtered;
+      } else {
+        const filtered = window.CATEGORIES.filter(c => c !== '기타');
+        filtered.push('기타');
+        window.CATEGORIES = filtered;
+      }
     }
 
     async function saveCategoriesToFirestore() {
