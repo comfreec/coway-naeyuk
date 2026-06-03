@@ -2414,6 +2414,11 @@
           select.value = '';
         }
       });
+      
+      // 🏷️ 홈 화면 카테고리 필터도 업데이트
+      if (typeof renderCategoryFilters === 'function') {
+        renderCategoryFilters();
+      }
     }
 
     function openCategoryManager() {
