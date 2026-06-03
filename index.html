@@ -2146,7 +2146,7 @@
     
     let totalRows = `<div class="s-row total"><span>렌탈료 할인금액</span><span>- ${fmt(rentalDiscountBest)}</span></div>`;
     if (savingAmountBest > 0) {
-      totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span>+ ${fmt(savingAmountBest)}</span></div>`;
+      totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span style="color:#d63031;">+ ${fmt(savingAmountBest)}</span></div>`;
     }
     
     document.getElementById('bestContent').innerHTML = `
@@ -2475,9 +2475,57 @@
       }
     }
 
+    function addCategory() {
+      const input = document.getElementById('newCategoryName');
+      const name = input.value.trim();
+      
+      if (!name) {
+        alert('카테고리 이름을 입력해주세요.');
+        return;
+      }
+      
+      if (window.CATEGORIES.includes(name)) {
+        alert('이미 존재하는 카테고리입니다.');
+        return;
+      }
+      
+      // 기타 카테고리 제거한 다음 추가하고 기타를 맨 뒤에 넣기
+      const filtered = window.CATEGORIES.filter(c => c !== '기타');
+      filtered.push(name);
+      filtered.push('기타');
+      window.CATEGORIES = filtered;
+      
+      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+      saveCategoriesToFirestore();
+      updateAllCategorySelects();
+      renderCategoryList();
+      input.value = '';
+    }
+
+    // 기타를 맨 뒤로 보내는 함수
+    function ensureGitaAtEnd() {
+      const filtered = window.CATEGORIES.filter(c => c !== '기타');
+      filtered.push('기타');
+      window.CATEGORIES = filtered;
+    }
+
+    async function saveCategoriesToFirestore() {
+      if (!window._firestoreFns) return;
+      const { setDoc } = window._firestoreFns;
+      try {
+        ensureGitaAtEnd();
+        await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+      } catch (e) {
+        console.error('카테고리 저장 오류:', e);
+      }
+    }
+
     function renderCategoryList() {
       const list = document.getElementById('categoryList');
       if (!list) return;
+      
+      // 기타를 맨 뒤로
+      ensureGitaAtEnd();
       
       const html = window.CATEGORIES.map((cat, index) => {
         const isProtected = cat === '전체' || cat === '기타';
@@ -2495,28 +2543,6 @@
       }).join('');
       
       list.innerHTML = html;
-    }
-
-    function addCategory() {
-      const input = document.getElementById('newCategoryName');
-      const name = input.value.trim();
-      
-      if (!name) {
-        alert('카테고리 이름을 입력해주세요.');
-        return;
-      }
-      
-      if (window.CATEGORIES.includes(name)) {
-        alert('이미 존재하는 카테고리입니다.');
-        return;
-      }
-      
-      window.CATEGORIES.push(name);
-      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
-      saveCategoriesToFirestore();
-      updateAllCategorySelects();
-      renderCategoryList();
-      input.value = '';
     }
 
     function editCategory(index) {
@@ -2549,16 +2575,6 @@
       updateAllCategorySelects();
       renderCategoryList();
       window.renderTable();
-    }
-
-    async function saveCategoriesToFirestore() {
-      if (!window._firestoreFns) return;
-      const { setDoc } = window._firestoreFns;
-      try {
-        await setDoc(categoriesDocRef, { list: window.CATEGORIES });
-      } catch (e) {
-        console.error('카테고리 저장 오류:', e);
-      }
     }
 
     window.openCategoryManager = openCategoryManager;
