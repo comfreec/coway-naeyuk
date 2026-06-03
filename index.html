@@ -1383,19 +1383,20 @@
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
       rows.push(`
         <div style="
-          background: linear-gradient(135deg, #ff6b6b, #ff4757);
-          color: white;
-          padding: 16px;
-          border-radius: 12px;
+          background: radial-gradient(ellipse 120% 80% at 50% 0%, #2f5fa3 0%, #1e3d6b 42%, #0f1f38 100%);
+          color: #ffd873;
+          padding: 18px;
+          border-radius: 16px;
           margin-top: 16px;
           text-align: center;
-          box-shadow: 0 4px 16px rgba(255, 71, 87, 0.4);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
           font-weight: 800;
+          border: 1px solid rgba(255, 215, 0, 0.3);
           animation: pulse 2s ease-in-out infinite;
         ">
-          <div style="font-size: 1.2rem; margin-bottom: 8px;">🎉 코라솔 5년 총 할인금액 🎉</div>
-          <div style="font-size: 2.5rem;">${fmt(totalCorasol)}</div>
-          <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 4px;">(1개월: ${fmt(p.corasol)})</div>
+          <div style="font-size: 1.2rem; margin-bottom: 10px; color: rgba(255, 255, 255, 0.85);">🎉 코라솔 5년 총 할인금액 🎉</div>
+          <div style="font-size: 2.5rem; color: #ffd873; text-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);">${fmt(totalCorasol)}</div>
+          <div style="font-size: 0.95rem; color: rgba(255, 255, 255, 0.75); margin-top: 6px;">(1개월: ${fmt(p.corasol)})</div>
         </div>
       `);
     }
