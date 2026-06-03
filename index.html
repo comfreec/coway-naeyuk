@@ -2742,6 +2742,12 @@
         window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
         window.renderTable();
         window.renderSummary();
+        
+        // 모달이 열려있으면 제품 리스트 새로고침
+        const bbModal = document.getElementById('bigBenefitModal');
+        if (bbModal.classList.contains('open')) {
+          refreshBigBenefitProductList();
+        }
       }, (err) => {
         console.error(err);
         alert('데이터 접근 실패: ' + err.message);
