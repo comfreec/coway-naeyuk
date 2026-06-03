@@ -797,7 +797,7 @@
   let didAutoOpenBigBenefitThisLoad = false;
   let dismissedBigBenefitThisLoad = false;
   function shouldAutoOpenBigBenefit() {
-    return !didAutoOpenBigBenefitThisLoad && !dismissedBigBenefitThisLoad;
+    return false; // 자동으로 모달이 안 뜨게 함
   }
 
   // 홈 이탈(앱 종료처럼 보임) 방지용 히스토리 가드.
