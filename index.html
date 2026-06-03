@@ -2533,8 +2533,7 @@
       }
       const { setDoc } = window._firestoreFns;
       try {
-        ensureGitaAtEnd();
-        const categoriesToSave = [...window.CATEGORIES];
+        const categoriesToSave = ensureGitaAtEnd([...window.CATEGORIES]);
         console.log('💾 Firestore에 카테고리 저장 중:', categoriesToSave);
         await setDoc(categoriesDocRef, { list: categoriesToSave });
         console.log('✅ Firestore에 저장 성공!');
@@ -2642,6 +2641,8 @@
     updateAllCategorySelects();
 
     onAuthStateChanged(auth, async (user) => {
+      console.log('🔐 Auth 상태 변경:', user ? `로그인됨 (${user.email})` : '로그아웃됨');
+      
       if (unsubProducts) {
         unsubProducts();
         unsubProducts = null;
@@ -2654,6 +2655,9 @@
       updateAuthUi(user);
 
       if (!user) {
+        console.log('⚠️ 로그인되지 않아서 기본 카테고리 사용');
+        window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+        updateAllCategorySelects();
         window.products = [];
         window.renderTable();
         window.renderSummary();
@@ -2665,6 +2669,8 @@
         await signOut(auth);
         return;
       }
+      
+      console.log('✅ 지정된 계정으로 로그인 성공!');
 
       // 카테고리 실시간 동기화 - Firestore를 항상 우선으로!
       unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
