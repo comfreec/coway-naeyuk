@@ -422,9 +422,13 @@
 <div class="card auth-card">
   <div id="authStatus" class="auth-status warn">로그인이 필요합니다</div>
   <div class="auth-actions">
-    <button id="btnLogin" type="button" class="btn-auth primary" disabled>Google 로그인</button>
+    <button id="btnLogin" type="button" class="btn-auth primary">Google 로그인</button>
     <button id="btnLogout" type="button" class="btn-auth" style="display:none;">로그아웃</button>
   </div>
+</div>
+
+<div class="card">
+  <h2 onclick="openCategoryManager()" style="cursor:pointer;user-select:none;">🏷️ 제품군 관리</h2>
 </div>
 
 <div class="card">
@@ -764,6 +768,20 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="categoryManagerModal" onclick="closeCategoryManager(event)">
+  <div class="modal-content" style="max-width:500px;width:90%;">
+    <div class="modal-header">
+      <h3>🏷️ 제품군 관리</h3>
+      <button class="modal-close" onclick="document.getElementById('categoryManagerModal').classList.remove('open')">&times;</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <input type="text" id="newCategoryName" placeholder="새 제품군 이름 입력" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;" />
+      <button onclick="addCategory()" style="padding:8px 16px;border:none;border-radius:4px;background:#0984e3;color:white;cursor:pointer;">추가</button>
+    </div>
+    <div id="categoryList" style="max-height:300px;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <script>
   let products = [];
   // 자동 오픈 규칙:
@@ -892,10 +910,8 @@
     const cardAmt         = applyCard ? card : 0;
     const finalAmt        = Math.max(0, afterCorasol - cardAmt);
     const totalDisc       = rental - finalAmt;
-    const nonCorasolDisc  = totalDisc - corasol;
     return { ...raw, contractAmt, halfDiscAmt, rerentalDiscAmt, discAmt,
-             extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt,
-             corasolAmt: corasol, nonCorasolDisc };
+             extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt };
   }
 
   async function addProduct() {
@@ -1290,7 +1306,6 @@
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
-      p.corasolAmt = p.corasol;
       p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
       p.totalDisc += addedCorasolAmt;
     }
@@ -1353,53 +1368,10 @@
     if (savingAmount > 0) {
       rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
     }
-    // 총렌탈비 할인액 (월렌탈료 - 최종납부금액 × 7년) + 코라솔 총할인액 (5년 기준)
-    const corasolAmt = p.corasolAmt || 0;
-    const totalRentalDiscount = (p.rental - p.finalAmt) * 84;
-    const corasolTotalDiscount = corasolAmt * 60;
-    
-    // 최종납부액 (클릭 시 펼치기/접기)
-    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleTotalDiscount()">
-      <span class="n-label" style="font-size:1.6rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부액</span>
-      <span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span>
-      <span id="toggleArrow" style="font-size:1.2rem;margin-left:8px;transition:transform 0.3s;">▼</span>
-    </div>`);
-    
-    // 펼쳐서 보이는 총렌탈비 할인액과 코라솔 총할인액
-    rows.push(`<div id="totalDiscountSection" style="display:none;margin-top:16px;">
-      <div style="background:linear-gradient(135deg,#ffecd2,#fcb69f);padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(252,182,159,0.3);">
-        <div style="font-size:1.1rem;font-weight:800;color:#d63031;margin-bottom:8px;text-align:center;">💰 총렌탈비 할인액</div>
-        <div style="text-align:center;">
-          <div style="font-size:2.2rem;font-weight:900;color:#0057a8;">${fmt(totalRentalDiscount)}</div>
-        </div>
-      </div>
-      ${corasolAmt > 0 ? `
-        <div style="background:linear-gradient(135deg,#a8edea,#fed6e3);padding:16px;border-radius:12px;margin-top:12px;box-shadow:0 4px 12px rgba(168,237,234,0.3);">
-          <div style="font-size:1.1rem;font-weight:800;color:#2d3436;margin-bottom:8px;text-align:center;">🍊 코라솔 총할인액</div>
-          <div style="text-align:center;">
-            <div style="font-size:0.9rem;color:#666;margin-bottom:4px;">개당 20,000원 × ${Math.round(corasolAmt / 20000)}개 × 5년(60개월)</div>
-            <div style="font-size:2.2rem;font-weight:900;color:#00b894;">${fmt(corasolTotalDiscount)}</div>
-          </div>
-        </div>
-      ` : ''}
-    </div>`);
-    
+    rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span></div>`);
     document.getElementById('noteContent').innerHTML = rows.join('');
     const today = new Date().toLocaleDateString('ko-KR');
     document.getElementById('noteStamp').textContent = '작성일 : ' + today;
-    
-    // 펼치기/접기 토글 함수
-    window.toggleTotalDiscount = function() {
-      const section = document.getElementById('totalDiscountSection');
-      const arrow = document.getElementById('toggleArrow');
-      if (section.style.display === 'none') {
-        section.style.display = 'block';
-        arrow.style.transform = 'rotate(180deg)';
-      } else {
-        section.style.display = 'none';
-        arrow.style.transform = 'rotate(0deg)';
-      }
-    };
     
     // 🏷️ 코라솔 UI 노출 및 상태 업데이트 (항상 실행)
     const corasolUI = document.getElementById('corasolControlUI');
@@ -2094,7 +2066,6 @@
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
-      p.corasolAmt = p.corasol;
       p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
       p.totalDisc += addedCorasolAmt;
     }
@@ -2136,7 +2107,7 @@
     
     let totalRows = `<div class="s-row total"><span>렌탈료 할인금액</span><span>- ${fmt(rentalDiscountBest)}</span></div>`;
     if (savingAmountBest > 0) {
-      totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span style="color:#d63031;">+ ${fmt(savingAmountBest)}</span></div>`;
+      totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span>+ ${fmt(savingAmountBest)}</span></div>`;
     }
     
     document.getElementById('bestContent').innerHTML = `
@@ -2154,33 +2125,6 @@
       ${itemRows}
       ${totalRows}
       <hr class="bm-divider">
-      
-      <!-- 최종납부액 (클릭 시 펼치기/접기) -->
-      <div style="cursor:pointer;padding:12px 0;text-align:center;" onclick="toggleBestTotalDiscount()">
-        <div style="font-size:1.8rem;font-weight:900;color:#ffd700;">✅ 최종 납부액</div>
-        <div style="font-size:2.5rem;font-weight:900;color:#ffd700;margin-top:4px;">${p.finalAmt.toLocaleString('ko-KR')}원</div>
-        <div id="bestToggleArrow" style="font-size:1.2rem;transition:transform 0.3s;margin-top:4px;color:#ffd700;">▼</div>
-      </div>
-      
-      <!-- 펼쳐서 보이는 총렌탈비 할인액과 코라솔 총할인액 -->
-      <div id="bestTotalDiscountSection" style="display:none;margin-top:16px;">
-        <div style="background:linear-gradient(135deg,#ffecd2,#fcb69f);padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(252,182,159,0.3);">
-          <div style="font-size:1.1rem;font-weight:800;color:#d63031;margin-bottom:8px;text-align:center;">💰 총렌탈비 할인액</div>
-          <div style="text-align:center;">
-            <div style="font-size:2.2rem;font-weight:900;color:#0057a8;">${fmt((p.rental - p.finalAmt) * 84)}</div>
-          </div>
-        </div>
-        ${p.corasolAmt > 0 ? `
-          <div style="background:linear-gradient(135deg,#a8edea,#fed6e3);padding:16px;border-radius:12px;margin-top:12px;box-shadow:0 4px 12px rgba(168,237,234,0.3);">
-            <div style="font-size:1.1rem;font-weight:800;color:#2d3436;margin-bottom:8px;text-align:center;">🍊 코라솔 총할인액</div>
-            <div style="text-align:center;">
-              <div style="font-size:0.9rem;color:#666;margin-bottom:4px;">개당 20,000원 × ${Math.round((p.corasolAmt || 0) / 20000)}개 × 5년(60개월)</div>
-              <div style="font-size:2.2rem;font-weight:900;color:#00b894;">${fmt((p.corasolAmt || 0) * 60)}</div>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-      
       <div class="note-sms-row" style="margin-top:12px;">
         <button class="btn-img" onclick="shareBestImage()">🖼</button>
         <button class="btn-save" onclick="saveBestImage()">💾</button>
@@ -2190,19 +2134,6 @@
     const bestPaper = document.getElementById('bestPaper');
     modalOverlay.classList.add('open');
     bestPaper.classList.add('hypno-bg-animate');
-    
-    // 펼치기/접기 토글 함수
-    window.toggleBestTotalDiscount = function() {
-      const section = document.getElementById('bestTotalDiscountSection');
-      const arrow = document.getElementById('bestToggleArrow');
-      if (section.style.display === 'none') {
-        section.style.display = 'block';
-        arrow.style.transform = 'rotate(180deg)';
-      } else {
-        section.style.display = 'none';
-        arrow.style.transform = 'rotate(0deg)';
-      }
-    };
     
     if (pushHistoryFlag) {
       pushModalState('best');
@@ -2368,7 +2299,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot }
+  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2384,104 +2315,364 @@
   const provider = new GoogleAuthProvider();
   const db  = getFirestore(app);
   const col = collection(db, 'products');
+  const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
-  const loginBtn = document.getElementById('btnLogin');
-  const logoutBtn = document.getElementById('btnLogout');
-  const authStatusEl = document.getElementById('authStatus');
+  let unsubCategories = null;
+  window.DEFAULT_CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
+  window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
 
-  window._db  = db;
-  window._col = col;
-  window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc };
-  window.signInOwner = async () => {
-    if (!loginBtn) return;
-    try {
-      loginBtn.disabled = true;
-      loginBtn.textContent = '로그인 중...';
-      await signInWithPopup(auth, provider);
-    } catch (e) {
-      console.error(e);
-      if (e.code === 'auth/unauthorized-domain') {
-        alert('현재 도메인이 Firebase Auth 허용 도메인에 없습니다.\nFirebase 콘솔 > Authentication > Settings > Authorized domains에 현재 도메인을 추가해주세요.');
-      } else if (e.code === 'auth/popup-blocked') {
-        alert('브라우저에서 팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
-      } else if (e.code === 'auth/operation-not-allowed') {
-        alert('Firebase 콘솔에서 Google 로그인이 비활성화되어 있습니다.\nAuthentication > Sign-in method에서 Google을 활성화해주세요.');
-      } else if (e.code === 'auth/configuration-not-found') {
-        openAuthSetupModal();
-      } else {
-        alert('로그인 실패: ' + (e.message || e.code || '알 수 없는 오류'));
+  // DOM이 완전히 로드된 후 실행
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.getElementById('btnLogin');
+    const logoutBtn = document.getElementById('btnLogout');
+    const authStatusEl = document.getElementById('authStatus');
+
+    window._db  = db;
+    window._col = col;
+    window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
+    window.signInOwner = async () => {
+      if (!loginBtn) return;
+      try {
+        loginBtn.disabled = true;
+        loginBtn.textContent = '로그인 중...';
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        console.error(e);
+        if (e.code === 'auth/unauthorized-domain') {
+          alert('현재 도메인이 Firebase Auth 허용 도메인에 없습니다.\nFirebase 콘솔 > Authentication > Settings > Authorized domains에 현재 도메인을 추가해주세요.');
+        } else if (e.code === 'auth/popup-blocked') {
+          alert('브라우저에서 팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
+        } else if (e.code === 'auth/operation-not-allowed') {
+          alert('Firebase 콘솔에서 Google 로그인이 비활성화되어 있습니다.\nAuthentication > Sign-in method에서 Google을 활성화해주세요.');
+        } else if (e.code === 'auth/configuration-not-found') {
+          openAuthSetupModal();
+        } else {
+          alert('로그인 실패: ' + (e.message || e.code || '알 수 없는 오류'));
+        }
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Google 로그인';
       }
-    } finally {
+    };
+    window.signOutOwner = async () => {
+      try { await signOut(auth); } catch(e) { console.error(e); }
+    };
+
+    function updateAuthUi(user) {
+      const statusEl = authStatusEl;
+      if (!user) {
+        statusEl.textContent = '로그인이 필요합니다';
+        statusEl.classList.add('warn');
+        loginBtn.style.display = '';
+        logoutBtn.style.display = 'none';
+        return;
+      }
+      if (user.email !== OWNER_EMAIL) {
+        statusEl.textContent = `허용되지 않은 계정: ${user.email || '알 수 없음'}`;
+        statusEl.classList.add('warn');
+        loginBtn.style.display = '';
+        logoutBtn.style.display = 'none';
+        return;
+      }
+      statusEl.textContent = `접속 계정: ${user.email}`;
+      statusEl.classList.remove('warn');
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = '';
+    }
+
+    function updateAllCategorySelects() {
+      const selectElements = [
+        document.getElementById('productCategory'),
+        document.getElementById('editCategory'),
+        document.getElementById('categoryFilter')
+      ].filter(Boolean);
+      
+      selectElements.forEach(select => {
+        const currentValue = select.value;
+        const isAuto = currentValue === '';
+        
+        select.innerHTML = '';
+        
+        if (select.id === 'productCategory' || select.id === 'editCategory') {
+          const autoOption = document.createElement('option');
+          autoOption.value = '';
+          autoOption.textContent = '자동 분류 (제목 기준)';
+          select.appendChild(autoOption);
+        }
+        
+        window.CATEGORIES.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat;
+          option.textContent = cat;
+          if (cat === currentValue) {
+            option.selected = true;
+          }
+          select.appendChild(option);
+        });
+        
+        if (isAuto) {
+          select.value = '';
+        }
+      });
+    }
+
+    function openCategoryManager() {
+      const modal = document.getElementById('categoryManagerModal');
+      if (modal) {
+        renderCategoryList();
+        modal.classList.add('open');
+      }
+    }
+
+    function closeCategoryManager(e) {
+      const modal = document.getElementById('categoryManagerModal');
+      if (e && e.target === modal) {
+        modal.classList.remove('open');
+      }
+    }
+
+    function renderCategoryList() {
+      const list = document.getElementById('categoryList');
+      if (!list) return;
+      
+      const html = window.CATEGORIES.map((cat, index) => {
+        const isProtected = cat === '전체' || cat === '기타';
+        return `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f6fa;border-radius:8px;margin-bottom:8px;">
+            <span style="font-weight:600;">${cat}</span>
+            <div style="display:flex;gap:8px;">
+              <button style="padding:4px 12px;border:none;border-radius:4px;background:#74b9ff;color:white;cursor:pointer;${isProtected ? 'opacity:0.5;cursor:not-allowed;' : ''}" 
+                onclick="editCategory(${index})" ${isProtected ? 'disabled' : ''}>수정</button>
+              <button style="padding:4px 12px;border:none;border-radius:4px;background:#ff7675;color:white;cursor:pointer;${isProtected ? 'opacity:0.5;cursor:not-allowed;' : ''}" 
+                onclick="deleteCategory(${index})" ${isProtected ? 'disabled' : ''}>삭제</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      list.innerHTML = html;
+    }
+
+    function addCategory() {
+      const input = document.getElementById('newCategoryName');
+      const name = input.value.trim();
+      
+      if (!name) {
+        alert('카테고리 이름을 입력해주세요.');
+        return;
+      }
+      
+      if (window.CATEGORIES.includes(name)) {
+        alert('이미 존재하는 카테고리입니다.');
+        return;
+      }
+      
+      window.CATEGORIES.push(name);
+      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+      saveCategoriesToFirestore();
+      updateAllCategorySelects();
+      renderCategoryList();
+      input.value = '';
+    }
+
+    function editCategory(index) {
+      const oldName = window.CATEGORIES[index];
+      const newName = prompt('새로운 카테고리 이름을 입력해주세요:', oldName);
+      
+      if (!newName || newName.trim() === '') return;
+      
+      if (window.CATEGORIES.includes(newName.trim()) && newName.trim() !== oldName) {
+        alert('이미 존재하는 카테고리입니다.');
+        return;
+      }
+      
+      window.CATEGORIES[index] = newName.trim();
+      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+      saveCategoriesToFirestore();
+      updateAllCategorySelects();
+      renderCategoryList();
+      window.renderTable();
+    }
+
+    function deleteCategory(index) {
+      const name = window.CATEGORIES[index];
+      
+      if (!confirm(`"${name}" 카테고리를 삭제하시겠습니까?`)) return;
+      
+      window.CATEGORIES.splice(index, 1);
+      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+      saveCategoriesToFirestore();
+      updateAllCategorySelects();
+      renderCategoryList();
+      window.renderTable();
+    }
+
+    async function saveCategoriesToFirestore() {
+      if (!window._firestoreFns) return;
+      const { setDoc } = window._firestoreFns;
+      try {
+        await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+      } catch (e) {
+        console.error('카테고리 저장 오류:', e);
+      }
+    }
+
+    window.openCategoryManager = openCategoryManager;
+    window.closeCategoryManager = closeCategoryManager;
+    window.addCategory = addCategory;
+    window.editCategory = editCategory;
+    window.deleteCategory = deleteCategory;
+
+    if (loginBtn) {
       loginBtn.disabled = false;
-      loginBtn.textContent = 'Google 로그인';
+      // 클릭 이벤트
+      loginBtn.addEventListener('click', () => {
+        window.signInOwner();
+      });
+      // 터치 이벤트 (모바일 지원)
+      loginBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        window.signInOwner();
+      });
     }
-  };
-  window.signOutOwner = async () => {
-    try { await signOut(auth); } catch(e) { console.error(e); }
-  };
-
-  function updateAuthUi(user) {
-    const statusEl = authStatusEl;
-    if (!user) {
-      statusEl.textContent = '로그인이 필요합니다';
-      statusEl.classList.add('warn');
-      loginBtn.style.display = '';
-      logoutBtn.style.display = 'none';
-      return;
-    }
-    if (user.email !== OWNER_EMAIL) {
-      statusEl.textContent = `허용되지 않은 계정: ${user.email || '알 수 없음'}`;
-      statusEl.classList.add('warn');
-      loginBtn.style.display = '';
-      logoutBtn.style.display = 'none';
-      return;
-    }
-    statusEl.textContent = `접속 계정: ${user.email}`;
-    statusEl.classList.remove('warn');
-    loginBtn.style.display = 'none';
-    logoutBtn.style.display = '';
-  }
-
-  if (loginBtn) {
-    loginBtn.disabled = false;
-    loginBtn.addEventListener('click', () => {
-      window.signInOwner();
-    });
-  }
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      window.signOutOwner();
-    });
-  }
-
-  onAuthStateChanged(auth, async (user) => {
-    if (unsubProducts) {
-      unsubProducts();
-      unsubProducts = null;
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        window.signOutOwner();
+      });
+      logoutBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        window.signOutOwner();
+      });
     }
 
-    updateAuthUi(user);
-
-    if (!user) {
-      window.products = [];
-      window.renderTable();
-      window.renderSummary();
-      return;
+    // 초기 카테고리 설정
+    const savedLocal = localStorage.getItem('coway_categories');
+    if (savedLocal) {
+      try {
+        const parsed = JSON.parse(savedLocal);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          window.CATEGORIES = parsed;
+        }
+      } catch (e) {
+        console.error('localStorage 카테고리 파싱 오류:', e);
+      }
     }
+    updateAllCategorySelects();
 
-    if (user.email !== OWNER_EMAIL) {
-      alert('이 앱은 지정된 계정만 사용할 수 있습니다.');
-      await signOut(auth);
-      return;
-    }
+    onAuthStateChanged(auth, async (user) => {
+      if (unsubProducts) {
+        unsubProducts();
+        unsubProducts = null;
+      }
+      if (unsubCategories) {
+        unsubCategories();
+        unsubCategories = null;
+      }
 
-    unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
-      window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-      window.renderTable();
-      window.renderSummary();
-    }, (err) => {
-      console.error(err);
-      alert('데이터 접근 실패: ' + err.message);
+      updateAuthUi(user);
+
+      if (!user) {
+        window.products = [];
+        window.renderTable();
+        window.renderSummary();
+        return;
+      }
+
+      if (user.email !== OWNER_EMAIL) {
+        alert('이 앱은 지정된 계정만 사용할 수 있습니다.');
+        await signOut(auth);
+        return;
+      }
+
+      // 카테고리 실시간 동기화
+      unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
+        console.log('카테고리 문서 변경 감지!');
+        
+        let firestoreCategories = null;
+        if (snap.exists()) {
+          const data = snap.data();
+          console.log('Firestore에서 받은 카테고리 데이터:', data);
+          if (data && data.list) {
+            firestoreCategories = data.list;
+            window.CATEGORIES = data.list;
+          }
+        }
+        
+        // localStorage에서 카테고리 불러오기
+        const savedLocal = localStorage.getItem('coway_categories');
+        let localCategories = null;
+        if (savedLocal) {
+          try {
+            const parsed = JSON.parse(savedLocal);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              localCategories = parsed;
+              console.log('localStorage에서 받은 카테고리:', localCategories);
+            }
+          } catch (e) {
+            console.error('localStorage 카테고리 파싱 오류:', e);
+          }
+        }
+        
+        // localStorage와 Firestore 카테고리 병합 (중복 제거)
+        let mergedCategories = [];
+        const categorySet = new Set();
+        
+        // Firestore 카테고리 먼저 추가
+        if (firestoreCategories && firestoreCategories.length > 0) {
+          firestoreCategories.forEach(cat => {
+            if (!categorySet.has(cat)) {
+              categorySet.add(cat);
+              mergedCategories.push(cat);
+            }
+          });
+        }
+        
+        // localStorage 카테고리 추가 (Firestore에 없는 것만)
+        if (localCategories && localCategories.length > 0) {
+          localCategories.forEach(cat => {
+            if (!categorySet.has(cat)) {
+              categorySet.add(cat);
+              mergedCategories.push(cat);
+            }
+          });
+        }
+        
+        // 병합된 카테고리가 없거나 기본 카테고리보다 적으면 기본 카테고리 사용
+        if (mergedCategories.length < window.DEFAULT_CATEGORIES.length) {
+          window.DEFAULT_CATEGORIES.forEach(cat => {
+            if (!categorySet.has(cat)) {
+              categorySet.add(cat);
+              mergedCategories.push(cat);
+            }
+          });
+        }
+        
+        window.CATEGORIES = mergedCategories;
+        console.log('최종 카테고리:', window.CATEGORIES);
+        
+        // Firestore 문서가 없거나 병합 후 변경됐으면 Firestore 업데이트
+        if (!snap.exists() || (firestoreCategories && JSON.stringify(firestoreCategories) !== JSON.stringify(mergedCategories))) {
+          console.log('Firestore 카테고리 업데이트:', mergedCategories);
+          await setDoc(categoriesDocRef, { list: mergedCategories });
+        }
+        
+        // localStorage도 최신 카테고리로 업데이트
+        localStorage.setItem('coway_categories', JSON.stringify(mergedCategories));
+        
+        updateAllCategorySelects();
+        window.renderTable();
+      }, (err) => {
+        console.error('카테고리 로드 오류:', err);
+      });
+
+      unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
+        window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+        window.renderTable();
+        window.renderSummary();
+      }, (err) => {
+        console.error(err);
+        alert('데이터 접근 실패: ' + err.message);
+      });
     });
   });
 </script>
