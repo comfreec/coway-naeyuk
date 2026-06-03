@@ -87,6 +87,7 @@
     .best-modal .bm-per strong { color: #ffd700; font-size: 1.05rem; }
     .best-modal .bm-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0; }
     .best-modal .s-row { display: flex; justify-content: space-between; font-size: 0.92rem; color: rgba(255,255,255,0.92); padding: 5px 0; }
+    .best-modal .s-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 10px; flex: 1; }
     .best-modal .s-row span:last-child { color: #7ee8a2; font-weight: 700; }
     .best-modal .s-row.total { font-size: 1.05rem; font-weight: 900; color: #ffd700; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 6px; padding-top: 10px; }
     .best-modal .s-row.total span:last-child { color: #ffd700; }
@@ -2136,7 +2137,7 @@
     if (p.competitor > 0)   items.push(['타사보상 할인', p.competitor]);
     if (p.corasol > 0)      {
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
-      items.push([`코라솔 할인 (1개월:${fmt(p.corasol)}, 5년총:${fmt(totalCorasol)})`, p.corasol]);
+      items.push([`코라솔 할인 (1개월:${fmt(p.corasol)},5년총:${fmt(totalCorasol)})`, p.corasol]);
     }
     if (p.card > 0 && applyCardDiscount) items.push(['카드 할인', p.card]);
     const itemRows = items.map(([label, amt]) =>
