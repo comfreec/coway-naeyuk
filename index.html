@@ -248,6 +248,11 @@
 
     .count-up-number { font-variant-numeric: tabular-nums; }
 
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
     /* 🏷️ 카테고리 필터 스타일 */
     .category-container {
       display: flex;
@@ -1355,10 +1360,7 @@
     if (p.competitor > 0)   { push('타사보상 할인', p.competitor); beforeCorasol -= p.competitor; }
     
     // 코라솔 할인 표시 (기본 + 추가)
-    if (p.corasol > 0)      {
-      const totalCorasol = p.corasol * 60; // 5년 = 60개월
-      push(`코라솔 할인 (1개월:${fmt(p.corasol)}, 5년총:${fmt(totalCorasol)})`, p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
-    }
+    if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
     
     if (p.card > 0 && applyCardDiscount) push('카드할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
@@ -1375,6 +1377,29 @@
       rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
     }
     rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span></div>`);
+    
+    // 🏷️ 코라솔 5년 총 할인금액 눈에 띄게 표시
+    if (p.corasol > 0) {
+      const totalCorasol = p.corasol * 60; // 5년 = 60개월
+      rows.push(`
+        <div style="
+          background: linear-gradient(135deg, #ff6b6b, #ff4757);
+          color: white;
+          padding: 16px;
+          border-radius: 12px;
+          margin-top: 16px;
+          text-align: center;
+          box-shadow: 0 4px 16px rgba(255, 71, 87, 0.4);
+          font-weight: 800;
+          animation: pulse 2s ease-in-out infinite;
+        ">
+          <div style="font-size: 1.2rem; margin-bottom: 8px;">🎉 코라솔 5년 총 할인금액 🎉</div>
+          <div style="font-size: 2.5rem;">${fmt(totalCorasol)}</div>
+          <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 4px;">(1개월: ${fmt(p.corasol)})</div>
+        </div>
+      `);
+    }
+    
     document.getElementById('noteContent').innerHTML = rows.join('');
     const today = new Date().toLocaleDateString('ko-KR');
     document.getElementById('noteStamp').textContent = '작성일 : ' + today;
