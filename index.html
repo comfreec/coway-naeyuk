@@ -2722,17 +2722,18 @@
           });
         }
         
-        window.CATEGORIES = mergedCategories;
+        // 기타를 맨 뒤로 정렬
+        window.CATEGORIES = ensureGitaAtEnd(mergedCategories);
         console.log('최종 카테고리:', window.CATEGORIES);
         
         // Firestore 문서가 없거나 병합 후 변경됐으면 Firestore 업데이트
-        if (!snap.exists() || (firestoreCategories && JSON.stringify(firestoreCategories) !== JSON.stringify(mergedCategories))) {
-          console.log('Firestore 카테고리 업데이트:', mergedCategories);
-          await setDoc(categoriesDocRef, { list: mergedCategories });
+        if (!snap.exists() || (firestoreCategories && JSON.stringify(firestoreCategories) !== JSON.stringify(window.CATEGORIES))) {
+          console.log('Firestore 카테고리 업데이트:', window.CATEGORIES);
+          await setDoc(categoriesDocRef, { list: window.CATEGORIES });
         }
         
         // localStorage도 최신 카테고리로 업데이트
-        localStorage.setItem('coway_categories', JSON.stringify(mergedCategories));
+        localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
         
         updateAllCategorySelects();
         window.renderTable();
