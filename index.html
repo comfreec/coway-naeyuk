@@ -2677,62 +2677,64 @@
       unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
         console.log('🚨 카테고리 문서 변경 감지!');
         console.log('📍 문서 경로:', snap.ref.path);
+        console.log('📄 문서 존재 여부:', snap.exists);
         
         let firestoreCategories = null;
         if (snap.exists()) {
           const data = snap.data();
-          console.log('📥 Firestore에서 받은 카테고리 데이터:', data);
+          console.log('📥 Firestore에서 받은 전체 데이터:', data);
           if (data && data.list) {
             firestoreCategories = data.list;
-            console.log('✅ list 필드 찾음:', firestoreCategories);
+            console.log('✅ Firestore list 필드 찾음:', firestoreCategories);
           } else {
-            console.log('⚠️ list 필드가 없습니다!');
+            console.log('⚠️ Firestore에 list 필드가 없습니다!');
           }
         } else {
           console.log('❌ Firestore에 카테고리 문서가 없습니다!');
         }
         
-        // Firestore에 카테고리가 있으면 Firestore만 사용! localStorage는 버림
-        if (firestoreCategories && firestoreCategories.length > 0) {
-          console.log('✅ Firestore 카테고리 사용:', firestoreCategories);
+        // Firestore에 카테고리가 있으면 무조건 Firestore만 사용!
+        if (firestoreCategories && Array.isArray(firestoreCategories) && firestoreCategories.length > 0) {
+          console.log('🟢 Firestore 카테고리를 최우선으로 사용합니다:', firestoreCategories);
           window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
-          console.log('🔄 window.CATEGORIES 업데이트 완료:', window.CATEGORIES);
         } else {
           // Firestore에 카테고리가 없을 때만 localStorage 사용
-          console.log('⚠️ Firestore에 카테고리가 없어서 localStorage 사용');
+          console.log('🟡 Firestore에 카테고리가 없어서 localStorage 확인...');
           const savedLocal = localStorage.getItem('coway_categories');
           if (savedLocal) {
             try {
               const parsed = JSON.parse(savedLocal);
               if (Array.isArray(parsed) && parsed.length > 0) {
+                console.log('🟢 localStorage 카테고리 사용:', parsed);
                 window.CATEGORIES = ensureGitaAtEnd(parsed);
                 // Firestore에 localStorage 카테고리 저장
-                await setDoc(categoriesDocRef, { list: window.CATEGORIES });
-                console.log('✅ localStorage 카테고리를 Firestore에 저장했습니다');
+                try {
+                  await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+                  console.log('✅ localStorage 카테고리를 Firestore에 저장했습니다');
+                } catch (saveErr) {
+                  console.error('❌ Firestore에 저장 실패:', saveErr);
+                }
               } else {
+                console.log('🟡 localStorage 카테고리가 유효하지 않아 기본 카테고리 사용');
                 window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
               }
             } catch (e) {
-              console.error('localStorage 카테고리 파싱 오류:', e);
+              console.error('❌ localStorage 카테고리 파싱 오류:', e);
               window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
             }
           } else {
+            console.log('🟡 localStorage에 카테고리가 없어 기본 카테고리 사용');
             window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
           }
         }
         
-        console.log('🎯 최종 카테고리:', window.CATEGORIES);
+        console.log('🎯 window.CATEGORIES 최종 값:', window.CATEGORIES);
         
         // localStorage도 최신 카테고리로 업데이트
         localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
         
-        console.log('🔄 updateAllCategorySelects() 호출 전');
         updateAllCategorySelects();
-        console.log('✅ updateAllCategorySelects() 호출 완료');
-        
-        console.log('🔄 window.renderTable() 호출 전');
         window.renderTable();
-        console.log('✅ window.renderTable() 호출 완료');
       }, (err) => {
         console.error('❌ 카테고리 로드 오류:', err);
         // 오류 alert 안 띄우고 기본 카테고리 사용
