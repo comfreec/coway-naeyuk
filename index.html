@@ -2484,7 +2484,7 @@
       }
     }
 
-    function addCategory() {
+    async function addCategory() {
       const input = document.getElementById('newCategoryName');
       const name = input.value.trim();
       
@@ -2504,8 +2504,10 @@
       filtered.push('기타');
       window.CATEGORIES = filtered;
       
-      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
-      saveCategoriesToFirestore();
+      console.log('🆕 카테고리 추가 중:', window.CATEGORIES);
+      await saveCategoriesToFirestore();
+      console.log('✅ Firestore에 저장 완료!');
+      
       updateAllCategorySelects();
       renderCategoryList();
       input.value = '';
@@ -2525,13 +2527,22 @@
     }
 
     async function saveCategoriesToFirestore() {
-      if (!window._firestoreFns) return;
+      if (!window._firestoreFns) {
+        console.warn('⚠️ Firestore가 준비되지 않아서 저장할 수 없습니다');
+        return;
+      }
       const { setDoc } = window._firestoreFns;
       try {
         ensureGitaAtEnd();
+        console.log('💾 Firestore에 카테고리 저장 중:', window.CATEGORIES);
         await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+        console.log('✅ Firestore에 저장 성공!');
+        
+        // localStorage도 백업용으로 업데이트
+        localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
       } catch (e) {
-        console.error('카테고리 저장 오류:', e);
+        console.error('❌ 카테고리 저장 오류:', e);
+        alert('카테고리 저장에 실패했습니다: ' + e.message);
       }
     }
 
@@ -2560,7 +2571,7 @@
       list.innerHTML = html;
     }
 
-    function editCategory(index) {
+    async function editCategory(index) {
       const oldName = window.CATEGORIES[index];
       const newName = prompt('새로운 카테고리 이름을 입력해주세요:', oldName);
       
@@ -2572,21 +2583,25 @@
       }
       
       window.CATEGORIES[index] = newName.trim();
-      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
-      saveCategoriesToFirestore();
+      console.log('✏️ 카테고리 수정 중:', window.CATEGORIES);
+      await saveCategoriesToFirestore();
+      console.log('✅ Firestore에 저장 완료!');
+      
       updateAllCategorySelects();
       renderCategoryList();
       window.renderTable();
     }
 
-    function deleteCategory(index) {
+    async function deleteCategory(index) {
       const name = window.CATEGORIES[index];
       
       if (!confirm(`"${name}" 카테고리를 삭제하시겠습니까?`)) return;
       
       window.CATEGORIES.splice(index, 1);
-      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
-      saveCategoriesToFirestore();
+      console.log('🗑️ 카테고리 삭제 중:', window.CATEGORIES);
+      await saveCategoriesToFirestore();
+      console.log('✅ Firestore에 저장 완료!');
+      
       updateAllCategorySelects();
       renderCategoryList();
       window.renderTable();
@@ -2620,18 +2635,8 @@
       });
     }
 
-    // 초기 카테고리 설정
-    const savedLocal = localStorage.getItem('coway_categories');
-    if (savedLocal) {
-      try {
-        const parsed = JSON.parse(savedLocal);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          window.CATEGORIES = parsed;
-        }
-      } catch (e) {
-        console.error('localStorage 카테고리 파싱 오류:', e);
-      }
-    }
+    // 초기 카테고리 설정 - 로그인 전까지 기본 카테고리만 보여주기
+    window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
     updateAllCategorySelects();
 
     onAuthStateChanged(auth, async (user) => {
