@@ -2673,8 +2673,10 @@
       console.log('✅ 지정된 계정으로 로그인 성공!');
 
       // 카테고리 실시간 동기화 - Firestore를 항상 우선으로!
+      console.log('📡 onSnapshot 리스너 시작!');
       unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
         console.log('🚨 카테고리 문서 변경 감지!');
+        console.log('📍 문서 경로:', snap.ref.path);
         
         let firestoreCategories = null;
         if (snap.exists()) {
@@ -2682,6 +2684,9 @@
           console.log('📥 Firestore에서 받은 카테고리 데이터:', data);
           if (data && data.list) {
             firestoreCategories = data.list;
+            console.log('✅ list 필드 찾음:', firestoreCategories);
+          } else {
+            console.log('⚠️ list 필드가 없습니다!');
           }
         } else {
           console.log('❌ Firestore에 카테고리 문서가 없습니다!');
@@ -2691,6 +2696,7 @@
         if (firestoreCategories && firestoreCategories.length > 0) {
           console.log('✅ Firestore 카테고리 사용:', firestoreCategories);
           window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
+          console.log('🔄 window.CATEGORIES 업데이트 완료:', window.CATEGORIES);
         } else {
           // Firestore에 카테고리가 없을 때만 localStorage 사용
           console.log('⚠️ Firestore에 카테고리가 없어서 localStorage 사용');
@@ -2720,10 +2726,16 @@
         // localStorage도 최신 카테고리로 업데이트
         localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
         
+        console.log('🔄 updateAllCategorySelects() 호출 전');
         updateAllCategorySelects();
+        console.log('✅ updateAllCategorySelects() 호출 완료');
+        
+        console.log('🔄 window.renderTable() 호출 전');
         window.renderTable();
+        console.log('✅ window.renderTable() 호출 완료');
       }, (err) => {
         console.error('❌ 카테고리 로드 오류:', err);
+        alert('카테고리 로드 오류: ' + err.message);
       });
 
       unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
