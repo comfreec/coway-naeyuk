@@ -1228,7 +1228,8 @@
   function getSmartCategory(p) {
     if (p.category && p.category !== '') return p.category;
     const name = p.name || '';
-    for (const cat of CATEGORIES) {
+    const categories = window.CATEGORIES || CATEGORIES;
+    for (const cat of categories) {
       if (cat === '전체' || cat === '기타') continue;
       if (name.includes(cat)) return cat;
     }
@@ -1246,7 +1247,9 @@
     containers.forEach(target => {
       const el = document.getElementById(target.id);
       if (!el) return;
-      el.innerHTML = CATEGORIES.map(cat => {
+      // window.CATEGORIES 사용 (파이어베이스에서 업데이트된 최신 카테고리)
+      const categories = window.CATEGORIES || CATEGORIES;
+      el.innerHTML = categories.map(cat => {
         const activeClass = currentCategory === cat ? 'active' : '';
         const modalClass = target.isModal ? 'modal-category-chip' : '';
         return `<div class="category-chip ${activeClass} ${modalClass}" onclick="setCategory('${cat}')">${cat}</div>`;
