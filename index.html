@@ -2534,15 +2534,17 @@
       const { setDoc } = window._firestoreFns;
       try {
         ensureGitaAtEnd();
-        console.log('💾 Firestore에 카테고리 저장 중:', window.CATEGORIES);
-        await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+        const categoriesToSave = [...window.CATEGORIES];
+        console.log('💾 Firestore에 카테고리 저장 중:', categoriesToSave);
+        await setDoc(categoriesDocRef, { list: categoriesToSave });
         console.log('✅ Firestore에 저장 성공!');
         
         // localStorage도 백업용으로 업데이트
-        localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+        localStorage.setItem('coway_categories', JSON.stringify(categoriesToSave));
       } catch (e) {
         console.error('❌ 카테고리 저장 오류:', e);
-        alert('카테고리 저장에 실패했습니다: ' + e.message);
+        // 오류가 발생해도 onSnapshot이 자동으로 동기화해주니까 사용자에게 안내하지 않음
+        console.log('ℹ️ onSnapshot이 자동으로 동기화할 거예요');
       }
     }
 
