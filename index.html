@@ -2735,7 +2735,10 @@
         console.log('✅ window.renderTable() 호출 완료');
       }, (err) => {
         console.error('❌ 카테고리 로드 오류:', err);
-        alert('카테고리 로드 오류: ' + err.message);
+        // 오류 alert 안 띄우고 기본 카테고리 사용
+        window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+        localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+        updateAllCategorySelects();
       });
 
       unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
