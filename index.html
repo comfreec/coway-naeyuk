@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -434,6 +434,14 @@
 </div>
 
 <div class="card">
+  <button type="button" class="btn-add" onclick="openCareCardModal()" style="width:100%;margin:0;">💳 케어후명함</button>
+</div>
+
+<div class="card">
+  <button type="button" class="btn-add" onclick="openCareVoucherModal()" style="width:100%;margin:0;background:linear-gradient(135deg,#00b09b,#96c93d);">🎁 케어상품권</button>
+</div>
+
+<div class="card">
   <h2 onclick="openCategoryManager()" style="cursor:pointer;user-select:none;">🏷️ 제품군 관리</h2>
 </div>
 
@@ -774,7 +782,57 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="categoryManagerModal" onclick="closeCategoryManager(event)">
+<!-- 케어후명함 모달 -->
+<div class="modal-overlay" id="careCardModal" onclick="closeCareCardModal(event)">
+  <div class="setup-modal" style="max-width:500px;">
+    <h3 style="margin-bottom:16px;">💳 케어후명함</h3>
+    
+    <!-- 명함 캡쳐 영역 -->
+    <div id="careCardCaptureArea" style="background:#fff; padding:20px; border-radius:16px; margin-bottom:16px;">
+      <div style="text-align:center;">
+        <img id="careCardImage" src="명함.png" alt="명함" style="max-width:100%; border-radius:12px;" />
+      </div>
+    </div>
+    
+    <!-- 메시지 영역 -->
+    <div style="background:#f8fbff; padding:16px; border-radius:12px; margin-bottom:16px; line-height:1.8;" id="careCardMessageArea">
+      <p style="margin:0; font-weight:600; color:#1a3a6e;">👋 고객님~ 덕분에 케어 잘 진행했습니다 😊</p>
+      <p style="margin:8px 0 0 0;">📲 카톡으로 코웨이 설문조사가 올 텐데<br>서비스평가 ⭐"매우만족"⭐ 눌러주시면<br>제게 아주 큰 힘이 됩니다 🙏</p>
+      <p style="margin:8px 0 0 0;">부탁드리겠습니다!!</p>
+      <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
+    </div>
+    
+    <div class="btn-row" id="careCardBtnRow">
+      <button type="button" class="btn-reset" onclick="closeCareCardModalDirect()">닫기</button>
+      <button type="button" class="btn-add" id="shareCareCardBtn">📸� 명함+메시지 문자 보내기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 케어상품권 모달 -->
+<div class="modal-overlay" id="careVoucherModal" onclick="closeCareVoucherModal(event)">
+  <div class="setup-modal" style="max-width:500px;">
+    <h3 style="margin-bottom:16px;">🎁 케어상품권</h3>
+    <div id="careVoucherCaptureArea" style="background:#fff; padding:20px; border-radius:16px; margin-bottom:16px;">
+      <div style="text-align:center; position:relative; display:inline-block; width:100%;">
+        <img src="케어상품권.jpg" alt="케어상품권" style="max-width:100%; border-radius:12px; display:block;" />
+        <div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#FFD700; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px rgba(0,0,0,0.8);">📞 010-2417-7936</div>
+      </div>
+    </div>
+    <div style="background:#f8fbff; padding:16px; border-radius:12px; margin-bottom:16px; line-height:1.8;">
+      <p style="margin:0; font-weight:600; color:#1a3a6e;">🎁 소중한 분께 특별한 선물을 드려보세요!</p>
+      <p style="margin:8px 0 0 0;">🌟 코웨이 케어상품권을 주변 분들께 전달하시면<br>무료로 케어 서비스를 받으실 수 있습니다 ✨</p>
+      <p style="margin:8px 0 0 0;">👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~</p>
+      <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
+    </div>
+    <div class="btn-row" id="careVoucherBtnRow">
+      <button type="button" class="btn-reset" onclick="closeCareVoucherModalDirect()">닫기</button>
+      <button type="button" class="btn-add" id="shareCareVoucherBtn" style="background:linear-gradient(135deg,#00b09b,#96c93d);">📸💬 상품권+메시지 보내기</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="categoryManagerModal" onclick="closeCategoryManager(event)"></div>
   <div class="modal-content" style="max-width:500px;width:90%;">
     <div class="modal-header">
       <h3>🏷️ 제품군 관리</h3>
@@ -2365,7 +2423,7 @@
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
-  let unsubCategories = null;
+    let unsubCategories = null;
   window.DEFAULT_CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
   window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
 
@@ -2607,6 +2665,187 @@
       renderCategoryList();
       window.renderTable();
     }
+
+    // 케어후명함 함수들
+    function openCareCardModal() {
+      document.getElementById('careCardModal').classList.add('open');
+      const btn = document.getElementById('shareCareCardBtn');
+      if (btn && !btn.dataset.bound) {
+        btn.dataset.bound = '1';
+        btn.addEventListener('pointerup', (e) => {
+          e.preventDefault();
+          shareCareCard();
+        });
+      }
+      if (btn) btn.disabled = false;
+    }
+
+    function closeCareCardModal(event) {
+      if (event.target === document.getElementById('careCardModal')) {
+        closeCareCardModalDirect();
+      }
+    }
+
+    function closeCareCardModalDirect() {
+      document.getElementById('careCardModal').classList.remove('open');
+    }
+
+    function getCareCardMessage() {
+      return `👋 고객님~ 덕분에 케어 잘 진행했습니다 😊
+
+📲 카톡으로 코웨이 설문조사가 올 텐데
+서비스평가 ⭐"매우만족"⭐ 눌러주시면
+제게 아주 큰 힘이 됩니다 🙏
+
+부탁드리겠습니다!!
+💙 감사합니다~^^`;
+    }
+
+    async function captureCareCard() {
+      const el = document.getElementById('careCardCaptureArea');
+      
+      await new Promise(r => setTimeout(r, 100));
+      
+      const canvas = await html2canvas(el, { 
+        backgroundColor: '#fffef5', 
+        scale: 2, 
+        logging: false, 
+        useCORS: true, 
+        scrollY: -window.scrollY, 
+        scrollX: -window.scrollX,
+        windowHeight: document.documentElement.scrollHeight 
+      });
+      
+      return canvas;
+    }
+
+    let shareCareCardLock = false;
+
+    async function shareCareCard() {
+      if (shareCareCardLock) return;
+      shareCareCardLock = true;
+      const btn = document.getElementById('shareCareCardBtn');
+      if (btn) btn.disabled = true;
+
+      try {
+        const canvas = await captureCareCard();
+        const shareText = getCareCardMessage();
+        try { await navigator.clipboard.writeText(shareText); } catch(e) {}
+
+        await new Promise((resolve) => {
+          canvas.toBlob(async (blob) => {
+            const safeName = '케어후명함';
+            const file = new File([blob], `${safeName}.png`, { type: 'image/png' });
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+              try {
+                await navigator.share({ files: [file], title: '케어후명함', text: shareText });
+              } catch (err) {
+                if (err.name !== 'AbortError') downloadCanvas(canvas, `${safeName}.png`);
+              }
+            } else {
+              downloadCanvas(canvas, `${safeName}.png`);
+              alert('메시지가 클립보드에 복사됐어요!\n명함 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
+            }
+            resolve();
+          }, 'image/png');
+        });
+      } catch (err) {
+        console.error(err);
+        alert('이미지 생성에 실패했습니다.');
+      } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => { shareCareCardLock = false; }, 3000);
+      }
+    }
+
+    window.openCareCardModal = openCareCardModal;
+    window.closeCareCardModal = closeCareCardModal;
+    window.closeCareCardModalDirect = closeCareCardModalDirect;
+    window.shareCareCard = shareCareCard;
+
+    // 케어상품권 함수들
+    let shareCareVoucherLock = false;
+
+    function openCareVoucherModal() {
+      document.getElementById('careVoucherModal').classList.add('open');
+      const btn = document.getElementById('shareCareVoucherBtn');
+      if (btn && !btn.dataset.bound) {
+        btn.dataset.bound = '1';
+        btn.addEventListener('pointerup', (e) => {
+          e.preventDefault();
+          shareCareVoucher();
+        });
+      }
+      if (btn) btn.disabled = false;
+    }
+
+    function closeCareVoucherModal(event) {
+      if (event.target === document.getElementById('careVoucherModal')) closeCareVoucherModalDirect();
+    }
+
+    function closeCareVoucherModalDirect() {
+      document.getElementById('careVoucherModal').classList.remove('open');
+    }
+
+    function getCareVoucherMessage() {
+      return `🎁 소중한 분께 특별한 선물을 드려보세요!
+
+🌟 코웨이 케어상품권을 주변 분들께 전달하시면
+무료로 케어 서비스를 받으실 수 있습니다 ✨
+
+👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~
+
+💙 감사합니다~^^`;
+    }
+
+    async function shareCareVoucher() {
+      if (shareCareVoucherLock) return;
+      shareCareVoucherLock = true;
+      const btn = document.getElementById('shareCareVoucherBtn');
+      if (btn) btn.disabled = true;
+
+      try {
+        const el = document.getElementById('careVoucherCaptureArea');
+        await new Promise(r => setTimeout(r, 100));
+        const canvas = await html2canvas(el, {
+          backgroundColor: '#fff',
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          scrollY: -window.scrollY,
+          scrollX: -window.scrollX
+        });
+        const shareText = getCareVoucherMessage();
+        try { await navigator.clipboard.writeText(shareText); } catch(e) {}
+
+        await new Promise((resolve) => {
+          canvas.toBlob(async (blob) => {
+            const file = new File([blob], '케어상품권.png', { type: 'image/png' });
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+              try {
+                await navigator.share({ files: [file], title: '케어상품권', text: shareText });
+              } catch (err) {
+                if (err.name !== 'AbortError') downloadCanvas(canvas, '케어상품권.png');
+              }
+            } else {
+              downloadCanvas(canvas, '케어상품권.png');
+              alert('메시지가 클립보드에 복사됐어요!\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
+            }
+            resolve();
+          }, 'image/png');
+        });
+      } catch (err) {
+        console.error(err);
+        alert('이미지 생성에 실패했습니다.');
+      } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => { shareCareVoucherLock = false; }, 3000);
+      }
+    }
+
+    window.openCareVoucherModal = openCareVoucherModal;
+    window.closeCareVoucherModal = closeCareVoucherModal;
+    window.closeCareVoucherModalDirect = closeCareVoucherModalDirect;
 
     window.openCategoryManager = openCategoryManager;
     window.closeCategoryManager = closeCategoryManager;
