@@ -409,6 +409,38 @@
     .bulk-apply-btn:hover { opacity: 0.88; }
     .btn-bulk { background: linear-gradient(135deg, #6a11cb, #9b59b6); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(106,17,203,0.28); transition: all 0.2s; letter-spacing: 0.3px; }
     .btn-bulk:hover { transform: translateY(-1px); opacity: 1; }
+    /* 이미지 확대 모달 */
+    .image-zoom-container {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .image-zoom-container img {
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .image-zoom-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .image-zoom-close:hover {
+      background: rgba(0,0,0,0.8);
+    }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -610,6 +642,14 @@
 <div class="home-scroll-btns" id="homeScrollBtns">
   <button type="button" class="home-scroll-btn" id="homeScrollUp" aria-label="위로 이동">▲</button>
   <button type="button" class="home-scroll-btn" id="homeScrollDown" aria-label="아래로 이동">▼</button>
+</div>
+
+<!-- 이미지 확대 모달 -->
+<div class="modal-overlay" id="imageZoomModal" onclick="closeImageZoom()">
+  <div class="image-zoom-container">
+    <button type="button" class="image-zoom-close" onclick="closeImageZoom()">✕</button>
+    <img id="imageZoomImg" src="" alt="확대된 이미지">
+  </div>
 </div>
 
 <!-- 수정 모달 -->
@@ -832,7 +872,7 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="categoryManagerModal" onclick="closeCategoryManager(event)"></div>
+<div class="modal-overlay" id="categoryManagerModal" onclick="closeCategoryManager(event)">
   <div class="modal-content" style="max-width:500px;width:90%;">
     <div class="modal-header">
       <h3>🏷️ 제품군 관리</h3>
@@ -931,6 +971,46 @@
     if (n.includes('안마') || n.includes('체어')) return { icon: '🪑', c1: '#ff6a88', c2: '#ff99ac', label: '안마의자' };
     return { icon: '✨', c1: '#2f80ed', c2: '#56ccf2', label: '렌탈제품' };
   }
+  // 제품 이미지 파일명 목록
+  const IMAGE_FILES = [
+    '음식물 처리기.png', '의류청정기.png', '스킨플러스 연수기.png', '코웨이 연수기.png',
+    'w 인덕션.png', '리클라이닝 마사지셋.png', '안마의자 페블체어.png', '마인플러스.png',
+    '수납형.png', '모던파운데이션.png', '스마트 s6.png', '하이브리드4.png',
+    '엘리트.png', '인버터.png', '더매너.png', '스스로케어.png', '에어컨.png',
+    '아이콘 얼음.png', '아이콘3.png', '아이콘2.png', '듀얼클린.png', '노블.png', '스퀘어핏.png'
+  ];
+
+  // 제품명과 가장 잘 맞는 이미지 파일 찾기
+  function getProductImagePath(name = '') {
+    const productName = String(name);
+    const productNameLower = productName.toLowerCase();
+    
+    // 1. 파일명이 제품명에 포함되어 있는지 확인 (대소문자 구분 없음)
+    for (const file of IMAGE_FILES) {
+      const fileNameWithoutExt = file.replace('.png', '');
+      const fileNameLower = fileNameWithoutExt.toLowerCase();
+      if (productNameLower.includes(fileNameLower)) {
+        console.log('찾은 이미지:', file, '제품명:', productName);
+        return file;
+      }
+    }
+    
+    // 2. 제품명이 파일명에 포함되어 있는지 확인 (대소문자 구분 없음)
+    for (const file of IMAGE_FILES) {
+      const fileNameWithoutExt = file.replace('.png', '');
+      const fileNameLower = fileNameWithoutExt.toLowerCase();
+      if (fileNameLower.includes(productNameLower)) {
+        console.log('찾은 이미지:', file, '제품명:', productName);
+        return file;
+      }
+    }
+    
+    // 3. 그냥 첫 단어로 찾기
+    const firstWord = productName.split(/\s+/)[0];
+    console.log('기본 이미지:', firstWord + '.png', '제품명:', productName);
+    return firstWord + '.png';
+  }
+
   function getProductThumbDataUri(name = '') {
     const v = getProductVisualByName(name);
     const text = String(name).slice(0, 20).replace(/[&<>"]/g, '');
@@ -1925,10 +2005,18 @@
     return psShown.map((p, idx) => {
       const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
       const savingAmt = p.rental - p.finalAmt;
+      const imgPath = getProductImagePath(p.name);
       const thumb = getProductThumbDataUri(p.name);
+      
+      console.log('제품 이미지 경로:', imgPath, p.name);
+      
       return `<div class="bb-lg-card" onclick="benefitItemClick('${p._id}')">
           <div class="bb-lg-rank">${idx + 1}</div>
-          <div class="bb-lg-thumb"><img src="${thumb}" alt="제품 이미지"></div>
+          <div class="bb-lg-thumb">
+            <img src="${imgPath}" alt="제품 이미지" 
+                 onerror="console.log('이미지 로드 실패, fallback 사용'); this.src='${thumb.replace(/'/g, "\\'")}'"
+                 onclick="event.stopPropagation(); openImageZoom('${imgPath.replace(/'/g, "\\'")}', '${thumb.replace(/'/g, "\\'")}')">
+          </div>
           <div class="bb-lg-main">
             <div class="bb-lg-name">${escapeHtml(p.name)}</div>
             <div class="bb-lg-row">
@@ -2690,6 +2778,21 @@
       document.getElementById('careCardModal').classList.remove('open');
     }
 
+    // 이미지 확대 모달
+    function openImageZoom(imgPath, fallbackPath) {
+      const modal = document.getElementById('imageZoomModal');
+      const img = document.getElementById('imageZoomImg');
+      img.src = imgPath;
+      img.onerror = function() {
+        this.src = fallbackPath;
+      };
+      modal.classList.add('open');
+    }
+
+    function closeImageZoom() {
+      document.getElementById('imageZoomModal').classList.remove('open');
+    }
+
     function getCareCardMessage() {
       return `👋 고객님~ 덕분에 케어 잘 진행했습니다 😊
 
@@ -2762,6 +2865,8 @@
     window.closeCareCardModal = closeCareCardModal;
     window.closeCareCardModalDirect = closeCareCardModalDirect;
     window.shareCareCard = shareCareCard;
+    window.openImageZoom = openImageZoom;
+    window.closeImageZoom = closeImageZoom;
 
     // 케어상품권 함수들
     let shareCareVoucherLock = false;
