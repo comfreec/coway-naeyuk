@@ -2993,20 +2993,7 @@
       if (btn) btn.disabled = true;
 
       try {
-        // 1. 케어후명함 모달 열고 캡처
-        console.log('📸 케어후명함 모달 열기...');
-        const cardModal = document.getElementById('careCardModal');
-        cardModal.classList.add('open');
-        await new Promise(r => setTimeout(r, 300)); // 렌더링 대기
-        
-        console.log('📸 명함 캡처 시작...');
-        const canvasCard = await captureCareCard();
-        console.log('✅ 명함 캡처 완료');
-        
-        cardModal.classList.remove('open');
-        await new Promise(r => setTimeout(r, 100));
-        
-        // 2. 케어상품권 모달 열고 캡처
+        // 케어상품권 모달 열고 캡처
         console.log('🎁 케어상품권 모달 열기...');
         const voucherModal = document.getElementById('careVoucherModal');
         voucherModal.classList.add('open');
@@ -3022,16 +3009,13 @@
         try { await navigator.clipboard.writeText(shareText); } catch(e) { console.warn('클립보드 복사 실패:', e); }
 
         console.log('🗂️ Blob 생성 중...');
-        const blobCard = await canvasToBlob(canvasCard, 'image/png');
         const blobVoucher = await canvasToBlob(canvasVoucher, 'image/png');
 
-        if (!blobCard) throw new Error('명함 Blob 생성 실패');
         if (!blobVoucher) throw new Error('상품권 Blob 생성 실패');
         console.log('✅ Blob 생성 완료');
 
-        const fileCard = new File([blobCard], '케어후명함.png', { type: 'image/png' });
         const fileVoucher = new File([blobVoucher], '케어상품권.png', { type: 'image/png' });
-        const files = [fileCard, fileVoucher];
+        const files = [fileVoucher];
         
         console.log('📤 공유 시도...');
         
@@ -3041,13 +3025,11 @@
           } catch (err) {
             console.warn('공유 실패:', err);
             if (err.name !== 'AbortError') {
-              downloadCanvas(canvasCard, '케어후명함.png');
               downloadCanvas(canvasVoucher, '케어상품권.png');
               alert('메시지가 클립보드에 복사됐어요!\n이미지가 자동 다운로드되니 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
             }
           }
         } else {
-          downloadCanvas(canvasCard, '케어후명함.png');
           downloadCanvas(canvasVoucher, '케어상품권.png');
           alert('메시지가 클립보드에 복사됐어요!\n이미지가 자동 다운로드되니 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
         }
@@ -3056,7 +3038,6 @@
         console.error('❌ shareBoth 오류:', err);
         alert('이미지 생성에 실패했습니다.\n\n오류: ' + err.message);
         // 오류시 모달 닫기
-        document.getElementById('careCardModal').classList.remove('open');
         document.getElementById('careVoucherModal').classList.remove('open');
       } finally {
         if (btn) btn.disabled = false;
