@@ -1049,12 +1049,13 @@
     const afterDisc       = afterRerental - discAmt;
     const extraDiscAmt    = Math.round(afterDisc * (extraDisc / 100));
     const afterExtra      = afterDisc - extraDiscAmt;
-    const bundleDiscAmt   = Math.round(afterExtra * (bundleDisc / 100));
-    const afterBundle     = afterExtra - bundleDiscAmt;
+    // 타사보상할인 먼저
+    const afterCompetitor = afterExtra - competitor;
+    const bundleDiscAmt   = Math.round(afterCompetitor * (bundleDisc / 100));
+    const afterBundle     = afterCompetitor - bundleDiscAmt;
     const multiDiscAmt    = Math.round(afterBundle * (multiDisc / 100));
     const afterMulti      = afterBundle - multiDiscAmt;
-    const afterCompetitor = afterMulti - competitor;
-    const afterCorasol    = afterCompetitor - corasol;
+    const afterCorasol    = afterMulti - corasol;
     const cardAmt         = applyCard ? card : 0;
     const finalAmt        = Math.max(0, afterCorasol - cardAmt);
     const totalDisc       = rental - finalAmt;
@@ -1450,9 +1451,9 @@
     if (pWithoutCard.rerentalDisc > 0) corasolAfterSubtotal -= pWithoutCard.rerentalDiscAmt;
     if (pWithoutCard.disc > 0) corasolAfterSubtotal -= pWithoutCard.discAmt;
     if (pWithoutCard.extraDisc > 0) corasolAfterSubtotal -= pWithoutCard.extraDiscAmt;
+    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
     if (pWithoutCard.bundleDisc > 0) corasolAfterSubtotal -= pWithoutCard.bundleDiscAmt;
     if (pWithoutCard.multiDisc > 0) corasolAfterSubtotal -= pWithoutCard.multiDiscAmt;
-    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
     if (pWithoutCard.corasol > 0) corasolAfterSubtotal -= pWithoutCard.corasol;
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
@@ -1507,9 +1508,9 @@
     if (p.rerentalDisc > 0) { push(`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt); beforeCorasol -= p.rerentalDiscAmt; }
     if (p.disc > 0)         { push(`기본 할인 (${p.disc}%)`, p.discAmt); beforeCorasol -= p.discAmt; }
     if (p.extraDisc > 0)    { push(`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt); beforeCorasol -= p.extraDiscAmt; }
+    if (p.competitor > 0)   { push('타사보상 할인', p.competitor); beforeCorasol -= p.competitor; }
     if (p.bundleDisc > 0)   { push(`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt); beforeCorasol -= p.bundleDiscAmt; }
     if (p.multiDisc > 0)    { push(`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt); beforeCorasol -= p.multiDiscAmt; }
-    if (p.competitor > 0)   { push('타사보상 할인', p.competitor); beforeCorasol -= p.competitor; }
     
     // 코라솔 할인 표시 (기본 + 추가)
     if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
@@ -1575,9 +1576,9 @@
     if (p.rerentalDisc > 0) sms += `④ 재렌탈 할인 (${p.rerentalDisc}%) : - ${fmt(p.rerentalDiscAmt)}\n`;
     if (p.disc > 0)         sms += `⑤ 기본 할인 (${p.disc}%) : - ${fmt(p.discAmt)}\n`;
     if (p.extraDisc > 0)    sms += `⑥ 추가 할인 (${p.extraDisc}%) : - ${fmt(p.extraDiscAmt)}\n`;
-    if (p.bundleDisc > 0)   sms += `⑦ 결합 할인 (${p.bundleDisc}%) : - ${fmt(p.bundleDiscAmt)}\n`;
-    if (p.multiDisc > 0)    sms += `⑧ 동시구매 할인 (${p.multiDisc}%) : - ${fmt(p.multiDiscAmt)}\n`;
-    if (p.competitor > 0)   sms += `⑨ 타사보상 할인 : - ${fmt(p.competitor)}\n`;
+    if (p.competitor > 0)   sms += `⑦ 타사보상 할인 : - ${fmt(p.competitor)}\n`;
+    if (p.bundleDisc > 0)   sms += `⑧ 결합 할인 (${p.bundleDisc}%) : - ${fmt(p.bundleDiscAmt)}\n`;
+    if (p.multiDisc > 0)    sms += `⑨ 동시구매 할인 (${p.multiDisc}%) : - ${fmt(p.multiDiscAmt)}\n`;
     if (p.corasol > 0)      {
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
       sms += `⑩ 코라솔 할인 (1개월:${fmt(p.corasol)}, 5년총:${fmt(totalCorasol)}) : - ${fmt(p.corasol)}\n`;
@@ -2245,9 +2246,9 @@
     if (pWithoutCard.rerentalDisc > 0) corasolAfterSubtotal -= pWithoutCard.rerentalDiscAmt;
     if (pWithoutCard.disc > 0) corasolAfterSubtotal -= pWithoutCard.discAmt;
     if (pWithoutCard.extraDisc > 0) corasolAfterSubtotal -= pWithoutCard.extraDiscAmt;
+    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
     if (pWithoutCard.bundleDisc > 0) corasolAfterSubtotal -= pWithoutCard.bundleDiscAmt;
     if (pWithoutCard.multiDisc > 0) corasolAfterSubtotal -= pWithoutCard.multiDiscAmt;
-    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
     if (pWithoutCard.corasol > 0) corasolAfterSubtotal -= pWithoutCard.corasol;
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
@@ -2274,9 +2275,9 @@
     if (p.rerentalDisc > 0) beforeCorasolBest -= p.rerentalDiscAmt;
     if (p.disc > 0) beforeCorasolBest -= p.discAmt;
     if (p.extraDisc > 0) beforeCorasolBest -= p.extraDiscAmt;
+    if (p.competitor > 0) beforeCorasolBest -= p.competitor;
     if (p.bundleDisc > 0) beforeCorasolBest -= p.bundleDiscAmt;
     if (p.multiDisc > 0) beforeCorasolBest -= p.multiDiscAmt;
-    if (p.competitor > 0) beforeCorasolBest -= p.competitor;
     
     const afterCorasolBest = beforeCorasolBest - (p.corasol || 0);
     const savingAmountBest = afterCorasolBest < 0 ? Math.abs(afterCorasolBest) : 0;
@@ -2291,9 +2292,9 @@
     if (p.rerentalDisc > 0) items.push([`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt]);
     if (p.disc > 0)         items.push([`기본 할인 (${p.disc}%)`, p.discAmt]);
     if (p.extraDisc > 0)    items.push([`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt]);
+    if (p.competitor > 0)   items.push(['타사보상 할인', p.competitor]);
     if (p.bundleDisc > 0)   items.push([`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt]);
     if (p.multiDisc > 0)    items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
-    if (p.competitor > 0)   items.push(['타사보상 할인', p.competitor]);
     if (p.corasol > 0)      {
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
       items.push([`코라솔 할인 (1개월:${fmt(p.corasol)},5년총:${fmt(totalCorasol)})`, p.corasol]);
