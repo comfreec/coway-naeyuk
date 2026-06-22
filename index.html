@@ -412,6 +412,9 @@
     .btn-bulk { background: linear-gradient(135deg, #6a11cb, #9b59b6); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(106,17,203,0.28); transition: all 0.2s; letter-spacing: 0.3px; }
     .btn-bulk:hover { transform: translateY(-1px); opacity: 1; }
     /* 이미지 확대 모달 */
+    #imageZoomModal {
+      z-index: 9999; /* 다른 모든 모달보다 위에 오게 */
+    }
     .image-zoom-container {
       position: relative;
       max-width: 90vw;
@@ -1515,9 +1518,15 @@
     const push = (label, amt, type, link) => {
       running -= amt;
       const labelStyle = type === 'highlight' ? 'color:#0057a8;' : '';
-      const labelHtml = link
-        ? `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;">${nums[step-1]} ${label}</a>`
-        : `<span class="n-label" style="${labelStyle}">${nums[step-1]} ${label}</span>`;
+      let labelHtml;
+      if (label === '코라솔 할인') {
+        // 코라솔 할인은 클릭시 이미지 모달 열기
+        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
+      } else if (link) {
+        labelHtml = `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;font-weight:800;">${nums[step-1]} ${label}</a>`;
+      } else {
+        labelHtml = `<span class="n-label" style="${labelStyle}">${nums[step-1]} ${label}</span>`;
+      }
       rows.push(`<div class="note-row">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
       
       if (label === '코라솔 할인' && running < 0) {
@@ -1557,8 +1566,8 @@
     }
     rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종납부</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`);
     
-    // 🏷️ 5년 총 절약 금액 눈에 띄게 표시
-    const totalSaving5Years = p.totalDisc * 60; // 5년 = 60개월
+    // 🏷️ 5년 총 절약 금액 눈에 띄게 표시 (렌탈료 할인금액 + 적립금)
+    const totalSaving5Years = (rentalDiscount + savingAmount) * 60; // 5년 = 60개월
     rows.push(`
       <div id="noteTotalSavingDiv" style="
         background: linear-gradient(135deg, #4a2c7a 0%, #2d1b4e 100%);
@@ -1575,7 +1584,7 @@
       ">
         <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.9);">💰 5년 동안 총 절약 금액 💰</div>
         <div style="font-size: 2.6rem; color: #ffd700; text-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5Years)}</div>
-        <div style="font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-top: 6px;">(1개월: ${fmt(p.totalDisc)} 절약)</div>
+        <div style="font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-top: 6px;">(1개월: ${fmt(rentalDiscount + savingAmount)} 절약)</div>
       </div>
     `);
     
@@ -2357,8 +2366,8 @@
       totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span style="color:#d63031;">+ ${fmt(savingAmountBest)}</span></div>`;
     }
     
-    // 🏷️ 5년 총 절약 금액 강조 표시
-    const totalSaving5YearsBest = p.totalDisc * 60;
+    // 🏷️ 5년 총 절약 금액 강조 표시 (렌탈료 할인금액 + 적립금)
+    const totalSaving5YearsBest = (rentalDiscountBest + savingAmountBest) * 60;
     
     document.getElementById('bestContent').innerHTML = `
       <div class="bm-badge">🔥 최고의 할인 혜택</div>
