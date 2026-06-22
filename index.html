@@ -900,6 +900,9 @@
   // - 사용자가 닫으면 그 로드에서는 다시 자동 오픈하지 않음
   let didAutoOpenBigBenefitThisLoad = false;
   let dismissedBigBenefitThisLoad = false;
+  // 5년 총 절약 금액 토글 상태
+  let showNoteTotalSaving = false;
+  let showBestTotalSaving = false;
   function shouldAutoOpenBigBenefit() {
     return false; // 자동으로 모달이 안 뜨게 함
   }
@@ -1426,6 +1429,24 @@
     if (document.getElementById('bigBenefitModal').classList.contains('open')) refreshBigBenefitProductList();
   }
 
+  // 5년 총 절약 금액 토글 함수 (할인계산 모달)
+  function toggleNoteTotalSaving() {
+    showNoteTotalSaving = !showNoteTotalSaving;
+    const div = document.getElementById('noteTotalSavingDiv');
+    if (div) {
+      div.style.display = showNoteTotalSaving ? 'block' : 'none';
+    }
+  }
+
+  // 5년 총 절약 금액 토글 함수 (최고의 할인 혜택 모달)
+  function toggleBestTotalSaving() {
+    showBestTotalSaving = !showBestTotalSaving;
+    const div = document.getElementById('bestTotalSavingDiv');
+    if (div) {
+      div.style.display = showBestTotalSaving ? 'block' : 'none';
+    }
+  }
+
   function openModal(id, pushHistoryFlag = true) {
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
@@ -1434,6 +1455,9 @@
     currentModalProductId = id;
     const noteModalEl = document.getElementById('noteModal');
     if (noteModalEl) noteModalEl.dataset.productId = id;
+
+    // 5년 총 절약 금액 토글 상태 초기화
+    showNoteTotalSaving = false;
 
     if (pushHistoryFlag) {
       // 홈/리스트에서 새로 진입할 때만 임시 상태 초기화
@@ -1531,12 +1555,12 @@
     if (savingAmount > 0) {
       rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
     }
-    rows.push(`<div class="note-row note-underline"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종 납부금액</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span></div>`);
+    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종납부</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`);
     
     // 🏷️ 5년 총 절약 금액 눈에 띄게 표시
     const totalSaving5Years = p.totalDisc * 60; // 5년 = 60개월
     rows.push(`
-      <div style="
+      <div id="noteTotalSavingDiv" style="
         background: linear-gradient(135deg, #4a2c7a 0%, #2d1b4e 100%);
         color: #ffd700;
         padding: 20px;
@@ -1547,6 +1571,7 @@
         font-weight: 900;
         border: 2px solid rgba(255, 215, 0, 0.4);
         animation: pulse 2s ease-in-out infinite;
+        display: none;
       ">
         <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.9);">💰 5년 동안 총 절약 금액 💰</div>
         <div style="font-size: 2.6rem; color: #ffd700; text-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5Years)}</div>
@@ -2327,7 +2352,7 @@
       `<div class="s-row"><span>${label}</span><span>- ${fmt(amt)}</span></div>`
     ).join('');
     
-    let totalRows = `<div class="s-row total"><span>렌탈료 할인금액</span><span>- ${fmt(rentalDiscountBest)}</span></div>`;
+    let totalRows = `<div class="s-row total" style="cursor:pointer;" onclick="toggleBestTotalSaving()"><span>렌탈료 할인금액</span><span>- ${fmt(rentalDiscountBest)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`;
     if (savingAmountBest > 0) {
       totalRows += `<div class="s-row" style="color:#d63031;font-weight:800;"><span>적립금</span><span style="color:#d63031;">+ ${fmt(savingAmountBest)}</span></div>`;
     }
@@ -2352,7 +2377,7 @@
       ${totalRows}
       
       <!-- 5년 총 절약 금액 강조 (아래쪽 배치) -->
-      <div style="
+      <div id="bestTotalSavingDiv" style="
         background: linear-gradient(135deg, #4a2c7a 0%, #2d1b4e 100%);
         padding: 18px 14px;
         border-radius: 16px;
@@ -2361,6 +2386,7 @@
         box-shadow: 0 6px 22px rgba(255, 215, 0, 0.25);
         border: 2px solid rgba(255, 215, 0, 0.4);
         animation: pulse 2s ease-in-out infinite;
+        display: none;
       ">
         <div style="font-size: 1.05rem; color: rgba(255, 255, 255, 0.85); font-weight: 800; margin-bottom: 10px;">💰 5년 총 절약 금액 💰</div>
         <div style="font-size: 2.3rem; color: #ffd700; font-weight: 900; text-shadow: 0 3px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5YearsBest)}</div>
@@ -2377,6 +2403,9 @@
     modalOverlay.classList.add('open');
     bestPaper.classList.add('hypno-bg-animate');
     
+    // 5년 총 절약 금액 토글 상태 초기화
+    showBestTotalSaving = false;
+
     if (pushHistoryFlag) {
       pushModalState('best');
       // 💡 홈에서 직접 열 때는 코라솔 상태 초기화
