@@ -1245,8 +1245,8 @@
     const metaEl = document.getElementById('tableFilterMeta');
     renderCategoryFilters(); // 칩 상태 업데이트
 
-    // 필터링 (카테고리 + 검색어)
-    const filteredByCat = currentCategory === '전체' 
+    // 필터링 (카테고리 + 검색어) - 검색어 있을 때는 전체 대상으로 검색
+    const filteredByCat = (currentCategory === '전체' || nameQ.trim()) 
       ? products 
       : products.filter(p => getSmartCategory(p) === currentCategory);
     const filtered = filteredByCat.filter((raw) => nameMatchesQuery(raw.name, nameQ));
@@ -1425,6 +1425,14 @@
 
   function setCategory(cat) {
     currentCategory = cat;
+    // 제품군 선택시 제품명 검색 초기화
+    const tableNameFilter = document.getElementById('tableNameFilter');
+    if (tableNameFilter) tableNameFilter.value = '';
+    const bigBenefitNameFilter = document.getElementById('bigBenefitNameFilter');
+    if (bigBenefitNameFilter) {
+      bigBenefitNameFilter.value = '';
+      bigBenefitNameSearch = '';
+    }
     renderCategoryFilters();
     window.renderTable();
     window.renderSummary();
@@ -1799,12 +1807,12 @@
     openBestModal(id);
   }
 
-  function getBenefitOverviewData(orderKey = sortKey, orderDir = sortDir) {
+  function getBenefitOverviewData(orderKey = sortKey, orderDir = sortDir, ignoreCategoryFilter = false) {
     const prods = window.products || [];
     if (prods.length === 0) return null;
 
-    // 카테고리 필터링 적용
-    const filteredByCat = currentCategory === '전체' 
+    // 카테고리 필터링 적용 (ignoreCategoryFilter가 true이면 전체 대상)
+    const filteredByCat = (currentCategory === '전체' || ignoreCategoryFilter) 
       ? prods 
       : prods.filter(p => getSmartCategory(p) === currentCategory);
 
@@ -2094,7 +2102,8 @@
   }
 
   function refreshBigBenefitProductList() {
-    const data = getBenefitOverviewData(bigSortKey, bigSortDir);
+    const ignoreFilter = !!bigBenefitNameSearch.trim();
+    const data = getBenefitOverviewData(bigSortKey, bigSortDir, ignoreFilter);
     const listEl = document.getElementById('bigBenefitProductList');
     if (!data || !listEl) return;
     if (data.ps.length === 0) { listEl.innerHTML = ''; return; }
@@ -2103,7 +2112,8 @@
   }
 
   function openBigBenefitModal(pushHistory = true) {
-    const data = getBenefitOverviewData(bigSortKey, bigSortDir);
+    const ignoreFilter = !!bigBenefitNameSearch.trim();
+    const data = getBenefitOverviewData(bigSortKey, bigSortDir, ignoreFilter);
     const hasData = !!data;
     const ps = hasData ? data.ps : [];
     const bestProduct = hasData ? data.bestProduct : null;
