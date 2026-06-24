@@ -456,7 +456,7 @@
   <h1>🌊 코웨이 렌탈료 할인 내역서</h1>
   <p class="subtitle">제품별 할인 내역을 입력하면 최종 납부금액을 자동으로 계산합니다</p>
   <div class="header-meta">
-    <span class="header-chip">실시간 자동 계산</span>
+    <button type="button" class="btn-big-benefit" onclick="openBigBenefitModal()" id="headerBigBenefitBtn" style="display:none;">📺 할인 혜택 크게 보기</button>
   </div>
 </div>
 
@@ -1222,12 +1222,14 @@
     const tbody = document.getElementById('tableBody');
     const products = window.products || [];
     const bigBtn = document.getElementById('bigBenefitBtn');
+    const headerBigBtn = document.getElementById('headerBigBenefitBtn');
     const bulkBtn = document.getElementById('bulkEditBtn');
     if (products.length === 0) {
       const meta0 = document.getElementById('tableFilterMeta');
       if (meta0) meta0.textContent = '';
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
       if (bigBtn) bigBtn.style.display = 'none';
+      if (headerBigBtn) headerBigBtn.style.display = 'none';
       if (bulkBtn) bulkBtn.style.display = 'none';
       if (shouldAutoOpenBigBenefit()) {
         didAutoOpenBigBenefitThisLoad = true;
@@ -1236,6 +1238,7 @@
       window.renderSummary(); return;
     }
     if (bigBtn) bigBtn.style.display = '';
+    if (headerBigBtn) headerBigBtn.style.display = '';
     if (bulkBtn) bulkBtn.style.display = '';
     if (shouldAutoOpenBigBenefit()) {
       didAutoOpenBigBenefitThisLoad = true;
