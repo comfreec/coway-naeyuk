@@ -2071,7 +2071,7 @@
       return '<div class="bb-empty-filter">검색 조건에 맞는 제품이 없습니다.</div>';
     }
     return psShown.map((p, idx) => {
-      const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100 : 0;
+      const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
       const savingAmt = p.rental - p.finalAmt;
       const imgPath = getProductImagePath(p.name);
       const thumb = getProductThumbDataUri(p.name);
@@ -2081,7 +2081,7 @@
       console.log('제품 이미지 경로:', imgPath, p.name, '검색어:', searchName);
       
       return `<div class="bb-lg-card" onclick="benefitItemClick('${p._id}')">
-          <div class="bb-lg-rank" style="cursor:pointer;" onclick="event.stopPropagation(); window.open('https://www.google.com/search?q=코웨이+${encodeURIComponent(searchName)}', '_blank')">${idx + 1}</div>
+          <div class="bb-lg-rank" style="cursor:pointer;" onclick="event.stopPropagation(); window.open('https://www.coway.com/search?schtxt=${encodeURIComponent(searchName)}', '_blank')">${idx + 1}</div>
           <div class="bb-lg-thumb">
             <img src="${imgPath}" alt="제품 이미지" 
                  onerror="console.log('이미지 로드 실패, fallback 사용'); this.src='${thumb.replace(/'/g, "\\'")}'"
