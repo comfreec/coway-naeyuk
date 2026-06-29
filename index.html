@@ -469,8 +469,8 @@
 <div class="card auth-card">
   <div id="authStatus" class="auth-status warn">로그인이 필요합니다</div>
   <div class="auth-actions">
-    <button id="btnLogin" type="button" class="btn-auth primary">Google 로그인</button>
-    <button id="btnLogout" type="button" class="btn-auth" style="display:none;">로그아웃</button>
+    <button id="btnLogin" type="button" class="btn-auth primary" onclick="window.signInOwner()">Google 로그인</button>
+    <button id="btnLogout" type="button" class="btn-auth" style="display:none;" onclick="window.signOutOwner()">로그아웃</button>
   </div>
 </div>
 
