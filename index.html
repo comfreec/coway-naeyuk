@@ -2920,6 +2920,7 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
     }
 
     async function addCategory() {
+      if (isOfflineBlock()) return;
       const input = document.getElementById('newCategoryName');
       const name = input.value.trim();
       
@@ -3010,6 +3011,7 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
     }
 
     async function editCategory(index) {
+      if (isOfflineBlock()) return;
       const oldName = window.CATEGORIES[index];
       const newName = prompt('새로운 카테고리 이름을 입력해주세요:', oldName);
       
@@ -3031,6 +3033,7 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
     }
 
     async function deleteCategory(index) {
+      if (isOfflineBlock()) return;
       const name = window.CATEGORIES[index];
       
       if (!confirm(`"${name}" 카테고리를 삭제하시겠습니까?`)) return;
