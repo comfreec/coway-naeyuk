@@ -469,8 +469,8 @@
 <div class="card auth-card">
   <div id="authStatus" class="auth-status warn">로그인이 필요합니다</div>
   <div class="auth-actions">
-    <button id="btnLogin" type="button" class="btn-auth primary" onclick="window.signInOwner()">Google 로그인</button>
-    <button id="btnLogout" type="button" class="btn-auth" style="display:none;" onclick="window.signOutOwner()">로그아웃</button>
+    <button id="btnLogin" type="button" class="btn-auth primary">Google 로그인</button>
+    <button id="btnLogout" type="button" class="btn-auth" style="display:none;">로그아웃</button>
   </div>
 </div>
 
@@ -2775,7 +2775,7 @@ let currentModalProductId = null;
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, disablePersistence }
+  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2790,10 +2790,6 @@ let currentModalProductId = null;
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
   const db  = getFirestore(app);
-  
-  // 명시적으로 오프라인 지속성 비활성화
-  disablePersistence(db).catch(err => console.log("오프라인 지속성 비활성화 완료:", err));
-  
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
