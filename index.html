@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -1072,6 +1072,7 @@
   }
 
   async function addProduct() {
+    if (isOfflineBlock()) return;
     if (!window._firestoreFns) { alert('데이터베이스 연결 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     const name         = document.getElementById('productName').value.trim();
     const category     = document.getElementById('productCategory').value;
@@ -1101,6 +1102,7 @@
   }
 
   async function deleteProduct(id) {
+    if (isOfflineBlock()) return;
     if (!confirm('삭제할까요?')) return;
     if (!confirm('정말로 삭제할까요?')) return;
     const { deleteDoc, doc } = window._firestoreFns;
@@ -1142,6 +1144,7 @@
   }
 
   async function saveEdit() {
+    if (isOfflineBlock()) return;
     if (!window._firestoreFns) { alert('데이터베이스 초기화 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     if (!editingId) { alert('수정할 제품 아이디(ID)가 없습니다. 창을 닫고 다시 시도해주세요.'); return; }
 
@@ -1323,6 +1326,7 @@
   }
 
   async function clearAll() {
+    if (isOfflineBlock()) return;
     const products = window.products || [];
     if (products.length === 0) return;
     if (!confirm('전체 계산 내역을 초기화할까요?')) return;
@@ -1332,7 +1336,16 @@
 
   let currentSmsText = '';
   let currentProductName = '';
-  let currentModalProductId = null;
+  
+  // ✅ 오프라인 모드 쓰기 차단 헬퍼
+  function isOfflineBlock() {
+    if (!navigator.onLine) {
+      alert('현재 오프라인 상태입니다. 인터넷 연결을 확인한 후 다시 시도해주세요.');
+      return true;
+    }
+    return false;
+  }
+let currentModalProductId = null;
   let currentCategory = '전체';
   
   // 🏷️ 코라솔 실시간 상태 관리
@@ -2664,6 +2677,7 @@
   function closeBulkModalDirect() { document.getElementById('bulkModal').classList.remove('open'); }
 
   async function applyBulkEdit() {
+    if (isOfflineBlock()) return;
     const products = window.products || [];
     if (products.length === 0) { alert('변경할 제품이 없습니다.'); return; }
 
@@ -2972,6 +2986,7 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
     }
 
     async function saveCategoriesToFirestore() {
+    if (isOfflineBlock()) return;
       if (!window._firestoreFns) {
         console.warn('⚠️ Firestore가 준비되지 않아서 저장할 수 없습니다');
         return;
