@@ -1062,6 +1062,7 @@
   }
 
   async function addProduct() {
+    // 가장 먼저 오프라인 체크
     if (isOfflineBlock()) return;
     if (!window._firestoreFns) { alert('데이터베이스 연결 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     const name         = document.getElementById('productName').value.trim();
@@ -1080,7 +1081,8 @@
     if (!name)       { alert('제품명을 입력해주세요.'); return; }
     if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
     if (!confirm('정말로 제품을 저장할까요?')) return;
-    if (isOfflineBlock()) return; // Firestore 호출 전 다시 체크
+    // confirm 후 다시 한번 오프라인 체크
+    if (isOfflineBlock()) return;
     try {
       const { addDoc } = window._firestoreFns;
       await addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
@@ -1333,6 +1335,7 @@
   
   // ✅ 오프라인 모드 쓰기 차단 헬퍼
   function isOfflineBlock() {
+    console.log("isOfflineBlock 호출됨 - navigator.onLine:", navigator.onLine);
     if (!navigator.onLine) {
       alert('현재 오프라인 상태입니다. 인터넷 연결을 확인한 후 다시 시도해주세요.');
       return true;
@@ -2772,7 +2775,7 @@ let currentModalProductId = null;
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
+  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, disablePersistence }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2787,6 +2790,10 @@ let currentModalProductId = null;
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
   const db  = getFirestore(app);
+  
+  // 명시적으로 오프라인 지속성 비활성화
+  disablePersistence(db).catch(err => console.log("오프라인 지속성 비활성화 완료:", err));
+  
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
