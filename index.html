@@ -2811,7 +2811,9 @@ let currentModalProductId = null;
     window._col = col;
   
 window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
-    window.signInOwner = async () => {
+    
+    const signInOwner = async () => {
+      console.log("signInOwner 호출됨");
       if (!loginBtn) return;
       try {
         loginBtn.disabled = true;
@@ -2835,9 +2837,18 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
         loginBtn.textContent = 'Google 로그인';
       }
     };
-    window.signOutOwner = async () => {
+    
+    const signOutOwner = async () => {
       try { await signOut(auth); } catch(e) { console.error(e); }
     };
+    
+    // 이벤트 리스너로 직접 연결
+    if (loginBtn) {
+      loginBtn.addEventListener('click', signInOwner);
+    }
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', signOutOwner);
+    }
 
     function updateAuthUi(user) {
       const statusEl = authStatusEl;
