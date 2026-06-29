@@ -5,7 +5,19 @@
       "firebase.json",
       ".firebaserc",
       "node_modules",
-      "firestore.rules"
+      "firestore.rules",
+      "*.py"
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(html|js|json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      }
     ]
   },
   "firestore": {

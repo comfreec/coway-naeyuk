@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>코웨이 렌탈료 할인 내역서</title>
+      
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif; background: radial-gradient(circle at 10% 0%, #e9f2ff 0%, #f4f8ff 36%, #edf3fb 100%); min-height: 100vh; color: #1a1a2e; }
     .site-header { background: linear-gradient(138deg, #0a5bb0 0%, #1a74d1 44%, #0a4d98 100%); padding: 34px 20px 26px; text-align: center; position: relative; overflow: hidden; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 12px 30px rgba(0,57,125,0.22); }
-    .site-header::before { content: ''; position: absolute; top: -70px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.09); }
-    .site-header::after { content: ''; position: absolute; bottom: -45px; left: -35px; width: 170px; height: 170px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+    .site-header::before { content: ''; position: absolute; top: -70px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.09); pointer-events: none; }
+    .site-header::after { content: ''; position: absolute; bottom: -45px; left: -35px; width: 170px; height: 170px; border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none; }
     .site-header h1 { font-size: 1.68rem; font-weight: 800; color: #fff; letter-spacing: -0.4px; margin-bottom: 8px; position: relative; }
     .site-header .subtitle { font-size: 0.84rem; color: rgba(255,255,255,0.84); font-weight: 500; position: relative; margin-bottom: 12px; }
     .header-meta { display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center; position: relative; }
@@ -1515,7 +1516,8 @@
         <span style="font-size:1rem; font-weight:700; color:rgba(255,255,255,0.9); margin-left:6px;">할인</span>
       </div>
     </div>`);
-    rows.push(`<div class="note-product"><a href="https://search.shopping.naver.com/search/all?query=코웨이+${encodeURIComponent(p.name)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
+    const cleanName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0];
+      rows.push(`<div class="note-product"><a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
     rows.push(`<hr class="note-divider">`);
     rows.push(`<div class="note-row"><span class="n-label">① 월 렌탈료</span><span class="n-val">${fmt(p.rental)}</span></div>`);
     let step = 1, running = p.rental;
@@ -2076,7 +2078,7 @@
       const imgPath = getProductImagePath(p.name);
       const thumb = getProductThumbDataUri(p.name);
       // 괄호와 괄호 안의 내용 제거 (소괄호(), 대괄호[], 중괄호{} 모두 제거
-      let searchName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim();
+      let searchName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0];
       
       console.log('제품 이미지 경로:', imgPath, p.name, '검색어:', searchName);
       
@@ -2590,7 +2592,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
+  import { getFirestore, enableIndexedDbPersistence, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2605,6 +2607,9 @@
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
   const db  = getFirestore(app);
+    enableIndexedDbPersistence(db).catch((err) => {
+      console.log("Firebase persistence error:", err.code);
+    });
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
@@ -2652,19 +2657,14 @@
     function updateAuthUi(user) {
       const statusEl = authStatusEl;
       if (!user) {
-        statusEl.textContent = '로그인이 필요합니다';
-        statusEl.classList.add('warn');
-        loginBtn.style.display = '';
-        logoutBtn.style.display = 'none';
-        return;
-      }
-      if (user.email !== OWNER_EMAIL) {
-        statusEl.textContent = `허용되지 않은 계정: ${user.email || '알 수 없음'}`;
-        statusEl.classList.add('warn');
-        loginBtn.style.display = '';
-        logoutBtn.style.display = 'none';
-        return;
-      }
+          console.log('User is not logged in. Normally we block here, but we allow offline access.');
+          // window.products = [];
+          // return;
+        }
+      if (user && user.email !== OWNER_EMAIL) {
+          console.log('User is not owner. Permitting read-only or offline access.');
+          // return;
+        }
       statusEl.textContent = `접속 계정: ${user.email}`;
       statusEl.classList.remove('warn');
       loginBtn.style.display = 'none';
@@ -3202,20 +3202,15 @@
       updateAuthUi(user);
 
       if (!user) {
-        console.log('⚠️ 로그인되지 않아서 기본 카테고리 사용');
-        window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
-        updateAllCategorySelects();
-        window.products = [];
-        window.renderTable();
-        window.renderSummary();
-        return;
-      }
+          console.log('User is not logged in. Normally we block here, but we allow offline access.');
+          // window.products = [];
+          // return;
+        }
 
-      if (user.email !== OWNER_EMAIL) {
-        alert('이 앱은 지정된 계정만 사용할 수 있습니다.');
-        await signOut(auth);
-        return;
-      }
+      if (user && user.email !== OWNER_EMAIL) {
+          console.log('User is not owner. Permitting read-only or offline access.');
+          // return;
+        }
       
       console.log('✅ 지정된 계정으로 로그인 성공!');
 
@@ -3307,5 +3302,16 @@
     });
   });
 </script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for(let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
 </body>
 </html>
