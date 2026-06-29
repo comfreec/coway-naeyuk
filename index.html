@@ -2777,7 +2777,7 @@ let currentModalProductId = null;
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, enableIndexedDbPersistence, disableNetwork, enableNetwork, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
+  import { getFirestore, disableNetwork, enableNetwork, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2792,9 +2792,6 @@ let currentModalProductId = null;
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
   const db  = getFirestore(app);
-    enableIndexedDbPersistence(db).catch((err) => {
-      console.log("Firebase persistence error:", err.code);
-    });
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
