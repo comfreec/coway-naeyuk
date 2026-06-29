@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -238,16 +238,18 @@
       50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
       100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.4)); }
     }
-    .hypno-pulse { animation: hypnoticPulse 2s infinite ease-in-out; display: inline-block; }
+    .hypno-pulse {  display: inline-block; }
+    }
+    .hypno-pulse {  display: inline-block; }
 
     @keyframes hypnoticBgMove {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    .hypno-bg-animate {
+    . {
       background-size: 200% 200% !important;
-      animation: hypnoticBgMove 10s infinite linear !important;
+      
     }
 
     .count-up-number { font-variant-numeric: tabular-nums; }
@@ -455,7 +457,18 @@
 
 <div class="site-header">
   <h1>🔥 최저가 할인혜택</h1>
-  <div class="header-meta">
+  
+    <div style="display:inline-flex; justify-content:center; gap:18px; margin-bottom:18px; background: rgba(255, 255, 255, 0.92); padding: 8px 20px; border-radius: 50px; color: #0a4d98; font-size: 0.9rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 6px 16px rgba(0,0,0,0.15); position: relative; z-index: 10;">
+      <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <input type="radio" name="networkMode" id="radioOnline" value="online" style="width:18px;height:18px;accent-color:#0a67cb;cursor:pointer;">
+        🌐 온라인 (실시간)
+      </label>
+      <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <input type="radio" name="networkMode" id="radioOffline" value="offline" style="width:18px;height:18px;accent-color:#0a67cb;cursor:pointer;">
+        ✈️ 오프라인 (캐시 전용)
+      </label>
+    </div>
+    <div class="header-meta">
     <button type="button" class="btn-big-benefit" onclick="window.open('https://m.coway.com/', '_blank')" style="background:linear-gradient(135deg,#0057a8,#0a63c0);">🏠 코웨이 사이트</button>
     <button type="button" class="btn-big-benefit" onclick="openBigBenefitModal()" id="headerBigBenefitBtn" style="display:none;">📺 할인 혜택 크게 보기</button>
   </div>
@@ -585,7 +598,7 @@
     <button type="button" class="impact-close bb-close" onclick="closeBigBenefitModalDirect()">✕</button>
     <div class="bb-brand">COWAY PREVIEW</div>
     <div class="bb-hero" aria-hidden="true">
-      <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img" class="hypno-pulse">
+      <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" role="img" >
         <defs>
           <linearGradient id="bbg1" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:#4a9fff;stop-opacity:1"/>
@@ -922,16 +935,7 @@
   // 🔢 숫자 카운트다운 애니메이션 함수
   function animateNumber(el, start, end, duration = 800, formatter = fmt) {
     if (!el) return;
-    const startTime = performance.now();
-    const step = (currentTime) => {
-      const progress = Math.min((currentTime - startTime) / duration, 1);
-      const easeOutQuad = (t) => t * (2 - t); // 부드러운 감속
-      const currentVal = Math.floor(easeOutQuad(progress) * (end - start) + start);
-      el.textContent = formatter(currentVal);
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = formatter(end);
-    };
-    requestAnimationFrame(step);
+    el.textContent = formatter(end);
   }
 
   // 🛡️ 모달 히스토리 관리용 헬퍼
@@ -1087,7 +1091,7 @@
     if (!confirm('정말로 제품을 저장할까요?')) return;
     try {
       const { addDoc } = window._firestoreFns;
-      await addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
+      addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
         extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now() });
       resetForm();
     } catch(e) {
@@ -1100,7 +1104,7 @@
     if (!confirm('삭제할까요?')) return;
     if (!confirm('정말로 삭제할까요?')) return;
     const { deleteDoc, doc } = window._firestoreFns;
-    await deleteDoc(doc(window._db, 'products', id));
+    deleteDoc(doc(window._db, 'products', id));
   }
 
   let editingId = null;
@@ -1180,7 +1184,7 @@
       console.log('Updating Data:', updateData); // 디버깅용
 
       const docRef = doc(window._db, 'products', editingId);
-      await updateDoc(docRef, updateData);
+      updateDoc(docRef, updateData).catch(e => console.warn('Background sync delayed:', e));
       
       closeEditModalDirect();
       
@@ -1338,6 +1342,11 @@
   
   // 🏷️ 신용카드 할인 실시간 상태 관리
   let modalCardActive = true;
+  let modalBundleDiscOverride = null;
+  window.modalHalfDiscOverride = null;
+  window.modalCompetitorDiscOverride = null;
+  window.modalDiscOverride = null;
+      window.modalExtraDiscOverride = null; // 결합할인 동적 상태 (null이면 기본값)
 
   const CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
 
@@ -1436,7 +1445,7 @@
     window.renderTable();
     window.renderSummary();
     if (document.getElementById('impactModal').classList.contains('open')) openImpactModal();
-    if (document.getElementById('bigBenefitModal').classList.contains('open')) refreshBigBenefitProductList();
+    if (document.getElementById('bigBenefitModal').classList.contains('open')) openBigBenefitModal(false);
   }
 
   // 5년 총 절약 금액 토글 함수 (할인계산 모달)
@@ -1474,11 +1483,35 @@
       modalCorasolActive = false;
       modalCorasolQty = 1;
       modalCardActive = true;
+      modalBundleDiscOverride = null; // 뒤로가기/새로열때 초기화
+      window.modalHalfDiscOverride = null;
+      window.modalCompetitorDiscOverride = null;
+      window.modalDiscOverride = null;
+      window.modalExtraDiscOverride = null;
     }
     
     // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
     // 먼저 신용카드 할인 없이 계산해서 코라솔 후 소계 확인
-    let pWithoutCard = calcProduct(raw, false);
+        let workingRaw = { ...raw };
+    if (modalBundleDiscOverride !== null) {
+      workingRaw.bundleDisc = modalBundleDiscOverride;
+    }
+    if (window.modalHalfDiscOverride !== null) {
+      workingRaw.halfDisc = window.modalHalfDiscOverride;
+    }
+    if (window.modalCompetitorDiscOverride !== null) {
+      workingRaw.competitor = window.modalCompetitorDiscOverride;
+    }
+    if (window.modalDiscOverride !== null) {
+      workingRaw.disc = window.modalDiscOverride;
+    }
+    if (window.modalExtraDiscOverride !== null) {
+      workingRaw.extraDisc = window.modalExtraDiscOverride;
+    }
+    let pWithoutCard = calcProduct(workingRaw, false);
+    let displayRaw = { ...raw };
+    if (modalBundleDiscOverride !== null) displayRaw.bundleDisc = modalBundleDiscOverride;
+    let pDisplay = calcProduct(displayRaw, false);
     let corasolAfterSubtotal = raw.rental || 0;
     
     // 코라솔 전까지의 소계 계산
@@ -1499,7 +1532,7 @@
     // 코라솔 후 소계가 마이너스이면 신용카드 할인 적용 안함
     const applyCardDiscount = modalCardActive && corasolAfterSubtotal >= 0;
     
-    let p = calcProduct(raw, applyCardDiscount);
+    let p = calcProduct(workingRaw, applyCardDiscount);
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
@@ -1512,7 +1545,7 @@
     rows.push(`<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
       <div class="note-title" style="margin:0;"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인계산</div>
       <div style="display:inline-block; background: linear-gradient(135deg, #0057a8, #2491ff); padding:8px 20px; border-radius:999px; box-shadow:0 4px 16px rgba(0,87,168,0.3);">
-        <span style="font-size:2.2rem; font-weight:900; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.2);" class="hypno-pulse">${noteDiscRate}%</span>
+        <span style="font-size:2.2rem; font-weight:900; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.2);" >${noteDiscRate}%</span>
         <span style="font-size:1rem; font-weight:700; color:rgba(255,255,255,0.9); margin-left:6px;">할인</span>
       </div>
     </div>`);
@@ -1523,19 +1556,34 @@
     let step = 1, running = p.rental;
     let beforeCorasol = p.rental;
     const nums = ['②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪'];
-    const push = (label, amt, type, link) => {
-      running -= amt;
+    const push = (label, amt, type, link, canceled = false) => {
+      if (!canceled) running -= amt;
       const labelStyle = type === 'highlight' ? 'color:#0057a8;' : '';
       let labelHtml;
       if (label === '코라솔 할인') {
-        // 코라솔 할인은 클릭시 이미지 모달 열기
-        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 이미지 보기!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('결합 할인')) { 
+        labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="handleBundleClick(event)" oncontextmenu="handleBundleLong(event)">${nums[step-1]} ${label}</span>`; 
+      } else if (label.includes('반값 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleHalfDiscClick(event)" oncontextmenu="window.handleHalfDiscLong(event)">${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('타사보상 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleCompetitorClick(event)" oncontextmenu="window.handleCompetitorLong(event)">${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('기본 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleDiscClick(event)" oncontextmenu="window.handleDiscLong(event)">${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('추가 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleExtraDiscClick(event)" oncontextmenu="window.handleExtraDiscLong(event)">${nums[step-1]} ${label}</span>`;
       } else if (link) {
         labelHtml = `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;font-weight:800;">${nums[step-1]} ${label}</a>`;
       } else {
         labelHtml = `<span class="n-label" style="${labelStyle}">${nums[step-1]} ${label}</span>`;
       }
-      rows.push(`<div class="note-row">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
+      
+      const rowStyle = canceled ? 'text-decoration:line-through; opacity:0.4;' : '';
+      rows.push(`<div class="note-row" style="${rowStyle}">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
       
       if (label === '코라솔 할인' && running < 0) {
         rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val" style="color:#d63031;font-weight:800;">${fmt(running)} <span style="background:#ffeaa7;color:#1a2a4a;padding:2px 8px;border-radius:4px;font-size:0.9rem;">적립금</span></span></div>`);
@@ -1546,14 +1594,33 @@
       }
       step++;
     };
-    if (p.contract > 0)     { push('약정 할인', p.contractAmt); beforeCorasol -= p.contractAmt; }
-    if (p.halfDisc > 0)     { push(`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt); beforeCorasol -= p.halfDiscAmt; }
-    if (p.rerentalDisc > 0) { push(`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt); beforeCorasol -= p.rerentalDiscAmt; }
-    if (p.disc > 0)         { push(`기본 할인 (${p.disc}%)`, p.discAmt); beforeCorasol -= p.discAmt; }
-    if (p.extraDisc > 0)    { push(`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt); beforeCorasol -= p.extraDiscAmt; }
-    if (p.competitor > 0)   { push('타사보상 할인', p.competitor); beforeCorasol -= p.competitor; }
-    if (p.bundleDisc > 0)   { push(`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt); beforeCorasol -= p.bundleDiscAmt; }
-    if (p.multiDisc > 0)    { push(`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt); beforeCorasol -= p.multiDiscAmt; }
+    if (pDisplay.contract > 0) { push('약정 할인', pDisplay.contractAmt); beforeCorasol -= pWithoutCard.contractAmt; }
+    if (raw.halfDisc > 0) {
+      const isCanceled = window.modalHalfDiscOverride === 0;
+      push(`반값 할인 (${raw.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.halfDiscAmt;
+    }
+    if (pDisplay.rerentalDisc > 0) { push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt); beforeCorasol -= pWithoutCard.rerentalDiscAmt; }
+    if (raw.disc > 0) {
+      const isCanceled = window.modalDiscOverride === 0;
+      push(`기본 할인 (${raw.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.discAmt;
+    }
+    if (raw.extraDisc > 0) {
+      const isCanceled = window.modalExtraDiscOverride === 0;
+      push(`추가 할인 (${raw.extraDisc}%)`, pDisplay.extraDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.extraDiscAmt;
+    }
+    if (raw.competitor > 0) {
+      const isCanceled = window.modalCompetitorDiscOverride === 0;
+      push('타사보상 할인', pDisplay.competitor, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.competitor;
+    }
+    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null) { 
+      let bRate = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : raw.bundleDisc; 
+      if (bRate !== 0) { push(`결합 할인 (${bRate}%)`, pWithoutCard.bundleDiscAmt); beforeCorasol -= pWithoutCard.bundleDiscAmt; } 
+    }
+    if (pDisplay.multiDisc > 0) { push(`동시구매 할인 (${pDisplay.multiDisc}%)`, pDisplay.multiDiscAmt); beforeCorasol -= pWithoutCard.multiDiscAmt; }
     
     // 코라솔 할인 표시 (기본 + 추가)
     if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
@@ -1572,7 +1639,7 @@
     if (savingAmount > 0) {
       rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
     }
-    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종납부</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`);
+    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종납부</span><span class="n-final note-underline" id="noteFinalAmt">${fmt(p.finalAmt)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`);
     
     // 🏷️ 5년 총 절약 금액 눈에 띄게 표시 (렌탈료 할인금액 + 적립금)
     const totalSaving5Years = (rentalDiscount + savingAmount) * 60; // 5년 = 60개월
@@ -1636,14 +1703,33 @@
     }
 
     let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
-    if (p.contract > 0)     sms += `② 약정 할인 : - ${fmt(p.contractAmt)}\n`;
-    if (p.halfDisc > 0)     sms += `③ 반값 할인 (${p.halfDisc}%) : - ${fmt(p.halfDiscAmt)}\n`;
-    if (p.rerentalDisc > 0) sms += `④ 재렌탈 할인 (${p.rerentalDisc}%) : - ${fmt(p.rerentalDiscAmt)}\n`;
-    if (p.disc > 0)         sms += `⑤ 기본 할인 (${p.disc}%) : - ${fmt(p.discAmt)}\n`;
-    if (p.extraDisc > 0)    sms += `⑥ 추가 할인 (${p.extraDisc}%) : - ${fmt(p.extraDiscAmt)}\n`;
-    if (p.competitor > 0)   sms += `⑦ 타사보상 할인 : - ${fmt(p.competitor)}\n`;
-    if (p.bundleDisc > 0)   sms += `⑧ 결합 할인 (${p.bundleDisc}%) : - ${fmt(p.bundleDiscAmt)}\n`;
-    if (p.multiDisc > 0)    sms += `⑨ 동시구매 할인 (${p.multiDisc}%) : - ${fmt(p.multiDiscAmt)}\n`;
+    if (pDisplay.contract > 0) { push('약정 할인', pDisplay.contractAmt); beforeCorasol -= pWithoutCard.contractAmt; }
+    if (raw.halfDisc > 0) {
+      const isCanceled = window.modalHalfDiscOverride === 0;
+      push(`반값 할인 (${raw.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.halfDiscAmt;
+    }
+    if (pDisplay.rerentalDisc > 0) { push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt); beforeCorasol -= pWithoutCard.rerentalDiscAmt; }
+    if (raw.disc > 0) {
+      const isCanceled = window.modalDiscOverride === 0;
+      push(`기본 할인 (${raw.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.discAmt;
+    }
+    if (raw.extraDisc > 0) {
+      const isCanceled = window.modalExtraDiscOverride === 0;
+      push(`추가 할인 (${raw.extraDisc}%)`, pDisplay.extraDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.extraDiscAmt;
+    }
+    if (raw.competitor > 0) {
+      const isCanceled = window.modalCompetitorDiscOverride === 0;
+      push('타사보상 할인', pDisplay.competitor, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.competitor;
+    }
+    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null) { 
+      let bRate = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : raw.bundleDisc; 
+      if (bRate !== 0) { push(`결합 할인 (${bRate}%)`, pWithoutCard.bundleDiscAmt); beforeCorasol -= pWithoutCard.bundleDiscAmt; } 
+    }
+    if (pDisplay.multiDisc > 0) { push(`동시구매 할인 (${pDisplay.multiDisc}%)`, pDisplay.multiDiscAmt); beforeCorasol -= pWithoutCard.multiDiscAmt; }
     if (p.corasol > 0)      {
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
       sms += `⑩ 코라솔 할인 (1개월:${fmt(p.corasol)}, 5년총:${fmt(totalCorasol)}) : - ${fmt(p.corasol)}\n`;
@@ -1668,7 +1754,6 @@
     const modalOverlay = document.getElementById('noteModal');
     const notePaper = document.getElementById('notePaper');
     modalOverlay.classList.add('open');
-    notePaper.classList.add('hypno-bg-animate');
 
     if (pushHistoryFlag) {
       pushModalState('note');
@@ -1687,6 +1772,74 @@
     // 스와이프로 최고의 할인 모달 전환
     initModalSwipe(notePaper, id, 'note');
   }
+
+  window.handleBundleClick = function(e) {
+    if (e) e.preventDefault();
+    const p = (window.products || []).find(x => x._id === currentModalProductId);
+    const hasRerental = p && p.rerentalDisc > 0;
+    const current = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : (p ? p.bundleDisc : 0);
+    modalBundleDiscOverride = current + (hasRerental ? 3 : 5);
+    refreshModalContent();
+  };
+  window.handleExtraDiscClick = function(e) {
+    if (e) e.preventDefault();
+    window.modalExtraDiscOverride = 0;
+    refreshModalContent();
+  };
+
+  window.handleExtraDiscLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalExtraDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleBundleLong = function(e) {
+    if (e) e.preventDefault();
+    const p = (window.products || []).find(x => x._id === currentModalProductId);
+    const hasRerental = p && p.rerentalDisc > 0;
+    modalBundleDiscOverride = hasRerental ? 3 : 5;
+    refreshModalContent();
+  };
+
+  window.handleHalfDiscClick = function(e) {
+    if (e) e.preventDefault();
+    window.modalHalfDiscOverride = 0;
+    refreshModalContent();
+  };
+
+  window.handleHalfDiscLong = function(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    window.modalHalfDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleCompetitorClick = function(e) {
+    if (e) e.preventDefault();
+    window.modalCompetitorDiscOverride = 0;
+    refreshModalContent();
+  };
+
+  window.handleCompetitorLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalCompetitorDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleDiscClick = function(e) {
+    if (e) e.preventDefault();
+    window.modalDiscOverride = 0;
+    refreshModalContent();
+  };
+
+  window.handleDiscLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalDiscOverride = null;
+      window.modalExtraDiscOverride = null;
+    refreshModalContent();
+  };
 
   function sendSms(e) { e.preventDefault(); window.location.href = `sms:?body=${encodeURIComponent(currentSmsText)}`; }
 
@@ -1841,7 +1994,6 @@
     const modalOverlay = document.getElementById('impactModal');
     const impactPaper = document.getElementById('impactPaper');
     modalOverlay.classList.remove('open');
-    impactPaper.classList.remove('hypno-bg-animate');
     if (history.state && history.state.modal === 'impact') history.back();
   }
 
@@ -2062,7 +2214,6 @@
     const modalOverlay = document.getElementById('impactModal');
     const impactPaper = document.getElementById('impactPaper');
     modalOverlay.classList.add('open');
-    impactPaper.classList.add('hypno-bg-animate');
     
     renderCategoryFilters(); // 🏷️ 카테고리 필터 렌더링 추가
     pushModalState('impact');
@@ -2095,7 +2246,7 @@
               <span class="strike">${fmt(p.rental)}</span>
               <span>→</span>
               <span class="bb-lg-final">${fmt(p.finalAmt)}</span>
-              <span class="hypno-pulse" style="font-size: 2.2rem; font-weight: 900; color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2); margin-left: 12px;">-${rate}%</span>
+              <span  style="font-size: 2.2rem; font-weight: 900; color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2); margin-left: 12px;">-${rate}%</span>
             </div>
             <div class="bb-lg-saving">💰 매월 ${fmt(savingAmt)} 절약</div>
           </div>
@@ -2131,10 +2282,18 @@
     }
 
     // 2. 바디(베스트 배너 + 리스트) 렌더링
+    
+
     document.getElementById('bigBenefitBody').innerHTML = `
-      ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${escapeHtml(bestProduct.name)}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
-      ${emptyAll ? `<div class="bb-empty-filter">아직 추가된 제품이 없습니다.<br>아래에서 <strong style="color:#fff;">계산 추가</strong> 후 다시 확인해주세요.</div>` : '<div id="bigBenefitProductList"></div>'}
+      ${bestProduct ? `<div class="bb-best-banner" style="cursor:pointer;" onclick="openBestModal('${bestProduct._id}')">       <strong>${escapeHtml(bestProduct.name)}</strong><br><span style="opacity:0.9">👑 최대 할인금액: <strong style="color:#FFD700;">${fmt(bestProduct.totalDisc)}원</strong> 👆(터치) </span></div>` : ''}
+      ${emptyAll ? `<div class="bb-empty-filter"><br>  데이터가 없습니다.<br> <strong style="color:#fff;">전체</strong>로 초기화해주세요.</div>` : '<div id="bigBenefitProductList"></div>'}
     `;
+
+    if (!emptyAll) {
+      refreshBigBenefitProductList();
+    }
+
+
 
     if (!emptyAll) {
       refreshBigBenefitProductList();
@@ -2164,7 +2323,6 @@
     `;
 
     document.getElementById('bigBenefitModal').classList.add('open');
-    document.getElementById('bigBenefitPaper').classList.add('hypno-bg-animate');
     
     // 처음 열 때만 스크롤 상단으로 (정렬 변경 시에는 사용자 경험을 위해 유지하거나 살짝만 보정)
     if (pushHistory) {
@@ -2236,11 +2394,10 @@
     const modalOverlay = document.getElementById('bestModal');
     const bestPaper = document.getElementById('bestPaper');
     modalOverlay.classList.remove('open');
-    bestPaper.classList.remove('hypno-bg-animate');
     modalCorasolActive = false;
     modalCorasolQty = 1;
     modalCardActive = true;
-    if (history.state && history.state.modal === 'best') history.back();
+    if (history.state && ['note', 'best', 'edit'].includes(history.state.modal)) history.back();
   }
 
   function initModalSwipe(el, id, currentType) {
@@ -2305,9 +2462,36 @@
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
     
+    if (pushHistoryFlag) {
+      modalBundleDiscOverride = null;
+      window.modalHalfDiscOverride = null;
+      window.modalCompetitorDiscOverride = null;
+      window.modalDiscOverride = null;
+      window.modalExtraDiscOverride = null;
+    }
+
     // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
     // 먼저 신용카드 할인 없이 계산해서 코라솔 후 소계 확인
-    let pWithoutCard = calcProduct(raw, false);
+        let workingRaw = { ...raw };
+    if (modalBundleDiscOverride !== null) {
+      workingRaw.bundleDisc = modalBundleDiscOverride;
+    }
+    if (window.modalHalfDiscOverride !== null) {
+      workingRaw.halfDisc = window.modalHalfDiscOverride;
+    }
+    if (window.modalCompetitorDiscOverride !== null) {
+      workingRaw.competitor = window.modalCompetitorDiscOverride;
+    }
+    if (window.modalDiscOverride !== null) {
+      workingRaw.disc = window.modalDiscOverride;
+    }
+    if (window.modalExtraDiscOverride !== null) {
+      workingRaw.extraDisc = window.modalExtraDiscOverride;
+    }
+    let pWithoutCard = calcProduct(workingRaw, false);
+    let displayRaw = { ...raw };
+    if (modalBundleDiscOverride !== null) displayRaw.bundleDisc = modalBundleDiscOverride;
+    let pDisplay = calcProduct(displayRaw, false);
     let corasolAfterSubtotal = raw.rental || 0;
     
     // 코라솔 전까지의 소계 계산
@@ -2328,7 +2512,7 @@
     // 코라솔 후 소계가 마이너스이면 신용카드 할인 적용 안함
     const applyCardDiscount = modalCardActive && corasolAfterSubtotal >= 0;
     
-    let p = calcProduct(raw, applyCardDiscount);
+    let p = calcProduct(workingRaw, applyCardDiscount);
     if (modalCorasolActive) {
       const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
       p.corasol += addedCorasolAmt;
@@ -2340,15 +2524,6 @@
     
     // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
     let beforeCorasolBest = raw.rental || 0;
-    if (p.contract > 0) beforeCorasolBest -= p.contractAmt;
-    if (p.halfDisc > 0) beforeCorasolBest -= p.halfDiscAmt;
-    if (p.rerentalDisc > 0) beforeCorasolBest -= p.rerentalDiscAmt;
-    if (p.disc > 0) beforeCorasolBest -= p.discAmt;
-    if (p.extraDisc > 0) beforeCorasolBest -= p.extraDiscAmt;
-    if (p.competitor > 0) beforeCorasolBest -= p.competitor;
-    if (p.bundleDisc > 0) beforeCorasolBest -= p.bundleDiscAmt;
-    if (p.multiDisc > 0) beforeCorasolBest -= p.multiDiscAmt;
-    
     const afterCorasolBest = beforeCorasolBest - (p.corasol || 0);
     const savingAmountBest = afterCorasolBest < 0 ? Math.abs(afterCorasolBest) : 0;
     
@@ -2357,14 +2532,17 @@
     const totalSaving = p.totalDisc;
     
     const items = [];
-    if (p.contract > 0)     items.push(['약정 할인', p.contractAmt]);
-    if (p.halfDisc > 0)     items.push([`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt]);
+    if (p.contract > 0) items.push(['약정 할인', p.contractAmt]);
+    if (p.halfDisc > 0) items.push([`반값 할인 (${p.halfDisc}%)`, p.halfDiscAmt]);
     if (p.rerentalDisc > 0) items.push([`재렌탈 할인 (${p.rerentalDisc}%)`, p.rerentalDiscAmt]);
-    if (p.disc > 0)         items.push([`기본 할인 (${p.disc}%)`, p.discAmt]);
-    if (p.extraDisc > 0)    items.push([`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt]);
-    if (p.competitor > 0)   items.push(['타사보상 할인', p.competitor]);
-    if (p.bundleDisc > 0)   items.push([`결합 할인 (${p.bundleDisc}%)`, p.bundleDiscAmt]);
-    if (p.multiDisc > 0)    items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
+    if (p.disc > 0) items.push([`기본 할인 (${p.disc}%)`, p.discAmt]);
+    if (p.extraDisc > 0) items.push([`추가 할인 (${p.extraDisc}%)`, p.extraDiscAmt]);
+    if (p.competitor > 0) items.push(['타사보상 할인', p.competitor]);
+    if (p.bundleDisc > 0 || modalBundleDiscOverride !== null) { 
+      let bRate = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : p.bundleDisc; 
+      if (bRate !== 0) items.push([`결합 할인 (${bRate}%)`, p.bundleDiscAmt]); 
+    }
+    if (p.multiDisc > 0) items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
     if (p.corasol > 0)      {
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
       items.push([`코라솔 할인 (1개월:${fmt(p.corasol)},5년총:${fmt(totalCorasol)})`, p.corasol]);
@@ -2385,12 +2563,12 @@
     document.getElementById('bestContent').innerHTML = `
       <div class="bm-badge">🔥 최고의 할인 혜택</div>
       <div class="bm-name">${p.name}</div>
-      <div class="bm-disc-rate hypno-pulse" id="bestDiscRate">${discRate}%</div>
+      <div class="bm-disc-rate" id="bestDiscRate">${discRate}%</div>
       <div class="bm-disc-label">할 인 적 용 !</div>
       <div class="bm-compare">
         <span class="bm-original">${fmt(p.rental)}</span>
         <span class="bm-arrow">→</span>
-        <div class="bm-final"><small>월 </small><span id="bestFinalAmt" class="hypno-pulse">${p.finalAmt.toLocaleString('ko-KR')}</span><small>원</small></div>
+        <div class="bm-final"><small>월 </small><span id="bestFinalAmt" >${p.finalAmt.toLocaleString('ko-KR')}</span><small>원</small></div>
       </div>
       <div class="bm-per">매달 <strong>${fmt(rentalDiscountBest)}</strong> 절약${savingAmountBest > 0 ? ` + <strong style="color:#d63031;">${fmt(savingAmountBest)}</strong> 적립` : ''}!</div>
       
@@ -2423,7 +2601,6 @@
     const modalOverlay = document.getElementById('bestModal');
     const bestPaper = document.getElementById('bestPaper');
     modalOverlay.classList.add('open');
-    bestPaper.classList.add('hypno-bg-animate');
     
     // 5년 총 절약 금액 토글 상태 초기화
     showBestTotalSaving = false;
@@ -2460,19 +2637,18 @@
       const modalOverlay = document.getElementById('noteModal');
       const notePaper = document.getElementById('notePaper');
       modalOverlay.classList.remove('open');
-      notePaper.classList.remove('hypno-bg-animate');
       const corasolUI = document.getElementById('corasolControlUI');
       if (corasolUI) corasolUI.style.display = 'none';
       modalCorasolActive = false;
       modalCorasolQty = 1;
       modalCardActive = true;
-      if (history.state && history.state.modal === 'note') history.back();
+      if (history.state && ['note', 'best', 'edit'].includes(history.state.modal)) history.back();
     }
 
   function closeEditModal(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
   function closeEditModalDirect() {
     document.getElementById('editModal').classList.remove('open');
-    if (history.state && history.state.modal === 'edit') history.back();
+    if (history.state && ['note', 'best', 'edit'].includes(history.state.modal)) history.back();
   }
 
   function openBulkModal() {
@@ -2552,7 +2728,6 @@
     });
     ['notePaper','bestPaper','impactPaper','bigBenefitPaper'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.classList.remove('hypno-bg-animate');
     });
     // 코라솔 & 신용카드 상태 초기화
     modalCorasolActive = false;
@@ -2572,16 +2747,12 @@
     if (!modal || modal === 'home_guard' || modal === 'home') return;
     if (modal === 'bigBenefit') {
       document.getElementById('bigBenefitModal').classList.add('open');
-      document.getElementById('bigBenefitPaper').classList.add('hypno-bg-animate');
     } else if (modal === 'impact') {
       document.getElementById('impactModal').classList.add('open');
-      document.getElementById('impactPaper').classList.add('hypno-bg-animate');
     } else if (modal === 'best') {
       document.getElementById('bestModal').classList.add('open');
-      document.getElementById('bestPaper').classList.add('hypno-bg-animate');
     } else if (modal === 'note') {
       document.getElementById('noteModal').classList.add('open');
-      document.getElementById('notePaper').classList.add('hypno-bg-animate');
     } else if (modal === 'edit') {
       document.getElementById('editModal').classList.add('open');
     }
@@ -2592,7 +2763,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, enableIndexedDbPersistence, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
+  import { getFirestore, enableIndexedDbPersistence, disableNetwork, enableNetwork, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2624,8 +2795,39 @@
     const authStatusEl = document.getElementById('authStatus');
 
     window._db  = db;
+
+    // 온라인/오프라인 라디오버튼 제어
+    const radioOnline = document.getElementById('radioOnline');
+    const radioOffline = document.getElementById('radioOffline');
+    
+    // 이전에 선택한 모드 불러오기
+    const savedMode = localStorage.getItem('coway_network_mode') || 'online';
+    if (savedMode === 'offline') {
+      radioOffline.checked = true;
+      console.log('초기 오프라인 모드: 파이어베이스 네트워크 차단');
+      disableNetwork(db);
+    } else { radioOnline.checked = true; }
+
+    radioOnline.addEventListener('change', () => {
+      localStorage.setItem('coway_network_mode', 'online');
+      enableNetwork(db).then(() => {
+        console.log('네트워크 연결됨: 최신 데이터 동기화 시작');
+        alert('온라인 모드로 변경되었습니다. 실시간 데이터를 업데이트합니다.');
+        window.location.reload();
+      });
+    });
+
+    radioOffline.addEventListener('change', () => {
+      localStorage.setItem('coway_network_mode', 'offline');
+      disableNetwork(db).then(() => {
+        console.log('네트워크 차단됨: 오프라인 캐시 전용 동작');
+        alert('오프라인 전용 모드로 변경되었습니다. 로컬 캐시로 동작합니다.');
+      });
+    });
+
     window._col = col;
-    window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
+  
+window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
     window.signInOwner = async () => {
       if (!loginBtn) return;
       try {
@@ -2778,7 +2980,7 @@
       try {
         const categoriesToSave = ensureGitaAtEnd([...window.CATEGORIES]);
         console.log('💾 Firestore에 카테고리 저장 중:', categoriesToSave);
-        await setDoc(categoriesDocRef, { list: categoriesToSave });
+        setDoc(categoriesDocRef, { list: categoriesToSave });
         console.log('✅ Firestore에 저장 성공!');
         
         // localStorage도 백업용으로 업데이트
@@ -3251,7 +3453,7 @@
                 window.CATEGORIES = ensureGitaAtEnd(parsed);
                 // Firestore에 localStorage 카테고리 저장
                 try {
-                  await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+                  setDoc(categoriesDocRef, { list: window.CATEGORIES });
                   console.log('✅ localStorage 카테고리를 Firestore에 저장했습니다');
                 } catch (saveErr) {
                   console.error('❌ Firestore에 저장 실패:', saveErr);
@@ -3305,10 +3507,13 @@
 
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for(let registration of registrations) {
-        registration.unregister();
-      }
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
     });
   }
 </script>
