@@ -1090,9 +1090,10 @@
     if (!name)       { alert('제품명을 입력해주세요.'); return; }
     if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
     if (!confirm('정말로 제품을 저장할까요?')) return;
+    if (isOfflineBlock()) return; // Firestore 호출 전 다시 체크
     try {
       const { addDoc } = window._firestoreFns;
-      addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
+      await addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
         extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now() });
       resetForm();
     } catch(e) {
@@ -1105,8 +1106,9 @@
     if (isOfflineBlock()) return;
     if (!confirm('삭제할까요?')) return;
     if (!confirm('정말로 삭제할까요?')) return;
+    if (isOfflineBlock()) return; // Firestore 호출 전 다시 체크
     const { deleteDoc, doc } = window._firestoreFns;
-    deleteDoc(doc(window._db, 'products', id));
+    await deleteDoc(doc(window._db, 'products', id));
   }
 
   let editingId = null;
@@ -1159,6 +1161,7 @@
       if (!name)       { alert('제품명을 입력해주세요.'); return; }
       if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
       if (!confirm('정말로 수정사항을 저장할까요?')) return;
+      if (isOfflineBlock()) return; // Firestore 호출 전 다시 체크
       
       if (btn) {
         btn.disabled = true;
@@ -1187,7 +1190,7 @@
       console.log('Updating Data:', updateData); // 디버깅용
 
       const docRef = doc(window._db, 'products', editingId);
-      updateDoc(docRef, updateData).catch(e => console.warn('Background sync delayed:', e));
+      await updateDoc(docRef, updateData);
       
       closeEditModalDirect();
       
@@ -1330,6 +1333,7 @@
     const products = window.products || [];
     if (products.length === 0) return;
     if (!confirm('전체 계산 내역을 초기화할까요?')) return;
+    if (isOfflineBlock()) return; // Firestore 호출 전 다시 체크
     const { deleteDoc, doc } = window._firestoreFns;
     await Promise.all(products.map(p => deleteDoc(doc(window._db, 'products', p._id))));
   }
@@ -2709,6 +2713,7 @@ let currentModalProductId = null;
     };
     const summary = Object.entries(updates).map(([k, v]) => `${fieldNames[k]}: ${v}`).join('\n');
     if (!confirm(`전체 ${products.length}개 제품에 아래 항목을 일괄 적용할까요?\n\n${summary}`)) return;
+    if (isOfflineBlock()) return; // Firestore 호출 전 다시 체크
 
     const { updateDoc, doc } = window._firestoreFns;
     try {
@@ -2988,11 +2993,12 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
         console.warn('⚠️ Firestore가 준비되지 않아서 저장할 수 없습니다');
         return;
       }
+      if (isOfflineBlock()) return; // Firestore 호출 전 다시 체크
       const { setDoc } = window._firestoreFns;
       try {
         const categoriesToSave = ensureGitaAtEnd([...window.CATEGORIES]);
         console.log('💾 Firestore에 카테고리 저장 중:', categoriesToSave);
-        setDoc(categoriesDocRef, { list: categoriesToSave });
+        await setDoc(categoriesDocRef, { list: categoriesToSave });
         console.log('✅ Firestore에 저장 성공!');
         
         // localStorage도 백업용으로 업데이트
