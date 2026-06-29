@@ -2782,7 +2782,7 @@ let currentModalProductId = null;
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, disableNetwork, enableNetwork, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
+  import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2811,36 +2811,6 @@ let currentModalProductId = null;
     const authStatusEl = document.getElementById('authStatus');
 
     window._db  = db;
-
-    // 온라인/오프라인 라디오버튼 제어
-    const radioOnline = document.getElementById('radioOnline');
-    const radioOffline = document.getElementById('radioOffline');
-    
-    // 이전에 선택한 모드 불러오기
-    const savedMode = localStorage.getItem('coway_network_mode') || 'online';
-    if (savedMode === 'offline') {
-      radioOffline.checked = true;
-      console.log('초기 오프라인 모드: 파이어베이스 네트워크 차단');
-      disableNetwork(db);
-    } else { radioOnline.checked = true; }
-
-    radioOnline.addEventListener('change', () => {
-      localStorage.setItem('coway_network_mode', 'online');
-      enableNetwork(db).then(() => {
-        console.log('네트워크 연결됨: 최신 데이터 동기화 시작');
-        alert('온라인 모드로 변경되었습니다. 실시간 데이터를 업데이트합니다.');
-        window.location.reload();
-      });
-    });
-
-    radioOffline.addEventListener('change', () => {
-      localStorage.setItem('coway_network_mode', 'offline');
-      disableNetwork(db).then(() => {
-        console.log('네트워크 차단됨: 오프라인 캐시 전용 동작');
-        alert('오프라인 전용 모드로 변경되었습니다. 로컬 캐시로 동작합니다.');
-      });
-    });
-
     window._col = col;
   
 window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
