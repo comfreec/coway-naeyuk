@@ -2780,7 +2780,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, enableIndexedDbPersistence, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
+  import { initializeFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -2794,7 +2794,7 @@
   });
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
-  const db  = getFirestore(app);
+  const db = initializeFirestore(app, { experimentalForceLongPolling: true });
 
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
