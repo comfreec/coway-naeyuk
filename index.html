@@ -2796,11 +2796,6 @@
   const provider = new GoogleAuthProvider();
   const db  = getFirestore(app);
 
-  if (window.indexedDB) {
-    window.indexedDB.deleteDatabase("firestore/[DEFAULT]/coway-naeyuk/main");
-    console.log('🧹 Firestore IndexedDB 로컬 캐시 강제 삭제 완료');
-  }
-
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
