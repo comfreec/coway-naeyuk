@@ -4563,41 +4563,43 @@
         if (unsubProducts) unsubProducts();
         if (unsubCategories) unsubCategories();
 
-        // 1회성 마이그레이션 및 구조 검사
-        try {
-          const snap = await window._firestoreFns.getDoc(categoriesDocRef);
-          let categories = null;
-          let needsUpdate = false;
+        // 1회성 마이그레이션 및 구조 검사 (IIFE로 비동기 블로킹 방지)
+        (async () => {
+          try {
+            const snap = await window._firestoreFns.getDoc(categoriesDocRef);
+            let categories = null;
+            let needsUpdate = false;
 
-          if (snap.exists()) {
-            const data = snap.data();
-            if (data && data.list && Array.isArray(data.list)) {
-              categories = data.list;
+            if (snap.exists()) {
+              const data = snap.data();
+              if (data && data.list && Array.isArray(data.list)) {
+                categories = data.list;
+              }
             }
-          }
 
-          if (!categories || categories.length === 0) {
-            console.log('⚠️ 카테고리 없어서 기본값 설정 필요!');
-            categories = [...window.DEFAULT_CATEGORIES];
-            needsUpdate = true;
-          }
+            if (!categories || categories.length === 0) {
+              console.log('⚠️ 카테고리 없어서 기본값 설정 필요!');
+              categories = [...window.DEFAULT_CATEGORIES];
+              needsUpdate = true;
+            }
 
-          if (categories && !categories.includes('음식물처리기')) {
-            console.log('⚠️ 음식물처리기 카테고리 누락으로 추가 필요!');
-            const filtered = categories.filter(c => c !== '기타');
-            filtered.push('음식물처리기');
-            filtered.push('기타');
-            categories = filtered;
-            needsUpdate = true;
-          }
+            if (categories && !categories.includes('음식물처리기')) {
+              console.log('⚠️ 음식물처리기 카테고리 누락으로 추가 필요!');
+              const filtered = categories.filter(c => c !== '기타');
+              filtered.push('음식물처리기');
+              filtered.push('기타');
+              categories = filtered;
+              needsUpdate = true;
+            }
 
-          if (needsUpdate) {
-            await window._firestoreFns.setDoc(categoriesDocRef, { list: categories });
-            console.log('✅ Firestore 카테고리 마이그레이션 완료!');
+            if (needsUpdate) {
+              await window._firestoreFns.setDoc(categoriesDocRef, { list: categories });
+              console.log('✅ Firestore 카테고리 마이그레이션 완료!');
+            }
+          } catch (e) {
+            console.error('❌ 카테고리 마이그레이션 실패 (할당량 제한 등):', e);
           }
-        } catch (e) {
-          console.error('❌ 카테고리 마이그레이션 실패 (할당량 제한 등):', e);
-        }
+        })();
 
         // 🚨 카테고리 리스너 (단순 읽기 전용으로 수정, setDoc 제거)
         unsubCategories = onSnapshot(categoriesDocRef, (snap) => {
