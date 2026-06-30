@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -1122,11 +1122,14 @@
   }
 
   let editingId = null;
-  function openEditModal(id) {
+  window.openEditModal = function(id) {
     const p = (window.products || []).find(x => x._id === id);
     if (!p) return;
     editingId = id;
     console.log('Editing Product ID:', id); // 🔍 디버깅용 로그
+
+    // 카테고리 셀렉트 박스 최신화
+    updateAllCategorySelects();
 
     const map = { 
       e_productName:'name', 
@@ -1155,7 +1158,7 @@
     pushModalState('edit');
   }
 
-  async function saveEdit() {
+  window.saveEdit = async function() {
     if (!window._firestoreFns) { alert('데이터베이스 초기화 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     if (!editingId) { alert('수정할 제품 아이디(ID)가 없습니다. 창을 닫고 다시 시도해주세요.'); return; }
 
@@ -1229,8 +1232,8 @@
     }, 2500);
   }
 
-  function closeEditModal(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
-  function closeEditModalDirect() { document.getElementById('editModal').classList.remove('open'); }
+  window.closeEditModal = function(e) { if (e.target === document.getElementById('editModal')) document.getElementById('editModal').classList.remove('open'); }
+  window.closeEditModalDirect = function() { document.getElementById('editModal').classList.remove('open'); }
 
   window.renderTable = function() {
     const tbody = document.getElementById('tableBody');
@@ -1238,12 +1241,15 @@
     const bigBtn = document.getElementById('bigBenefitBtn');
     const headerBigBtn = document.getElementById('headerBigBenefitBtn');
     const bulkBtn = document.getElementById('bulkEditBtn');
+    
+    // 할인 혜택 크게 보기 버튼은 항상 표시!
+    if (bigBtn) bigBtn.style.display = '';
+    if (headerBigBtn) headerBigBtn.style.display = '';
+    
     if (products.length === 0) {
       const meta0 = document.getElementById('tableFilterMeta');
       if (meta0) meta0.textContent = '';
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">아직 추가된 제품이 없습니다</td></tr>';
-      if (bigBtn) bigBtn.style.display = 'none';
-      if (headerBigBtn) headerBigBtn.style.display = 'none';
       if (bulkBtn) bulkBtn.style.display = 'none';
       if (shouldAutoOpenBigBenefit()) {
         didAutoOpenBigBenefitThisLoad = true;
@@ -1251,8 +1257,6 @@
       }
       window.renderSummary(); return;
     }
-    if (bigBtn) bigBtn.style.display = '';
-    if (headerBigBtn) headerBigBtn.style.display = '';
     if (bulkBtn) bulkBtn.style.display = '';
     if (shouldAutoOpenBigBenefit()) {
       didAutoOpenBigBenefitThisLoad = true;
@@ -1398,215 +1402,8 @@
     refreshModalContent();
   }
 
-  function refreshModalContent() {
-    const modalProductId = currentModalProductId || document.getElementById('noteModal')?.dataset?.productId;
-    if (!modalProductId) return;
-    openModal(modalProductId, false); // 기존 openModal 재사용 (히스토리 방지)
-  }
-
-  // 🏷️ 스마트 카테고리 분류 함수
-  function getSmartCategory(p) {
-    if (p.category && p.category !== '') return p.category;
-    const name = p.name || '';
-    const categories = window.CATEGORIES || CATEGORIES;
-    for (const cat of categories) {
-      if (cat === '전체' || cat === '기타') continue;
-      if (name.includes(cat)) return cat;
-    }
-    return '기타';
-  }
-
-  // 기타를 맨 뒤로 보내는 함수 (글로벌 스코프)
-  function ensureGitaAtEnd(categories) {
-    const filtered = categories.filter(c => c !== '기타');
-    filtered.push('기타');
-    return filtered;
-  }
-
-  // 🏷️ 카테고리 필터 UI 렌더링
-  function renderCategoryFilters() {
-    const containers = [
-      { id: 'homeCategoryFilter', isModal: false },
-      { id: 'impactCategoryFilter', isModal: true },
-      { id: 'bigBenefitCategoryFilter', isModal: true }
-    ];
-
-    containers.forEach(target => {
-      const el = document.getElementById(target.id);
-      if (!el) return;
-      // window.CATEGORIES 사용 (파이어베이스에서 업데이트된 최신 카테고리)
-      const categories = window.CATEGORIES || CATEGORIES;
-      // 기타를 맨 뒤로
-      const sorted = ensureGitaAtEnd(categories);
-      el.innerHTML = sorted.map(cat => {
-        const activeClass = currentCategory === cat ? 'active' : '';
-        const modalClass = target.isModal ? 'modal-category-chip' : '';
-        return `<div class="category-chip ${activeClass} ${modalClass}" onclick="setCategory('${cat}')">${cat}</div>`;
-      }).join('');
-    });
-  }
-
-  function setCategory(cat) {
-    currentCategory = cat;
-    // 제품군 선택시 제품명 검색 초기화
-    const tableNameFilter = document.getElementById('tableNameFilter');
-    if (tableNameFilter) tableNameFilter.value = '';
-    const bigBenefitNameFilter = document.getElementById('bigBenefitNameFilter');
-    if (bigBenefitNameFilter) {
-      bigBenefitNameFilter.value = '';
-      bigBenefitNameSearch = '';
-    }
-    renderCategoryFilters();
-    window.renderTable();
-    window.renderSummary();
-    if (document.getElementById('impactModal').classList.contains('open')) openImpactModal();
-    if (document.getElementById('bigBenefitModal').classList.contains('open')) refreshBigBenefitProductList();
-  }
-
-  // 5년 총 절약 금액 토글 함수 (할인계산 모달)
-  function toggleNoteTotalSaving() {
-    showNoteTotalSaving = !showNoteTotalSaving;
-    const div = document.getElementById('noteTotalSavingDiv');
-    if (div) {
-      div.style.display = showNoteTotalSaving ? 'block' : 'none';
-    }
-  }
-
-  // 5년 총 절약 금액 토글 함수 (최고의 할인 혜택 모달)
-  function toggleBestTotalSaving() {
-    showBestTotalSaving = !showBestTotalSaving;
-    const div = document.getElementById('bestTotalSavingDiv');
-    if (div) {
-      div.style.display = showBestTotalSaving ? 'block' : 'none';
-    }
-  }
-
-  let isLongPressed = false;
-  let longPressTimer = null;
-
-  window.startLongPressHelper = function(e, callback) {
-    isLongPressed = false;
-    if (longPressTimer) clearTimeout(longPressTimer);
-    longPressTimer = setTimeout(() => {
-      isLongPressed = true;
-      if (callback) {
-        callback(e);
-        if (navigator.vibrate) navigator.vibrate(50);
-      }
-    }, 600);
-  };
-
-  window.endLongPressHelper = function(e) {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-  };
-
-  window.handleBundleClick = function(e) {
-    if (isLongPressed) { isLongPressed = false; return; }
-    if (e) e.preventDefault();
-    const p = (window.products || []).find(x => x._id === currentModalProductId);
-    const hasRerental = p && p.rerentalDisc > 0;
-    const baseStep = p && p.bundleDisc > 0 ? p.bundleDisc : (hasRerental ? 3 : 5);
-    const current = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : baseStep;
-    modalBundleDiscOverride = current + baseStep;
-    refreshModalContent();
-  };
-  window.handleBundleLong = function(e) {
-    if (e) e.preventDefault();
-    const p = (window.products || []).find(x => x._id === currentModalProductId);
-    const hasRerental = p && p.rerentalDisc > 0;
-    modalBundleDiscOverride = p && p.bundleDisc > 0 ? p.bundleDisc : (hasRerental ? 3 : 5);
-    refreshModalContent();
-  };
-
-  window.handleExtraDiscClick = function(e) {
-    if (isLongPressed) { isLongPressed = false; return; }
-    if (e) e.preventDefault();
-    window.modalExtraDiscOverride = 0;
-    refreshModalContent();
-  };
-  window.handleExtraDiscLong = function(e) {
-    if (e) { e.stopPropagation(); e.preventDefault(); }
-    window.modalExtraDiscOverride = null;
-    refreshModalContent();
-  };
-
-  window.handleHalfDiscClick = function(e) {
-    if (isLongPressed) { isLongPressed = false; return; }
-    if (e) e.preventDefault();
-    window.modalHalfDiscOverride = 0;
-    refreshModalContent();
-  };
-  window.handleHalfDiscLong = function(e) {
-    if (e) { e.stopPropagation(); e.preventDefault(); }
-    window.modalHalfDiscOverride = null;
-    refreshModalContent();
-  };
-
-  window.handleCompetitorClick = function(e) {
-    if (isLongPressed) { isLongPressed = false; return; }
-    if (e) e.preventDefault();
-    window.modalCompetitorDiscOverride = 0;
-    refreshModalContent();
-  };
-  window.handleCompetitorLong = function(e) {
-    if (e) { e.stopPropagation(); e.preventDefault(); }
-    window.modalCompetitorDiscOverride = null;
-    refreshModalContent();
-  };
-
-  window.handleDiscClick = function(e) {
-    if (isLongPressed) { isLongPressed = false; return; }
-    if (e) e.preventDefault();
-    window.modalDiscOverride = 0;
-    refreshModalContent();
-  };
-  window.handleDiscLong = function(e) {
-    if (e) { e.stopPropagation(); e.preventDefault(); }
-    window.modalDiscOverride = null;
-    window.modalExtraDiscOverride = null;
-    refreshModalContent();
-  };
-
-  window.handleRerentalDiscClick = function(e) {
-    if (isLongPressed) { isLongPressed = false; return; }
-    if (e) e.preventDefault();
-    window.modalRerentalDiscOverride = 0;
-    refreshModalContent();
-  };
-  window.handleRerentalDiscLong = function(e) {
-    if (e) { e.stopPropagation(); e.preventDefault(); }
-    window.modalRerentalDiscOverride = null;
-    refreshModalContent();
-  };
-
-  function openModal(id, pushHistoryFlag = true) {
-    const raw = (window.products || []).find(x => x._id === id);
-    if (!raw) return;
-
-    currentProductName = raw.name;
-    currentModalProductId = id;
-    const noteModalEl = document.getElementById('noteModal');
-    if (noteModalEl) noteModalEl.dataset.productId = id;
-
-    // 5년 총 절약 금액 토글 상태 초기화
-    showNoteTotalSaving = false;
-
-    if (pushHistoryFlag) {
-      // 홈/리스트에서 새로 진입할 때만 임시 상태 초기화
-      modalCorasolActive = false;
-      modalCorasolQty = 1;
-      modalCardActive = true;
-      modalBundleDiscOverride = null;
-      window.modalHalfDiscOverride = null;
-      window.modalCompetitorDiscOverride = null;
-      window.modalDiscOverride = null;
-      window.modalExtraDiscOverride = null;
-      window.modalRerentalDiscOverride = null;
-    }
-    
+  // 🏷️ 모달 내용 렌더링 함수 (override 변수 유지)
+  function renderModalContent(raw) {
     // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
     // 먼저 신용카드 할인 없이 계산해서 코라솔 후 소계 확인
     let workingRaw = { ...raw };
@@ -1631,6 +1428,10 @@
     let pWithoutCard = calcProduct(workingRaw, false);
     let displayRaw = { ...raw };
     if (modalBundleDiscOverride !== null) displayRaw.bundleDisc = modalBundleDiscOverride;
+    if (window.modalHalfDiscOverride !== null) displayRaw.halfDisc = window.modalHalfDiscOverride;
+    if (window.modalCompetitorDiscOverride !== null) displayRaw.competitor = window.modalCompetitorDiscOverride;
+    if (window.modalDiscOverride !== null) displayRaw.disc = window.modalDiscOverride;
+    if (window.modalExtraDiscOverride !== null) displayRaw.extraDisc = window.modalExtraDiscOverride;
     if (window.modalRerentalDiscOverride !== null) displayRaw.rerentalDisc = window.modalRerentalDiscOverride;
     let pDisplay = calcProduct(displayRaw, false);
     let corasolAfterSubtotal = raw.rental || 0;
@@ -1722,34 +1523,515 @@
       step++;
     };
     if (pDisplay.contract > 0)     { push('약정 할인', pDisplay.contractAmt); beforeCorasol -= pDisplay.contractAmt; }
-    if (raw.halfDisc > 0) {
+    if (raw.halfDisc > 0 || window.modalHalfDiscOverride !== null) {
       const isCanceled = window.modalHalfDiscOverride === 0;
-      push(`반값 할인 (${raw.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
+      push(`반값 할인 (${pDisplay.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
       if (!isCanceled) beforeCorasol -= pDisplay.halfDiscAmt;
     }
-    if (pDisplay.rerentalDisc > 0) {
+    if (pDisplay.rerentalDisc > 0 || window.modalRerentalDiscOverride !== null) {
       const isCanceled = window.modalRerentalDiscOverride === 0;
       push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt, '', null, isCanceled);
       if (!isCanceled) beforeCorasol -= pDisplay.rerentalDiscAmt;
     }
-    if (raw.disc > 0) {
+    if (raw.disc > 0 || window.modalDiscOverride !== null) {
       const isCanceled = window.modalDiscOverride === 0;
-      push(`기본 할인 (${raw.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
+      push(`기본 할인 (${pDisplay.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
       if (!isCanceled) beforeCorasol -= pDisplay.discAmt;
     }
-    if (raw.extraDisc > 0) {
+    if (raw.extraDisc > 0 || window.modalExtraDiscOverride !== null) {
       const isCanceled = window.modalExtraDiscOverride === 0;
-      push(`추가 할인 (${raw.extraDisc}%)`, pDisplay.extraDiscAmt, '', null, isCanceled);
+      push(`추가 할인 (${pDisplay.extraDisc}%)`, pDisplay.extraDiscAmt, '', null, isCanceled);
       if (!isCanceled) beforeCorasol -= pDisplay.extraDiscAmt;
     }
-    if (raw.competitor > 0) {
+    if (raw.competitor > 0 || window.modalCompetitorDiscOverride !== null) {
       const isCanceled = window.modalCompetitorDiscOverride === 0;
       push('타사보상 할인', pDisplay.competitor, '', null, isCanceled);
       if (!isCanceled) beforeCorasol -= pDisplay.competitor;
     }
-    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null) {
-      let bRate = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : raw.bundleDisc;
-      if (bRate !== 0) { push(`결합 할인 (${bRate}%)`, pDisplay.bundleDiscAmt); beforeCorasol -= pDisplay.bundleDiscAmt; }
+    // 재렌탈 할인이 있으면 결합 할인도 항상 표시
+    const hasRerental = raw.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0;
+    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null || hasRerental) {
+      let bRate;
+      if (modalBundleDiscOverride !== null) {
+        bRate = modalBundleDiscOverride;
+      } else if (raw.bundleDisc > 0) {
+        bRate = raw.bundleDisc;
+      } else {
+        // 재렌탈 할인만 있을 때 기본값
+        bRate = 3;
+        modalBundleDiscOverride = 3;
+        // displayRaw도 업데이트해서 pDisplay가 올바르게 계산되도록
+        displayRaw.bundleDisc = 3;
+        pDisplay = calcProduct(displayRaw, false);
+      }
+      const isCanceled = bRate === 0;
+      push(`결합 할인 (${bRate}%)`, pDisplay.bundleDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pDisplay.bundleDiscAmt; 
+    }
+    if (pDisplay.multiDisc > 0)    { push(`동시구매 할인 (${pDisplay.multiDisc}%)`, pDisplay.multiDiscAmt); beforeCorasol -= pDisplay.multiDiscAmt; }
+    
+    // 코라솔 할인 표시 (기본 + 추가)
+    if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
+    
+    if (p.card > 0 && applyCardDiscount) push('카드할인', p.card, 'highlight', 'https://coway-m.com/card');
+    rows.push(`<hr class="note-divider">`);
+    
+    // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
+    const afterCorasol = beforeCorasol - (p.corasol || 0);
+    const savingAmount = afterCorasol < 0 ? Math.abs(afterCorasol) : 0;
+    
+    // 렌탈료 할인금액은 총 할인에서 적립금을 뺀 값
+    const rentalDiscount = Math.min(p.rental, p.totalDisc - savingAmount);
+    
+    rows.push(`<div class="note-row"><span class="n-label">렌탈료 할인금액</span><span class="n-minus">- ${fmt(rentalDiscount)}</span></div>`);
+    if (savingAmount > 0) {
+      rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
+    }
+    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종납부</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`);
+    
+    // 🏷️ 5년 총 절약 금액 눈에 띄게 표시 (렌탈료 할인금액 + 적립금)
+    const totalSaving5Years = (rentalDiscount + savingAmount) * 60; // 5년 = 60개월
+    rows.push(`
+      <div id="noteTotalSavingDiv" style="
+        background: linear-gradient(135deg, #4a2c7a 0%, #2d1b4e 100%);
+        color: #ffd700;
+        padding: 20px;
+        border-radius: 18px;
+        margin-top: 16px;
+        text-align: center;
+        box-shadow: 0 6px 24px rgba(74, 44, 122, 0.5);
+        font-weight: 900;
+        border: 2px solid rgba(255, 215, 0, 0.4);
+        animation: pulse 2s ease-in-out infinite;
+        display: ${showNoteTotalSaving ? 'block' : 'none'};
+      ">
+        <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.9);">💰 5년 동안 총 절약 금액 💰</div>
+        <div style="font-size: 2.6rem; color: #ffd700; text-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5Years)}</div>
+        <div style="font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-top: 6px;">(1개월: ${fmt(rentalDiscount + savingAmount)} 절약)</div>
+      </div>
+    `);
+    
+    // 🏷️ 코라솔 5년 총 할인금액 눈에 띄게 표시
+    if (p.corasol > 0) {
+      const totalCorasol = p.corasol * 60; // 5년 = 60개월
+      rows.push(`
+        <div style="
+          background: radial-gradient(ellipse 120% 80% at 50% 0%, #2f5fa3 0%, #1e3d6b 42%, #0f1f38 100%);
+          color: #ffd873;
+          padding: 18px;
+          border-radius: 16px;
+          margin-top: 12px;
+          text-align: center;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+          font-weight: 800;
+          border: 1px solid rgba(255, 215, 0, 0.3);
+          animation: pulse 2s ease-in-out infinite;
+        ">
+          <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255, 255, 255, 0.85);">🎉 코라솔 5년 총 할인금액 🎉</div>
+          <div style="font-size: 2.3rem; color: #ffd873; text-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);">${fmt(totalCorasol)}</div>
+          <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); margin-top: 6px;">(1개월: ${fmt(p.corasol)})</div>
+        </div>
+      `);
+    }
+    
+    document.getElementById('noteContent').innerHTML = rows.join('');
+    const today = new Date().toLocaleDateString('ko-KR');
+    document.getElementById('noteStamp').textContent = '작성일 : ' + today;
+    
+    // 🏷️ 코라솔 UI 노출 및 상태 업데이트 (항상 실행)
+    const corasolUI = document.getElementById('corasolControlUI');
+    if (corasolUI) {
+      if (p.corasol > 0) {
+        corasolUI.style.display = 'block';
+        const corasolQtyEl = document.getElementById('corasolQty');
+        if (corasolQtyEl) corasolQtyEl.textContent = modalCorasolQty;
+        
+        const corasolCheckbox = document.getElementById('corasolActive');
+        if (corasolCheckbox) corasolCheckbox.checked = modalCorasolActive;
+        
+        const cardCheckbox = document.getElementById('cardActive');
+        if (cardCheckbox) cardCheckbox.checked = modalCardActive;
+      } else {
+        corasolUI.style.display = 'none';
+      }
+    }
+  }
+
+  window.refreshModalContent = function() {
+    const modalProductId = currentModalProductId || document.getElementById('noteModal')?.dataset?.productId;
+    if (!modalProductId) return;
+    const raw = (window.products || []).find(x => x._id === modalProductId);
+    if (!raw) return;
+    renderModalContent(raw);
+  }
+
+  // 🏷️ 스마트 카테고리 분류 함수
+  function getSmartCategory(p) {
+    if (p.category && p.category !== '') return p.category;
+    const name = p.name || '';
+    const categories = window.CATEGORIES || CATEGORIES;
+    for (const cat of categories) {
+      if (cat === '전체' || cat === '기타') continue;
+      if (name.includes(cat)) return cat;
+    }
+    return '기타';
+  }
+
+  // 기타를 맨 뒤로 보내는 함수 (글로벌 스코프)
+  function ensureGitaAtEnd(categories) {
+    const filtered = categories.filter(c => c !== '기타');
+    filtered.push('기타');
+    return filtered;
+  }
+
+  // 🏷️ 카테고리 필터 UI 렌더링
+  function renderCategoryFilters() {
+    const containers = [
+      { id: 'homeCategoryFilter', isModal: false },
+      { id: 'impactCategoryFilter', isModal: true },
+      { id: 'bigBenefitCategoryFilter', isModal: true }
+    ];
+
+    containers.forEach(target => {
+      const el = document.getElementById(target.id);
+      if (!el) return;
+      // window.CATEGORIES 사용 (파이어베이스에서 업데이트된 최신 카테고리)
+      const categories = window.CATEGORIES || CATEGORIES;
+      // 기타를 맨 뒤로
+      const sorted = ensureGitaAtEnd(categories);
+      el.innerHTML = sorted.map(cat => {
+        const activeClass = currentCategory === cat ? 'active' : '';
+        const modalClass = target.isModal ? 'modal-category-chip' : '';
+        return `<div class="category-chip ${activeClass} ${modalClass}" onclick="setCategory('${cat}')">${cat}</div>`;
+      }).join('');
+    });
+  }
+
+  function setCategory(cat) {
+    currentCategory = cat;
+    // 제품군 선택시 제품명 검색 초기화
+    const tableNameFilter = document.getElementById('tableNameFilter');
+    if (tableNameFilter) tableNameFilter.value = '';
+    const bigBenefitNameFilter = document.getElementById('bigBenefitNameFilter');
+    if (bigBenefitNameFilter) {
+      bigBenefitNameFilter.value = '';
+      bigBenefitNameSearch = '';
+    }
+    renderCategoryFilters();
+    window.renderTable();
+    window.renderSummary();
+    if (document.getElementById('impactModal').classList.contains('open')) openImpactModal();
+    if (document.getElementById('bigBenefitModal').classList.contains('open')) refreshBigBenefitProductList();
+  }
+
+  // 5년 총 절약 금액 토글 함수 (할인계산 모달)
+  window.toggleNoteTotalSaving = function() {
+    showNoteTotalSaving = !showNoteTotalSaving;
+    const div = document.getElementById('noteTotalSavingDiv');
+    if (div) {
+      div.style.display = showNoteTotalSaving ? 'block' : 'none';
+    }
+  }
+
+  // 5년 총 절약 금액 토글 함수 (최고의 할인 혜택 모달)
+  window.toggleBestTotalSaving = function() {
+    showBestTotalSaving = !showBestTotalSaving;
+    const div = document.getElementById('bestTotalSavingDiv');
+    if (div) {
+      div.style.display = showBestTotalSaving ? 'block' : 'none';
+    }
+  }
+
+  let isLongPressed = false;
+  let longPressTimer = null;
+
+  window.startLongPressHelper = function(e, callback) {
+    isLongPressed = false;
+    if (longPressTimer) clearTimeout(longPressTimer);
+    longPressTimer = setTimeout(() => {
+      isLongPressed = true;
+      if (callback) {
+        callback(e);
+        if (navigator.vibrate) navigator.vibrate(50);
+      }
+    }, 600);
+  };
+
+  window.endLongPressHelper = function(e) {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+    // 롱프레스 상태 즉시 리셋
+    isLongPressed = false;
+  };
+
+  window.handleBundleClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
+    if (e) e.preventDefault();
+    const p = (window.products || []).find(x => x._id === currentModalProductId);
+    const hasRerental = p && p.rerentalDisc > 0;
+    const step = hasRerental ? 3 : 5;
+    const baseValue = hasRerental ? 3 : 5;
+    const current = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : baseValue;
+    modalBundleDiscOverride = current + step;
+    refreshModalContent();
+  };
+  window.handleBundleLong = function(e) {
+    if (e) e.preventDefault();
+    const p = (window.products || []).find(x => x._id === currentModalProductId);
+    const hasRerental = p && p.rerentalDisc > 0;
+    modalBundleDiscOverride = hasRerental ? 3 : 5;
+    refreshModalContent();
+  };
+
+  window.handleExtraDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
+    if (e) e.preventDefault();
+    window.modalExtraDiscOverride = 0;
+    refreshModalContent();
+  };
+  window.handleExtraDiscLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalExtraDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleHalfDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
+    if (e) e.preventDefault();
+    window.modalHalfDiscOverride = 0;
+    refreshModalContent();
+  };
+  window.handleHalfDiscLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalHalfDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleCompetitorClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
+    if (e) e.preventDefault();
+    window.modalCompetitorDiscOverride = 0;
+    refreshModalContent();
+  };
+  window.handleCompetitorLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalCompetitorDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
+    if (e) e.preventDefault();
+    window.modalDiscOverride = 0;
+    refreshModalContent();
+  };
+  window.handleDiscLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalDiscOverride = null;
+    window.modalExtraDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleRerentalDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
+    if (e) e.preventDefault();
+    window.modalRerentalDiscOverride = 0;
+    refreshModalContent();
+  };
+  window.handleRerentalDiscLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalRerentalDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.openModal = function(id, pushHistoryFlag = true) {
+    const raw = (window.products || []).find(x => x._id === id);
+    if (!raw) return;
+
+    currentProductName = raw.name;
+    currentModalProductId = id;
+    const noteModalEl = document.getElementById('noteModal');
+    if (noteModalEl) noteModalEl.dataset.productId = id;
+
+    // 5년 총 절약 금액 토글 상태 초기화
+    showNoteTotalSaving = false;
+
+    // 항상 임시 상태 초기화 (모달을 새로 열 때마다 원래 값으로 표시)
+    modalCorasolActive = false;
+    modalCorasolQty = 1;
+    modalCardActive = true;
+    modalBundleDiscOverride = null;
+    window.modalHalfDiscOverride = null;
+    window.modalCompetitorDiscOverride = null;
+    window.modalDiscOverride = null;
+    window.modalExtraDiscOverride = null;
+    window.modalRerentalDiscOverride = null;
+    
+    // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
+    // 먼저 신용카드 할인 없이 계산해서 코라솔 후 소계 확인
+    let workingRaw = { ...raw };
+    if (modalBundleDiscOverride !== null) {
+      workingRaw.bundleDisc = modalBundleDiscOverride;
+    }
+    if (window.modalHalfDiscOverride !== null) {
+      workingRaw.halfDisc = window.modalHalfDiscOverride;
+    }
+    if (window.modalCompetitorDiscOverride !== null) {
+      workingRaw.competitor = window.modalCompetitorDiscOverride;
+    }
+    if (window.modalDiscOverride !== null) {
+      workingRaw.disc = window.modalDiscOverride;
+    }
+    if (window.modalExtraDiscOverride !== null) {
+      workingRaw.extraDisc = window.modalExtraDiscOverride;
+    }
+    if (window.modalRerentalDiscOverride !== null) {
+      workingRaw.rerentalDisc = window.modalRerentalDiscOverride;
+    }
+    let pWithoutCard = calcProduct(workingRaw, false);
+    let displayRaw = { ...raw };
+    if (modalBundleDiscOverride !== null) displayRaw.bundleDisc = modalBundleDiscOverride;
+    if (window.modalHalfDiscOverride !== null) displayRaw.halfDisc = window.modalHalfDiscOverride;
+    if (window.modalCompetitorDiscOverride !== null) displayRaw.competitor = window.modalCompetitorDiscOverride;
+    if (window.modalDiscOverride !== null) displayRaw.disc = window.modalDiscOverride;
+    if (window.modalExtraDiscOverride !== null) displayRaw.extraDisc = window.modalExtraDiscOverride;
+    if (window.modalRerentalDiscOverride !== null) displayRaw.rerentalDisc = window.modalRerentalDiscOverride;
+    let pDisplay = calcProduct(displayRaw, false);
+    let corasolAfterSubtotal = raw.rental || 0;
+    
+    // 코라솔 전까지의 소계 계산
+    if (pWithoutCard.contract > 0) corasolAfterSubtotal -= pWithoutCard.contractAmt;
+    if (pWithoutCard.halfDisc > 0) corasolAfterSubtotal -= pWithoutCard.halfDiscAmt;
+    if (pWithoutCard.rerentalDisc > 0) corasolAfterSubtotal -= pWithoutCard.rerentalDiscAmt;
+    if (pWithoutCard.disc > 0) corasolAfterSubtotal -= pWithoutCard.discAmt;
+    if (pWithoutCard.extraDisc > 0) corasolAfterSubtotal -= pWithoutCard.extraDiscAmt;
+    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
+    if (pWithoutCard.bundleDisc > 0) corasolAfterSubtotal -= pWithoutCard.bundleDiscAmt;
+    if (pWithoutCard.multiDisc > 0) corasolAfterSubtotal -= pWithoutCard.multiDiscAmt;
+    if (pWithoutCard.corasol > 0) corasolAfterSubtotal -= pWithoutCard.corasol;
+    if (modalCorasolActive) {
+      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
+      corasolAfterSubtotal -= addedCorasolAmt;
+    }
+    
+    // 코라솔 후 소계가 마이너스이면 신용카드 할인 적용 안함
+    const applyCardDiscount = modalCardActive && corasolAfterSubtotal >= 0;
+    
+    let p = calcProduct(workingRaw, applyCardDiscount);
+    if (modalCorasolActive) {
+      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
+      p.corasol += addedCorasolAmt;
+      p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
+      p.totalDisc += addedCorasolAmt;
+    }
+
+    const rows = [];
+    const noteDiscRate = p.rental > 0 ? Math.min(100, Math.round((p.totalDisc / p.rental) * 100)) : 0;
+    rows.push(`<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
+      <div class="note-title" style="margin:0;"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인계산</div>
+      <div style="display:inline-block; background: linear-gradient(135deg, #0057a8, #2491ff); padding:8px 20px; border-radius:999px; box-shadow:0 4px 16px rgba(0,87,168,0.3);">
+        <span style="font-size:2.2rem; font-weight:900; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.2);" class="hypno-pulse">${noteDiscRate}%</span>
+        <span style="font-size:1rem; font-weight:700; color:rgba(255,255,255,0.9); margin-left:6px;">할인</span>
+      </div>
+    </div>`);
+    const cleanName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0];
+      rows.push(`<div class="note-product"><a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
+    rows.push(`<hr class="note-divider">`);
+    rows.push(`<div class="note-row"><span class="n-label">① 월 렌탈료</span><span class="n-val">${fmt(p.rental)}</span></div>`);
+    let step = 1, running = p.rental;
+    let beforeCorasol = p.rental;
+    const nums = ['②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪'];
+    const push = (label, amt, type, link, canceled = false) => {
+      if (!canceled) running -= amt;
+      const labelStyle = type === 'highlight' ? 'color:#0057a8;' : '';
+      let labelHtml;
+      const tStart = `ontouchstart="window.startLongPressHelper(event, `;
+      const tEnd = `)" ontouchend="window.endLongPressHelper(event)" ontouchmove="window.endLongPressHelper(event)"`;
+
+      if (label === '코라솔 할인') {
+        // 코라솔 할인은 클릭시 이미지 모달 열기
+        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('결합 할인')) { 
+        labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="window.handleBundleClick(event)" oncontextmenu="window.handleBundleLong(event)" ${tStart}window.handleBundleLong${tEnd}>${nums[step-1]} ${label}</span>`; 
+      } else if (label.includes('반값 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleHalfDiscClick(event)" oncontextmenu="window.handleHalfDiscLong(event)" ${tStart}window.handleHalfDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('타사보상 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleCompetitorClick(event)" oncontextmenu="window.handleCompetitorLong(event)" ${tStart}window.handleCompetitorLong${tEnd}>${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('재렌탈 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleRerentalDiscClick(event)" oncontextmenu="window.handleRerentalDiscLong(event)" ${tStart}window.handleRerentalDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('기본 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleDiscClick(event)" oncontextmenu="window.handleDiscLong(event)" ${tStart}window.handleDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('추가 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleExtraDiscClick(event)" oncontextmenu="window.handleExtraDiscLong(event)" ${tStart}window.handleExtraDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
+      } else if (link) {
+        labelHtml = `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;font-weight:800;">${nums[step-1]} ${label}</a>`;
+      } else {
+        labelHtml = `<span class="n-label" style="${labelStyle}">${nums[step-1]} ${label}</span>`;
+      }
+      const rowStyle = canceled ? 'text-decoration:line-through; opacity:0.4;' : '';
+      rows.push(`<div class="note-row" style="${rowStyle}">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
+      
+      if (label === '코라솔 할인' && running < 0) {
+        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val" style="color:#d63031;font-weight:800;">${fmt(running)} <span style="background:#ffeaa7;color:#1a2a4a;padding:2px 8px;border-radius:4px;font-size:0.9rem;">적립금</span></span></div>`);
+      } else if (label === '카드할인' && running < 0) {
+        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(0)}</span></div>`);
+      } else {
+        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(running)}</span></div>`);
+      }
+      step++;
+    };
+    if (pDisplay.contract > 0)     { push('약정 할인', pDisplay.contractAmt); beforeCorasol -= pDisplay.contractAmt; }
+    if (raw.halfDisc > 0 || window.modalHalfDiscOverride !== null) {
+      const isCanceled = window.modalHalfDiscOverride === 0;
+      push(`반값 할인 (${pDisplay.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pDisplay.halfDiscAmt;
+    }
+    if (pDisplay.rerentalDisc > 0 || window.modalRerentalDiscOverride !== null) {
+      const isCanceled = window.modalRerentalDiscOverride === 0;
+      push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pDisplay.rerentalDiscAmt;
+    }
+    if (raw.disc > 0 || window.modalDiscOverride !== null) {
+      const isCanceled = window.modalDiscOverride === 0;
+      push(`기본 할인 (${pDisplay.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pDisplay.discAmt;
+    }
+    if (raw.extraDisc > 0 || window.modalExtraDiscOverride !== null) {
+      const isCanceled = window.modalExtraDiscOverride === 0;
+      push(`추가 할인 (${pDisplay.extraDisc}%)`, pDisplay.extraDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pDisplay.extraDiscAmt;
+    }
+    if (raw.competitor > 0 || window.modalCompetitorDiscOverride !== null) {
+      const isCanceled = window.modalCompetitorDiscOverride === 0;
+      push('타사보상 할인', pDisplay.competitor, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pDisplay.competitor;
+    }
+    // 재렌탈 할인이 있으면 결합 할인도 항상 표시
+    const hasRerental = raw.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0;
+    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null || hasRerental) {
+      let bRate;
+      if (modalBundleDiscOverride !== null) {
+        bRate = modalBundleDiscOverride;
+      } else if (raw.bundleDisc > 0) {
+        bRate = raw.bundleDisc;
+      } else {
+        // 재렌탈 할인만 있을 때 기본값
+        bRate = 3;
+        modalBundleDiscOverride = 3;
+        // displayRaw도 업데이트해서 pDisplay가 올바르게 계산되도록
+        displayRaw.bundleDisc = 3;
+        pDisplay = calcProduct(displayRaw, false);
+      }
+      const isCanceled = bRate === 0;
+      push(`결합 할인 (${bRate}%)`, pDisplay.bundleDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pDisplay.bundleDiscAmt; 
     }
     if (pDisplay.multiDisc > 0)    { push(`동시구매 할인 (${pDisplay.multiDisc}%)`, pDisplay.multiDiscAmt); beforeCorasol -= pDisplay.multiDiscAmt; }
     
@@ -1946,7 +2228,6 @@
     link.download = filename; link.href = canvas.toDataURL('image/png'); link.click();
   }
 
-  let longPressTimer = null;
   let sortKey = 'rental';
   let sortDir = 1; // 1: 오름차순, -1: 내림차순
   let bigSortKey = 'rental';
@@ -2658,11 +2939,11 @@
     initModalSwipe(bestPaper, id, 'best');
   }
 
-  function closeModal(e) {
+  window.closeModal = function(e) {
     if (e.target === document.getElementById('noteModal')) closeModalDirect();
   }
 
-  function closeModalDirect() {
+  window.closeModalDirect = function() {
       const modalOverlay = document.getElementById('noteModal');
       const notePaper = document.getElementById('notePaper');
       modalOverlay.classList.remove('open');
@@ -2672,6 +2953,12 @@
       modalCorasolActive = false;
       modalCorasolQty = 1;
       modalCardActive = true;
+      modalBundleDiscOverride = null;
+      window.modalHalfDiscOverride = null;
+      window.modalCompetitorDiscOverride = null;
+      window.modalDiscOverride = null;
+      window.modalExtraDiscOverride = null;
+      window.modalRerentalDiscOverride = null;
       if (history.state && history.state.modal === 'note') history.back();
     }
 
@@ -2875,10 +3162,11 @@
       logoutBtn.style.display = '';
     }
 
-    function updateAllCategorySelects() {
+    window.updateAllCategorySelects = function() {
       const selectElements = [
         document.getElementById('productCategory'),
         document.getElementById('editCategory'),
+        document.getElementById('e_productCategory'),
         document.getElementById('categoryFilter')
       ].filter(Boolean);
       
@@ -3391,6 +3679,23 @@
     window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
     updateAllCategorySelects();
 
+    // 🚀 초기 로드: localStorage 데이터를 먼저 보여주기!
+    console.log('📦 localStorage에서 초기 데이터 로드...');
+    try {
+      const savedProducts = localStorage.getItem('coway_products');
+      if (savedProducts) {
+        const parsed = JSON.parse(savedProducts);
+        if (Array.isArray(parsed)) {
+          console.log('✅ localStorage 제품 데이터 로드 성공:', parsed.length, '개');
+          window.products = parsed;
+          if (typeof window.renderTable === 'function') window.renderTable();
+          if (typeof window.renderSummary === 'function') window.renderSummary();
+        }
+      }
+    } catch (e) {
+      console.error('❌ localStorage 제품 데이터 파싱 오류:', e);
+    }
+
     // 🔐 로그인 기능 완전 제거: 즉시 리스너 시작!
     console.log('📡 Firestore 리스너 즉시 시작 (로그인 우회)');
     
@@ -3466,6 +3771,9 @@
 
     unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
       window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+      console.log('📥 Firestore 제품 데이터 로드:', window.products.length, '개');
+      // localStorage에 백업
+      localStorage.setItem('coway_products', JSON.stringify(window.products));
       if (typeof window.renderTable === 'function') window.renderTable();
       if (typeof window.renderSummary === 'function') window.renderSummary();
       
@@ -3475,8 +3783,9 @@
         refreshBigBenefitProductList();
       }
     }, (err) => {
-      console.error(err);
-      alert('데이터 접근 실패: ' + err.message);
+      console.error('❌ Firestore 제품 로드 오류:', err);
+      // 오류가 나도 localStorage 데이터 유지
+      console.log('⚠️ Firestore 접근 오류, localStorage 데이터 계속 사용');
     });
   }
 
