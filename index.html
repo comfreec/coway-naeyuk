@@ -3455,7 +3455,7 @@
       localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
       
       updateAllCategorySelects();
-      window.renderTable();
+      if (typeof window.renderTable === 'function') window.renderTable();
     }, (err) => {
       console.error('❌ 카테고리 로드 오류:', err);
       // 오류 alert 안 띄우고 기본 카테고리 사용
@@ -3466,8 +3466,8 @@
 
     unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
       window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-      window.renderTable();
-      window.renderSummary();
+      if (typeof window.renderTable === 'function') window.renderTable();
+      if (typeof window.renderSummary === 'function') window.renderSummary();
       
       // 모달이 열려있으면 제품 리스트 새로고침
       const bbModal = document.getElementById('bigBenefitModal');
@@ -3481,9 +3481,9 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 100));
   } else {
-    initApp();
+    setTimeout(initApp, 100);
   }
 </script>
 
@@ -3499,4 +3499,4 @@
 
 </body>
 </html>
-<!-- Force HTML update v4 -->
+<!-- Force HTML update v5 -->
