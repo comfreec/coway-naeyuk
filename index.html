@@ -3468,51 +3468,53 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
       
       console.log('✅ 지정된 계정으로 로그인 성공!');
 
-      // [1] 카테고리 1회성 마이그레이션 및 동기화 검사
-      try {
-        const snap = await getDoc(categoriesDocRef);
-        let firestoreCategories = null;
-        let needsWrite = false;
+      // [1] 카테고리 1회성 마이그레이션 및 동기화 검사 (IIFE로 비동기 블로킹 방지)
+      (async () => {
+        try {
+          const snap = await getDoc(categoriesDocRef);
+          let firestoreCategories = null;
+          let needsWrite = false;
 
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data && data.list && Array.isArray(data.list) && data.list.length > 0) {
-            firestoreCategories = data.list;
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data && data.list && Array.isArray(data.list) && data.list.length > 0) {
+              firestoreCategories = data.list;
+            }
           }
-        }
 
-        if (firestoreCategories) {
-          window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
-        } else {
-          // Firestore에 없으면 localStorage 또는 기본값 사용
-          const savedLocal = localStorage.getItem('coway_categories');
-          if (savedLocal) {
-            try {
-              const parsed = JSON.parse(savedLocal);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                window.CATEGORIES = ensureGitaAtEnd(parsed);
-                needsWrite = true;
-              } else {
+          if (firestoreCategories) {
+            window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
+          } else {
+            // Firestore에 없으면 localStorage 또는 기본값 사용
+            const savedLocal = localStorage.getItem('coway_categories');
+            if (savedLocal) {
+              try {
+                const parsed = JSON.parse(savedLocal);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  window.CATEGORIES = ensureGitaAtEnd(parsed);
+                  needsWrite = true;
+                } else {
+                  window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+                  needsWrite = true;
+                }
+              } catch (e) {
                 window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
                 needsWrite = true;
               }
-            } catch (e) {
+            } else {
               window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
               needsWrite = true;
             }
-          } else {
-            window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
-            needsWrite = true;
           }
-        }
 
-        if (needsWrite) {
-          await setDoc(categoriesDocRef, { list: window.CATEGORIES });
-          console.log('✅ 초기 카테고리를 Firestore에 저장 완료!');
+          if (needsWrite) {
+            await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+            console.log('✅ 초기 카테고리를 Firestore에 저장 완료!');
+          }
+        } catch (e) {
+          console.error('❌ 초기 카테고리 조회/마이그레이션 실패:', e);
         }
-      } catch (e) {
-        console.error('❌ 초기 카테고리 조회/마이그레이션 실패:', e);
-      }
+      })();
 
       // [2] 카테고리 실시간 동기화 - 단순 읽기 전용 (setDoc 제거)
       console.log('📡 onSnapshot 리스너 시작!');
