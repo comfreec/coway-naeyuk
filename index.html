@@ -463,7 +463,7 @@
 
 <div class="page-body">
 
-<div class="card auth-card">
+<div class="card auth-card" style="display:none;">
   <div id="authStatus" class="auth-status warn">로그인이 필요합니다</div>
   <div class="auth-actions">
     <button id="btnLogin" type="button" class="btn-auth primary">Google 로그인</button>
@@ -3375,118 +3375,92 @@
     window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
     updateAllCategorySelects();
 
-    onAuthStateChanged(auth, async (user) => {
-      console.log('🔐 Auth 상태 변경:', user ? `로그인됨 (${user.email})` : '로그아웃됨');
+    // 🔐 로그인 기능 완전 제거: 즉시 리스너 시작!
+    console.log('📡 Firestore 리스너 즉시 시작 (로그인 우회)');
+    
+    // 카테고리 실시간 동기화 - Firestore를 항상 우선으로!
+    unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
+      console.log('🚨 카테고리 문서 변경 감지!');
+      console.log('📍 문서 경로:', snap.ref.path);
+      console.log('📄 문서 존재 여부:', snap.exists);
       
-      if (unsubProducts) {
-        unsubProducts();
-        unsubProducts = null;
-      }
-      if (unsubCategories) {
-        unsubCategories();
-        unsubCategories = null;
-      }
-
-      updateAuthUi(user);
-
-      if (!user) {
-          console.log('User is not logged in. Normally we block here, but we allow offline access.');
-          // window.products = [];
-          // return;
+      let firestoreCategories = null;
+      if (snap.exists()) {
+        const data = snap.data();
+        console.log('📥 Firestore에서 받은 전체 데이터:', data);
+        if (data && data.list) {
+          firestoreCategories = data.list;
+          console.log('✅ Firestore list 필드 찾음:', firestoreCategories);
+        } else {
+          console.log('⚠️ Firestore에 list 필드가 없습니다!');
         }
-
-      if (user && user.email !== OWNER_EMAIL) {
-          console.log('User is not owner. Permitting read-only or offline access.');
-          // return;
-        }
+      } else {
+        console.log('❌ Firestore에 카테고리 문서가 없습니다!');
+      }
       
-      console.log('✅ 지정된 계정으로 로그인 성공!');
-
-      // 카테고리 실시간 동기화 - Firestore를 항상 우선으로!
-      console.log('📡 onSnapshot 리스너 시작!');
-      unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
-        console.log('🚨 카테고리 문서 변경 감지!');
-        console.log('📍 문서 경로:', snap.ref.path);
-        console.log('📄 문서 존재 여부:', snap.exists);
-        
-        let firestoreCategories = null;
-        if (snap.exists()) {
-          const data = snap.data();
-          console.log('📥 Firestore에서 받은 전체 데이터:', data);
-          if (data && data.list) {
-            firestoreCategories = data.list;
-            console.log('✅ Firestore list 필드 찾음:', firestoreCategories);
-          } else {
-            console.log('⚠️ Firestore에 list 필드가 없습니다!');
-          }
-        } else {
-          console.log('❌ Firestore에 카테고리 문서가 없습니다!');
-        }
-        
-        // Firestore에 카테고리가 있으면 무조건 Firestore만 사용!
-        if (firestoreCategories && Array.isArray(firestoreCategories) && firestoreCategories.length > 0) {
-          console.log('🟢 Firestore 카테고리를 최우선으로 사용합니다:', firestoreCategories);
-          window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
-        } else {
-          // Firestore에 카테고리가 없을 때만 localStorage 사용
-          console.log('🟡 Firestore에 카테고리가 없어서 localStorage 확인...');
-          const savedLocal = localStorage.getItem('coway_categories');
-          if (savedLocal) {
-            try {
-              const parsed = JSON.parse(savedLocal);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                console.log('🟢 localStorage 카테고리 사용:', parsed);
-                window.CATEGORIES = ensureGitaAtEnd(parsed);
-                // Firestore에 localStorage 카테고리 저장
-                try {
-                  await setDoc(categoriesDocRef, { list: window.CATEGORIES });
-                  console.log('✅ localStorage 카테고리를 Firestore에 저장했습니다');
-                } catch (saveErr) {
-                  console.error('❌ Firestore에 저장 실패:', saveErr);
-                }
-              } else {
-                console.log('🟡 localStorage 카테고리가 유효하지 않아 기본 카테고리 사용');
-                window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+      // Firestore에 카테고리가 있으면 무조건 Firestore만 사용!
+      if (firestoreCategories && Array.isArray(firestoreCategories) && firestoreCategories.length > 0) {
+        console.log('🟢 Firestore 카테고리를 최우선으로 사용합니다:', firestoreCategories);
+        window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
+      } else {
+        // Firestore에 카테고리가 없을 때만 localStorage 사용
+        console.log('🟡 Firestore에 카테고리가 없어서 localStorage 확인...');
+        const savedLocal = localStorage.getItem('coway_categories');
+        if (savedLocal) {
+          try {
+            const parsed = JSON.parse(savedLocal);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              console.log('🟢 localStorage 카테고리 사용:', parsed);
+              window.CATEGORIES = ensureGitaAtEnd(parsed);
+              // Firestore에 localStorage 카테고리 저장
+              try {
+                await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+                console.log('✅ localStorage 카테고리를 Firestore에 저장했습니다');
+              } catch (saveErr) {
+                console.error('❌ Firestore에 저장 실패:', saveErr);
               }
-            } catch (e) {
-              console.error('❌ localStorage 카테고리 파싱 오류:', e);
+            } else {
+              console.log('🟡 localStorage 카테고리가 유효하지 않아 기본 카테고리 사용');
               window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
             }
-          } else {
-            console.log('🟡 localStorage에 카테고리가 없어 기본 카테고리 사용');
+          } catch (e) {
+            console.error('❌ localStorage 카테고리 파싱 오류:', e);
             window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
           }
+        } else {
+          console.log('🟡 localStorage에 카테고리가 없어 기본 카테고리 사용');
+          window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
         }
-        
-        console.log('🎯 window.CATEGORIES 최종 값:', window.CATEGORIES);
-        
-        // localStorage도 최신 카테고리로 업데이트
-        localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
-        
-        updateAllCategorySelects();
-        window.renderTable();
-      }, (err) => {
-        console.error('❌ 카테고리 로드 오류:', err);
-        // 오류 alert 안 띄우고 기본 카테고리 사용
-        window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
-        localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
-        updateAllCategorySelects();
-      });
+      }
+      
+      console.log('🎯 window.CATEGORIES 최종 값:', window.CATEGORIES);
+      
+      // localStorage도 최신 카테고리로 업데이트
+      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+      
+      updateAllCategorySelects();
+      window.renderTable();
+    }, (err) => {
+      console.error('❌ 카테고리 로드 오류:', err);
+      // 오류 alert 안 띄우고 기본 카테고리 사용
+      window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+      localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
+      updateAllCategorySelects();
+    });
 
-      unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
-        window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-        window.renderTable();
-        window.renderSummary();
-        
-        // 모달이 열려있으면 제품 리스트 새로고침
-        const bbModal = document.getElementById('bigBenefitModal');
-        if (bbModal.classList.contains('open')) {
-          refreshBigBenefitProductList();
-        }
-      }, (err) => {
-        console.error(err);
-        alert('데이터 접근 실패: ' + err.message);
-      });
+    unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
+      window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+      window.renderTable();
+      window.renderSummary();
+      
+      // 모달이 열려있으면 제품 리스트 새로고침
+      const bbModal = document.getElementById('bigBenefitModal');
+      if (bbModal.classList.contains('open')) {
+        refreshBigBenefitProductList();
+      }
+    }, (err) => {
+      console.error(err);
+      alert('데이터 접근 실패: ' + err.message);
     });
   });
 </script>
