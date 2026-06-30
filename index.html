@@ -1476,6 +1476,28 @@ let currentModalProductId = null;
     }
   }
 
+  let isLongPressed = false;
+  let longPressTimer = null;
+
+  window.startLongPressHelper = function(e, callback) {
+    isLongPressed = false;
+    if (longPressTimer) clearTimeout(longPressTimer);
+    longPressTimer = setTimeout(() => {
+      isLongPressed = true;
+      if (callback) {
+        callback(e);
+        if (navigator.vibrate) navigator.vibrate(50);
+      }
+    }, 600);
+  };
+
+  window.endLongPressHelper = function(e) {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  };
+
   function openModal(id, pushHistoryFlag = true) {
     const raw = (window.products || []).find(x => x._id === id);
     if (!raw) return;
@@ -1498,6 +1520,7 @@ let currentModalProductId = null;
       window.modalCompetitorDiscOverride = null;
       window.modalDiscOverride = null;
       window.modalExtraDiscOverride = null;
+      window.modalRerentalDiscOverride = null;
     }
     
     // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
@@ -1518,9 +1541,13 @@ let currentModalProductId = null;
     if (window.modalExtraDiscOverride !== null) {
       workingRaw.extraDisc = window.modalExtraDiscOverride;
     }
+    if (window.modalRerentalDiscOverride !== null) {
+      workingRaw.rerentalDisc = window.modalRerentalDiscOverride;
+    }
     let pWithoutCard = calcProduct(workingRaw, false);
     let displayRaw = { ...raw };
     if (modalBundleDiscOverride !== null) displayRaw.bundleDisc = modalBundleDiscOverride;
+    if (window.modalRerentalDiscOverride !== null) displayRaw.rerentalDisc = window.modalRerentalDiscOverride;
     let pDisplay = calcProduct(displayRaw, false);
     let corasolAfterSubtotal = raw.rental || 0;
     
@@ -1570,22 +1597,28 @@ let currentModalProductId = null;
       if (!canceled) running -= amt;
       const labelStyle = type === 'highlight' ? 'color:#0057a8;' : '';
       let labelHtml;
+      const tStart = `ontouchstart="window.startLongPressHelper(event, `;
+      const tEnd = `)" ontouchend="window.endLongPressHelper(event)" ontouchmove="window.endLongPressHelper(event)"`;
+
       if (label === '코라솔 할인') {
         labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 이미지 보기!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
       } else if (label.includes('결합 할인')) { 
-        labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="handleBundleClick(event)" oncontextmenu="handleBundleLong(event)">${nums[step-1]} ${label}</span>`; 
+        labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="window.handleBundleClick(event)" oncontextmenu="window.handleBundleLong(event)" ${tStart}window.handleBundleLong${tEnd}>${nums[step-1]} ${label}</span>`; 
       } else if (label.includes('반값 할인')) { 
         let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleHalfDiscClick(event)" oncontextmenu="window.handleHalfDiscLong(event)">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleHalfDiscClick(event)" oncontextmenu="window.handleHalfDiscLong(event)" ${tStart}window.handleHalfDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
       } else if (label.includes('타사보상 할인')) { 
         let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleCompetitorClick(event)" oncontextmenu="window.handleCompetitorLong(event)">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleCompetitorClick(event)" oncontextmenu="window.handleCompetitorLong(event)" ${tStart}window.handleCompetitorLong${tEnd}>${nums[step-1]} ${label}</span>`;
+      } else if (label.includes('재렌탈 할인')) { 
+        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleRerentalDiscClick(event)" oncontextmenu="window.handleRerentalDiscLong(event)" ${tStart}window.handleRerentalDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
       } else if (label.includes('기본 할인')) { 
         let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleDiscClick(event)" oncontextmenu="window.handleDiscLong(event)">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleDiscClick(event)" oncontextmenu="window.handleDiscLong(event)" ${tStart}window.handleDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
       } else if (label.includes('추가 할인')) { 
         let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleExtraDiscClick(event)" oncontextmenu="window.handleExtraDiscLong(event)">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleExtraDiscClick(event)" oncontextmenu="window.handleExtraDiscLong(event)" ${tStart}window.handleExtraDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
       } else if (link) {
         labelHtml = `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;font-weight:800;">${nums[step-1]} ${label}</a>`;
       } else {
@@ -1610,7 +1643,11 @@ let currentModalProductId = null;
       push(`반값 할인 (${raw.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
       if (!isCanceled) beforeCorasol -= pWithoutCard.halfDiscAmt;
     }
-    if (pDisplay.rerentalDisc > 0) { push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt); beforeCorasol -= pWithoutCard.rerentalDiscAmt; }
+    if (pDisplay.rerentalDisc > 0) {
+      const isCanceled = window.modalRerentalDiscOverride === 0;
+      push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.rerentalDiscAmt;
+    }
     if (raw.disc > 0) {
       const isCanceled = window.modalDiscOverride === 0;
       push(`기본 할인 (${raw.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
@@ -1719,7 +1756,11 @@ let currentModalProductId = null;
       push(`반값 할인 (${raw.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
       if (!isCanceled) beforeCorasol -= pWithoutCard.halfDiscAmt;
     }
-    if (pDisplay.rerentalDisc > 0) { push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt); beforeCorasol -= pWithoutCard.rerentalDiscAmt; }
+    if (pDisplay.rerentalDisc > 0) {
+      const isCanceled = window.modalRerentalDiscOverride === 0;
+      push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= pWithoutCard.rerentalDiscAmt;
+    }
     if (raw.disc > 0) {
       const isCanceled = window.modalDiscOverride === 0;
       push(`기본 할인 (${raw.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
@@ -1784,54 +1825,53 @@ let currentModalProductId = null;
   }
 
   window.handleBundleClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
     if (e) e.preventDefault();
     const p = (window.products || []).find(x => x._id === currentModalProductId);
     const hasRerental = p && p.rerentalDisc > 0;
-    const current = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : (p ? p.bundleDisc : 0);
-    modalBundleDiscOverride = current + (hasRerental ? 3 : 5);
+    const baseStep = p && p.bundleDisc > 0 ? p.bundleDisc : (hasRerental ? 3 : 5);
+    const current = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : baseStep;
+    modalBundleDiscOverride = current + baseStep;
     refreshModalContent();
   };
+  window.handleBundleLong = function(e) {
+    if (e) e.preventDefault();
+    const p = (window.products || []).find(x => x._id === currentModalProductId);
+    const hasRerental = p && p.rerentalDisc > 0;
+    modalBundleDiscOverride = p && p.bundleDisc > 0 ? p.bundleDisc : (hasRerental ? 3 : 5);
+    refreshModalContent();
+  };
+
   window.handleExtraDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
     if (e) e.preventDefault();
     window.modalExtraDiscOverride = 0;
     refreshModalContent();
   };
-
   window.handleExtraDiscLong = function(e) {
     if (e) { e.stopPropagation(); e.preventDefault(); }
     window.modalExtraDiscOverride = null;
     refreshModalContent();
   };
 
-  window.handleBundleLong = function(e) {
-    if (e) e.preventDefault();
-    const p = (window.products || []).find(x => x._id === currentModalProductId);
-    const hasRerental = p && p.rerentalDisc > 0;
-    modalBundleDiscOverride = hasRerental ? 3 : 5;
-    refreshModalContent();
-  };
-
   window.handleHalfDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
     if (e) e.preventDefault();
     window.modalHalfDiscOverride = 0;
     refreshModalContent();
   };
-
   window.handleHalfDiscLong = function(e) {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    if (e) { e.stopPropagation(); e.preventDefault(); }
     window.modalHalfDiscOverride = null;
     refreshModalContent();
   };
 
   window.handleCompetitorClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
     if (e) e.preventDefault();
     window.modalCompetitorDiscOverride = 0;
     refreshModalContent();
   };
-
   window.handleCompetitorLong = function(e) {
     if (e) { e.stopPropagation(); e.preventDefault(); }
     window.modalCompetitorDiscOverride = null;
@@ -1839,15 +1879,27 @@ let currentModalProductId = null;
   };
 
   window.handleDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
     if (e) e.preventDefault();
     window.modalDiscOverride = 0;
     refreshModalContent();
   };
-
   window.handleDiscLong = function(e) {
     if (e) { e.stopPropagation(); e.preventDefault(); }
     window.modalDiscOverride = null;
-      window.modalExtraDiscOverride = null;
+    window.modalExtraDiscOverride = null;
+    refreshModalContent();
+  };
+
+  window.handleRerentalDiscClick = function(e) {
+    if (isLongPressed) { isLongPressed = false; return; }
+    if (e) e.preventDefault();
+    window.modalRerentalDiscOverride = 0;
+    refreshModalContent();
+  };
+  window.handleRerentalDiscLong = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    window.modalRerentalDiscOverride = null;
     refreshModalContent();
   };
 
