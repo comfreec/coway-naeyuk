@@ -2804,7 +2804,7 @@
   window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
 
   // DOM이 완전히 로드된 후 실행
-  document.addEventListener('DOMContentLoaded', () => {
+  function initApp() {
     const loginBtn = document.getElementById('btnLogin');
     const logoutBtn = document.getElementById('btnLogout');
     const authStatusEl = document.getElementById('authStatus');
@@ -3460,7 +3460,14 @@
       console.error(err);
       alert('데이터 접근 실패: ' + err.message);
     });
-  });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 </script>
 
 <script>
