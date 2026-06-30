@@ -2,6 +2,24 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    window.addEventListener('error', function(e) {
+      const errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed';
+      errDiv.style.top = '0';
+      errDiv.style.left = '0';
+      errDiv.style.width = '100%';
+      errDiv.style.background = 'rgba(235, 77, 75, 0.95)';
+      errDiv.style.color = 'white';
+      errDiv.style.padding = '15px';
+      errDiv.style.fontSize = '12px';
+      errDiv.style.zIndex = '999999';
+      errDiv.style.whiteSpace = 'pre-wrap';
+      errDiv.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+      errDiv.innerHTML = '<strong>[디버그 에러 감지]</strong><br>' + e.message + '<br>' + e.filename + ':' + e.lineno;
+      document.body.appendChild(errDiv);
+    });
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>코웨이 렌탈료 할인 내역서</title>
       
@@ -3482,4 +3500,4 @@
 
 </body>
 </html>
-<!-- Force HTML update v2 -->
+<!-- Force HTML update v3 -->
