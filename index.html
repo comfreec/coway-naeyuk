@@ -2901,14 +2901,19 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
     function updateAuthUi(user) {
       const statusEl = authStatusEl;
       if (!user) {
-          console.log('User is not logged in. Normally we block here, but we allow offline access.');
-          // window.products = [];
-          // return;
-        }
-      if (user && user.email !== OWNER_EMAIL) {
-          console.log('User is not owner. Permitting read-only or offline access.');
-          // return;
-        }
+        statusEl.textContent = '⚠️ 로그인이 필요합니다';
+        statusEl.classList.add('warn');
+        loginBtn.style.display = '';
+        logoutBtn.style.display = 'none';
+        return;
+      }
+      if (user.email !== OWNER_EMAIL) {
+        statusEl.textContent = `⚠️ 권한 없음: ${user.email} (오너 계정 아님)`;
+        statusEl.classList.add('warn');
+        loginBtn.style.display = '';
+        logoutBtn.style.display = '';
+        return;
+      }
       statusEl.textContent = `접속 계정: ${user.email}`;
       statusEl.classList.remove('warn');
       loginBtn.style.display = 'none';
