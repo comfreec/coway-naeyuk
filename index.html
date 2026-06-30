@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -3411,9 +3411,55 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
       
       console.log('✅ 지정된 계정으로 로그인 성공!');
 
-      // 카테고리 실시간 동기화 - Firestore를 항상 우선으로!
+      // [1] 카테고리 1회성 마이그레이션 및 동기화 검사
+      try {
+        const snap = await getDoc(categoriesDocRef);
+        let firestoreCategories = null;
+        let needsWrite = false;
+
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data && data.list && Array.isArray(data.list) && data.list.length > 0) {
+            firestoreCategories = data.list;
+          }
+        }
+
+        if (firestoreCategories) {
+          window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
+        } else {
+          // Firestore에 없으면 localStorage 또는 기본값 사용
+          const savedLocal = localStorage.getItem('coway_categories');
+          if (savedLocal) {
+            try {
+              const parsed = JSON.parse(savedLocal);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                window.CATEGORIES = ensureGitaAtEnd(parsed);
+                needsWrite = true;
+              } else {
+                window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+                needsWrite = true;
+              }
+            } catch (e) {
+              window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+              needsWrite = true;
+            }
+          } else {
+            window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+            needsWrite = true;
+          }
+        }
+
+        if (needsWrite) {
+          await setDoc(categoriesDocRef, { list: window.CATEGORIES });
+          console.log('✅ 초기 카테고리를 Firestore에 저장 완료!');
+        }
+      } catch (e) {
+        console.error('❌ 초기 카테고리 조회/마이그레이션 실패:', e);
+      }
+
+      // [2] 카테고리 실시간 동기화 - 단순 읽기 전용 (setDoc 제거)
       console.log('📡 onSnapshot 리스너 시작!');
-      unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
+      unsubCategories = onSnapshot(categoriesDocRef, (snap) => {
         console.log('🚨 카테고리 문서 변경 감지!');
         console.log('📍 문서 경로:', snap.ref.path);
         console.log('📄 문서 존재 여부:', snap.exists);
@@ -3432,12 +3478,10 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
           console.log('❌ Firestore에 카테고리 문서가 없습니다!');
         }
         
-        // Firestore에 카테고리가 있으면 무조건 Firestore만 사용!
         if (firestoreCategories && Array.isArray(firestoreCategories) && firestoreCategories.length > 0) {
           console.log('🟢 Firestore 카테고리를 최우선으로 사용합니다:', firestoreCategories);
           window.CATEGORIES = ensureGitaAtEnd(firestoreCategories);
         } else {
-          // Firestore에 카테고리가 없을 때만 localStorage 사용
           console.log('🟡 Firestore에 카테고리가 없어서 localStorage 확인...');
           const savedLocal = localStorage.getItem('coway_categories');
           if (savedLocal) {
@@ -3446,13 +3490,6 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
               if (Array.isArray(parsed) && parsed.length > 0) {
                 console.log('🟢 localStorage 카테고리 사용:', parsed);
                 window.CATEGORIES = ensureGitaAtEnd(parsed);
-                // Firestore에 localStorage 카테고리 저장
-                try {
-                  setDoc(categoriesDocRef, { list: window.CATEGORIES });
-                  console.log('✅ localStorage 카테고리를 Firestore에 저장했습니다');
-                } catch (saveErr) {
-                  console.error('❌ Firestore에 저장 실패:', saveErr);
-                }
               } else {
                 console.log('🟡 localStorage 카테고리가 유효하지 않아 기본 카테고리 사용');
                 window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
@@ -3468,15 +3505,11 @@ window._firestoreFns = { addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc };
         }
         
         console.log('🎯 window.CATEGORIES 최종 값:', window.CATEGORIES);
-        
-        // localStorage도 최신 카테고리로 업데이트
         localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
-        
         updateAllCategorySelects();
         window.renderTable();
       }, (err) => {
         console.error('❌ 카테고리 로드 오류:', err);
-        // 오류 alert 안 띄우고 기본 카테고리 사용
         window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
         localStorage.setItem('coway_categories', JSON.stringify(window.CATEGORIES));
         updateAllCategorySelects();
