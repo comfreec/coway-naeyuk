@@ -23,7 +23,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>코웨이 렌탈료 할인 내역서</title>
       
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&family=Nanum+Pen+Script&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif; background: radial-gradient(circle at 10% 0%, #e9f2ff 0%, #f4f8ff 36%, #edf3fb 100%); min-height: 100vh; color: #1a1a2e; }
@@ -61,11 +61,11 @@
     tbody tr:hover { background: #eaf2ff; }
     tbody td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #edf2fb; word-break: break-all; }
     tbody td:first-child { text-align: left; font-weight: 600; word-break: keep-all; }
-    .del-btn { background: none; border: none; color: #e05555; font-size: 0.8rem; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
+    .del-btn { background: none; border: none; color: #e05555; font-size: 0.88rem; cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s; min-width: 32px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; }
     .del-btn:hover { background: #fff0f0; }
-    .detail-btn { background: none; border: 1.5px solid #0057a8; color: #0057a8; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; transition: all 0.15s; }
+    .detail-btn { background: none; border: 1.5px solid #0057a8; color: #0057a8; font-size: 0.72rem; font-weight: 700; border-radius: 8px; padding: 5px 8px; cursor: pointer; white-space: nowrap; flex: unset; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }
     .detail-btn:hover { background: #0057a8; color: #fff; opacity: 1; }
-    .btn-best { background: none; border: 1.5px solid #ff4e00; color: #ff4e00; font-size: 0.65rem; font-weight: 700; border-radius: 6px; padding: 2px 5px; cursor: pointer; white-space: nowrap; flex: unset; transition: all 0.15s; }
+    .btn-best { background: none; border: 1.5px solid #ff4e00; color: #ff4e00; font-size: 0.72rem; font-weight: 700; border-radius: 8px; padding: 5px 8px; cursor: pointer; white-space: nowrap; flex: unset; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }
     .btn-best:hover { background: #ff4e00; color: #fff; opacity: 1; }
     .total-row td { font-weight: 700; background: #eef4ff !important; color: #0057a8; border-top: 2px solid #c5d8f5; }
     .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
@@ -122,23 +122,120 @@
     }
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.55); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    /* 노트 종이 모달 */
-    .note-paper { position: relative; background: #fffef5; border-radius: 4px; width: 540px; max-width: 96vw; max-height: 92vh; overflow-y: auto; box-shadow: 4px 6px 24px rgba(0,0,0,0.25), 0 0 0 1px #e0d9b0; padding: 56px 44px 40px 20px; font-family: 'Noto Sans KR', 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
-    .note-paper::before { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 2px; background: rgba(200,80,80,0.4); }
-    .note-paper::after { content: ''; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 26px; height: 26px; border-radius: 50%; background: #f0f4f8; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
-    .note-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.6rem; color: #999; cursor: pointer; flex: unset; padding: 0; }
-    .note-close:hover { color: #333; opacity: 1; }
-    .note-title { font-size: 2.15rem; font-weight: 700; color: #1a3a6e; margin-bottom: 4px; line-height: 56px; letter-spacing: 1px; }
-    .share-emoji { cursor: pointer; display: inline-block; transition: transform 0.15s; }
-    .share-emoji:hover { transform: scale(1.25); }
-    .note-product { font-size: 1.65rem; font-weight: 700; color: #333; margin-bottom: 4px; line-height: 54px; }
-    .note-divider { border: none; border-top: 1.5px dashed #c8b97a; margin: 6px 0; }
-    .note-row { display: flex; justify-content: space-between; align-items: baseline; line-height: 52px; font-size: 1.55rem; color: #333; }
-    .note-row .n-label { color: #222; }
-    .note-row .n-val { color: #1a3a6e; }
-    .note-row .n-minus { color: #c0392b; }
-    .note-row .n-final { color: #0057a8; font-size: 1.95rem; font-weight: 700; }
-    .note-underline { border-bottom: 3px double #1a3a6e; padding-bottom: 2px; }
+    /* 눈이 편한 모달 스타일 */
+  .note-paper { 
+    position: relative; 
+    background: 
+        radial-gradient(ellipse at top left, rgba(240, 235, 220, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(230, 225, 210, 0.2) 0%, transparent 50%),
+        linear-gradient(180deg, #fcfbf8 0%, #f8f6f2 50%, #f4f1eb 100%); 
+    border-radius: 24px; 
+    width: 540px; 
+    max-width: 96vw; 
+    max-height: 92vh; 
+    overflow-y: auto; 
+    box-shadow: 
+      0 20px 60px rgba(50, 50, 50, 0.12),
+      0 0 0 1px rgba(200, 190, 170, 0.25); 
+    padding: 44px 38px; 
+    font-family: 'Noto Sans KR', 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; 
+    border: 2px solid rgba(200, 190, 170, 0.3); 
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-overflow-scrolling: touch;
+    will-change: transform;
+  }
+  .note-paper::before { 
+    content: ''; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    height: 8px; 
+    background: linear-gradient(90deg, #7f8c8d 0%, #95a5a6 25%, #bdc3c7 50%, #95a5a6 75%, #7f8c8d 100%); 
+    border-radius: 24px 24px 0 0; 
+    box-shadow: 0 2px 8px rgba(100, 100, 100, 0.15);
+  }
+    .note-close { 
+      position: absolute; 
+      top: 16px; 
+      right: 16px; 
+      background: rgba(26, 58, 110, 0.08); 
+      border: none; 
+      font-size: 1.4rem; 
+      color: #666; 
+      cursor: pointer; 
+      flex: unset; 
+      padding: 0; 
+      width: 36px; 
+      height: 36px; 
+      border-radius: 50%; 
+      transition: all 0.2s; 
+    }
+    .note-close:hover { 
+      background: rgba(26, 58, 110, 0.15); 
+      color: #1a3a6e; 
+    }
+    .note-title { font-size: 1.8rem; font-weight: 800; color: #2c3e50; margin-bottom: 12px; line-height: 1.3; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .share-emoji { cursor: pointer; display: inline-block; transition: transform 0.2s; font-size: 1.5rem; }
+    .share-emoji:hover { transform: scale(1.2); }
+    .note-product { 
+      font-size: 1.45rem; 
+      font-weight: 800; 
+      color: #34495e; 
+      margin-bottom: 20px; 
+      line-height: 1.4; 
+      background: 
+        radial-gradient(ellipse at top left, rgba(240, 235, 220, 0.3) 0%, transparent 60%),
+        linear-gradient(135deg, #fcfbf8 0%, #f8f6f2 100%); 
+      padding: 18px 20px; 
+      border-radius: 16px; 
+      border: 2px solid rgba(200, 190, 170, 0.35); 
+      box-shadow: 
+        0 6px 20px rgba(50, 50, 50, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9); 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+    }
+    .note-divider { 
+      border: none; 
+      border-top: 1px solid rgba(180, 180, 180, 0.4); 
+      margin: 20px 0; 
+    }
+    .note-row { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      line-height: 1.5; 
+      font-size: 1.25rem; 
+      color: #444; 
+      padding: 12px 0; 
+      border-bottom: none; 
+    }
+    .note-row:last-of-type { border-bottom: none; }
+    .note-row .n-label { color: #666; font-weight: 600; }
+    .note-row .n-val { color: #333; font-weight: 700; }
+    .note-row .n-minus { 
+      color: #e74c3c; 
+      font-weight: 700; 
+      background: rgba(231, 76, 60, 0.08); 
+      padding: 4px 10px; 
+      border-radius: 8px; 
+    }
+    .note-row .n-final { 
+      color: #0a5bb0; 
+      font-size: 1.8rem; 
+      font-weight: 900; 
+      background: linear-gradient(135deg, #0a5bb0, #2491ff); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      background-clip: text; 
+    }
+    .note-underline { 
+      border-bottom: 3px double #0a5bb0; 
+      padding-bottom: 12px; 
+    }
     
     /* 🏷️ 코라솔 전용 수량 조절 UI 스타일 */
     .corasol-control {
@@ -493,7 +590,7 @@
   <div style="display:flex;gap:8px;">
     <button type="button" class="btn-add" onclick="openCareCardModal()" style="flex:1;margin:0;">💳 명함</button>
     <button type="button" class="btn-add" onclick="openCareVoucherModal()" style="flex:1;margin:0;background:linear-gradient(135deg,#00b09b,#96c93d);">🎁 상품권</button>
-    <button type="button" class="btn-add" id="btnShareBoth" style="flex:1;margin:0;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-weight:800;box-shadow:0 4px 15px rgba(102,126,234,0.4);">💳🎁 상품권</button>
+    <button type="button" class="btn-add" id="btnShareBoth" style="flex:1;margin:0;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-weight:800;box-shadow:0 4px 15px rgba(102,126,234,0.4);">🎁 상품권</button>
   </div>
 </div>
 
@@ -562,10 +659,10 @@
     <table id="resultTable">
       <thead>
         <tr>
-          <th style="width:30%;cursor:pointer;" onclick="sortTable('name')">제품명 <span id="sort_name"></span></th>
-          <th style="width:20%;cursor:pointer;" onclick="sortTable('rental')">렌탈료 <span id="sort_rental"></span></th>
-          <th style="width:22%;cursor:pointer;" onclick="sortTable('finalAmt')">최종 납부액 <span id="sort_finalAmt"></span></th>
-          <th style="width:28%"></th>
+          <th style="width:35%;cursor:pointer;" onclick="sortTable('name')">제품명 <span id="sort_name"></span></th>
+          <th style="width:18%;cursor:pointer;" onclick="sortTable('rental')">렌탈료 <span id="sort_rental"></span></th>
+          <th style="width:20%;cursor:pointer;" onclick="sortTable('finalAmt')">최종 납부액 <span id="sort_finalAmt"></span></th>
+          <th style="width:27%"></th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -867,7 +964,8 @@
     
     <div class="btn-row" id="careCardBtnRow">
       <button type="button" class="btn-reset" onclick="closeCareCardModalDirect()">닫기</button>
-      <button type="button" class="btn-add" id="shareCareCardBtn">📸� 명함+메시지 문자 보내기</button>
+      <button type="button" class="btn-add" id="shareCareCardBtn">📸 명함+메시지 보내기</button>
+
     </div>
   </div>
 </div>
@@ -917,9 +1015,9 @@
   // - 사용자가 닫으면 그 로드에서는 다시 자동 오픈하지 않음
   let didAutoOpenBigBenefitThisLoad = false;
   let dismissedBigBenefitThisLoad = false;
-  // 5년 총 절약 금액 토글 상태
-  let showNoteTotalSaving = false;
-  let showBestTotalSaving = false;
+  // 5년 총 절약 금액 토글 상태 (기본 표시)
+  let showNoteTotalSaving = true;
+  let showBestTotalSaving = true;
   function shouldAutoOpenBigBenefit() {
     return false; // 자동으로 모달이 안 뜨게 함
   }
@@ -1102,7 +1200,7 @@
     const card         = parseFloat(document.getElementById('cardDiscount').value) || 0;
     if (!name)       { alert('제품명을 입력해주세요.'); return; }
     if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
-    if (!confirm('정말로 제품을 저장할까요?')) return;
+    if (!confirm(`'${name}' 제품을 저장할까요?`)) return;
     try {
       const { addDoc } = window._firestoreFns;
       await addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
@@ -1115,8 +1213,8 @@
   }
 
   async function deleteProduct(id) {
-    if (!confirm('삭제할까요?')) return;
-    if (!confirm('정말로 삭제할까요?')) return;
+    const p = (window.products || []).find(x => x._id === id);
+    if (!confirm(`'${p ? p.name : '이 제품'}' 을 삭제할까요?`)) return;
     const { deleteDoc, doc } = window._firestoreFns;
     await deleteDoc(doc(window._db, 'products', id));
   }
@@ -1172,7 +1270,7 @@
       
       if (!name)       { alert('제품명을 입력해주세요.'); return; }
       if (rental <= 0) { alert('렌탈료를 입력해주세요.'); return; }
-      if (!confirm('정말로 수정사항을 저장할까요?')) return;
+      if (!confirm(`'${name}' 수정사항을 저장할까요?`)) return;
       
       if (btn) {
         btn.disabled = true;
@@ -1298,16 +1396,22 @@
     let rows = sorted.map((raw) => {
       const p = calcProduct(raw);
       totalRental += p.rental; totalDisc += p.totalDisc; totalFinal += p.finalAmt;
+      const productImgPath = getProductImagePath(p.name);
       return `<tr oncontextmenu="copyToForm('${p._id}');return false;" ontouchstart="startLongPress('${p._id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="cursor:pointer;">
-        <td style="text-align:left;font-weight:600">${escapeHtml(p.name)}</td>
-        <td>${fmt(p.rental)}</td>
-        <td style="color:#0057a8;font-weight:700">${fmt(p.finalAmt)}</td>
-        <td>
-          <div style="display:flex;gap:2px;justify-content:center;align-items:center;">
-            <button class="detail-btn" onclick="openModal('${p._id}')" title="상세내역">📝</button>
-            <button class="btn-best" onclick="openBestModal('${p._id}')" title="최고의 할인">🔥</button>
-            <button class="detail-btn" style="border-color:#f39c12;color:#f39c12;" onclick="openEditModal('${p._id}')" title="수정">✏️</button>
-            <button class="del-btn" onclick="deleteProduct('${p._id}')" title="삭제">✕</button>
+        <td style="text-align:left;font-weight:600;padding:6px 4px;display:flex;align-items:center;gap:6px;">
+          <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
+               style="width:36px;height:36px;border-radius:8px;flex-shrink:0;object-fit:cover;cursor:pointer;border:1px solid rgba(0,87,168,0.15);"
+               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}');">
+          <span style="flex:1;min-width:0;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;">${escapeHtml(p.name)}</span>
+        </td>
+        <td style="padding:6px 3px;white-space:nowrap;font-size:0.85rem;">${fmt(p.rental)}</td>
+        <td style="color:#0057a8;font-weight:700;padding:6px 3px;white-space:nowrap;font-size:0.85rem;">${fmt(p.finalAmt)}</td>
+        <td style="padding:6px 2px;">
+          <div style="display:flex;gap:1px;justify-content:center;align-items:center;flex-wrap:nowrap;">
+            <button class="detail-btn" onclick="openModal('${p._id}')" title="상세내역" style="padding:2px 4px;font-size:0.65rem;min-height:24px;min-width:24px;">📝</button>
+            <button class="btn-best" onclick="openBestModal('${p._id}')" title="최고의 할인" style="padding:2px 4px;font-size:0.65rem;min-height:24px;min-width:24px;">🔥</button>
+            <button class="detail-btn" style="border-color:#f39c12;color:#f39c12;padding:2px 4px;font-size:0.65rem;min-height:24px;min-width:24px;" onclick="openEditModal('${p._id}')" title="수정">✏️</button>
+            <button class="del-btn" onclick="deleteProduct('${p._id}')" title="삭제" style="padding:2px 4px;font-size:0.7rem;min-width:24px;min-height:24px;">✕</button>
           </div>
         </td>
       </tr>`;
@@ -1465,14 +1569,33 @@
     const rows = [];
     const noteDiscRate = p.rental > 0 ? Math.min(100, Math.round((p.totalDisc / p.rental) * 100)) : 0;
     rows.push(`<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
-      <div class="note-title" style="margin:0;"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인계산</div>
-      <div style="display:inline-block; background: linear-gradient(135deg, #0057a8, #2491ff); padding:8px 20px; border-radius:999px; box-shadow:0 4px 16px rgba(0,87,168,0.3);">
-        <span style="font-size:2.2rem; font-weight:900; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.2);" class="hypno-pulse">${noteDiscRate}%</span>
-        <span style="font-size:1rem; font-weight:700; color:rgba(255,255,255,0.9); margin-left:6px;">할인</span>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span>
+        <span style="font-size:1.6rem; font-weight:800; color:#2c3e50; line-height:1.3;">할인계산</span>
+      </div>
+      <div style="display:inline-flex; align-items:center; gap:8px; padding: 10px 0; position: relative;">
+        <span style="font-size: 5rem; font-weight: 900; background: linear-gradient(135deg, #0a5bb0, #2491ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: 'Nanum Pen Script', cursive; position: relative;" class="hypno-pulse">
+          ${noteDiscRate}%
+          <span style="position: absolute; bottom: 6px; left: -2px; width: calc(100% + 4px); height: 4px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-2deg); border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
+          <span style="position: absolute; bottom: 0px; left: 3px; width: calc(100% - 6px); height: 3px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1.5deg); border-radius: 2px;"></span>
+        </span>
+        <span style="font-size:2.5rem; font-weight: 700; color:#2c3e50; font-family: 'Nanum Pen Script', cursive; position: relative;">
+          할인
+          <span style="position: absolute; bottom: 4px; left: -1px; width: calc(100% + 2px); height: 3px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span>
+          <span style="position: absolute; bottom: -1px; left: 2px; width: calc(100% - 4px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span>
+        </span>
       </div>
     </div>`);
     const cleanName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0];
-      rows.push(`<div class="note-product"><a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
+      const productImgPath = getProductImagePath(p.name);
+      rows.push(`<div class="note-product">
+        <div style="display:flex; align-items:center; gap:10px; width:100%;">
+          <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
+               style="width:60px; height:60px; border-radius:12px; object-fit:cover; cursor:pointer; border:2px solid rgba(0,87,168,0.2); box-shadow:0 2px 8px rgba(0,0,0,0.1);"
+               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}');">
+          <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#1a3a6e;text-decoration:none; flex:1; min-width:0;">${p.name}</a>
+        </div>
+      </div>`);
     rows.push(`<hr class="note-divider">`);
     rows.push(`<div class="note-row"><span class="n-label">① 월 렌탈료</span><span class="n-val">${fmt(p.rental)}</span></div>`);
     let step = 1, running = p.rental;
@@ -1587,7 +1710,7 @@
     if (savingAmount > 0) {
       rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
     }
-    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종납부</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`);
+    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#2c3e50;font-weight:bold;position:relative;">✅ 최종납부<span style="position: absolute; bottom: 2px; left: -1px; width: calc(100% + 2px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1deg); border-radius: 2px;"></span><span style="position: absolute; bottom: -2px; left: 2px; width: calc(100% - 4px); height: 2px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(0.8deg); border-radius: 2px;"></span></span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt" style="position: relative;">${fmt(p.finalAmt)}<span style="position: absolute; bottom: 6px; left: -2px; width: calc(100% + 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span><span style="position: absolute; bottom: 1px; left: 2px; width: calc(100% - 4px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></span><span style="font-size:1.2rem;margin-left:8px;">${showNoteTotalSaving ? '▲' : '▼'}</span></div>`);
     
     // 🏷️ 5년 총 절약 금액 눈에 띄게 표시 (렌탈료 할인금액 + 적립금)
     const totalSaving5Years = (rentalDiscount + savingAmount) * 60; // 5년 = 60개월
@@ -1599,14 +1722,14 @@
         border-radius: 18px;
         margin-top: 16px;
         text-align: center;
-        box-shadow: 0 6px 24px rgba(74, 44, 122, 0.5);
+        box-shadow: 0 6px 22px rgba(255, 215, 0, 0.25);
         font-weight: 900;
         border: 2px solid rgba(255, 215, 0, 0.4);
         animation: pulse 2s ease-in-out infinite;
         display: ${showNoteTotalSaving ? 'block' : 'none'};
       ">
         <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.9);">💰 5년 동안 총 절약 금액 💰</div>
-        <div style="font-size: 2.6rem; color: #ffd700; text-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5Years)}</div>
+        <div style="font-size: 2.6rem; color: #ffd700; text-shadow: 0 3px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5Years)}</div>
         <div style="font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-top: 6px;">(1개월: ${fmt(rentalDiscount + savingAmount)} 절약)</div>
       </div>
     `);
@@ -1616,20 +1739,20 @@
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
       rows.push(`
         <div style="
-          background: radial-gradient(ellipse 120% 80% at 50% 0%, #2f5fa3 0%, #1e3d6b 42%, #0f1f38 100%);
-          color: #ffd873;
+          background: linear-gradient(135deg, #4a2c7a 0%, #2d1b4e 100%);
+          color: #ffd700;
           padding: 18px;
           border-radius: 16px;
           margin-top: 12px;
           text-align: center;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 6px 22px rgba(255, 215, 0, 0.25);
           font-weight: 800;
-          border: 1px solid rgba(255, 215, 0, 0.3);
+          border: 2px solid rgba(255, 215, 0, 0.4);
           animation: pulse 2s ease-in-out infinite;
         ">
-          <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255, 255, 255, 0.85);">🎉 코라솔 5년 총 할인금액 🎉</div>
-          <div style="font-size: 2.3rem; color: #ffd873; text-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);">${fmt(totalCorasol)}</div>
-          <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); margin-top: 6px;">(1개월: ${fmt(p.corasol)})</div>
+          <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.85);">🎉 코라솔 5년 총 할인금액 🎉</div>
+          <div style="font-size: 2.3rem; color: #ffd873; text-shadow: 0 3px 12px rgba(255, 215, 0, 0.4);">${fmt(totalCorasol)}</div>
+          <div style="font-size: 0.9rem; color: rgba(255,255,255,0.75); margin-top: 6px;">(1개월: ${fmt(p.corasol)})</div>
         </div>
       `);
     }
@@ -1641,20 +1764,46 @@
     // 🏷️ 코라솔 UI 노출 및 상태 업데이트 (항상 실행)
     const corasolUI = document.getElementById('corasolControlUI');
     if (corasolUI) {
-      if (p.corasol > 0) {
-        corasolUI.style.display = 'block';
-        const corasolQtyEl = document.getElementById('corasolQty');
-        if (corasolQtyEl) corasolQtyEl.textContent = modalCorasolQty;
-        
-        const corasolCheckbox = document.getElementById('corasolActive');
-        if (corasolCheckbox) corasolCheckbox.checked = modalCorasolActive;
-        
-        const cardCheckbox = document.getElementById('cardActive');
-        if (cardCheckbox) cardCheckbox.checked = modalCardActive;
-      } else {
-        corasolUI.style.display = 'none';
+      corasolUI.style.display = 'block';
+      document.getElementById('modalCorasolCheck').checked = modalCorasolActive;
+      document.getElementById('modalCorasolQty').textContent = modalCorasolQty;
+      const qtyArea = document.getElementById('modalCorasolQtyArea');
+      if (qtyArea) {
+        qtyArea.style.opacity = modalCorasolActive ? '1' : '0.5';
+        qtyArea.style.pointerEvents = modalCorasolActive ? 'auto' : 'none';
       }
+      document.getElementById('modalCardCheck').checked = modalCardActive;
     }
+
+    // SMS 텍스트 생성
+    let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
+    let smsStep = 2;
+    const smsNums = ['②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫'];
+    const getNumStr = () => smsNums[smsStep++ - 2];
+    if (pDisplay.contract > 0) sms += `${getNumStr()} 약정 할인 : - ${fmt(pDisplay.contractAmt)}\n`;
+    if (raw.halfDisc > 0 && window.modalHalfDiscOverride !== 0) sms += `${getNumStr()} 반값 할인 (${raw.halfDisc}%) : - ${fmt(pDisplay.halfDiscAmt)}\n`;
+    if (pDisplay.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0) sms += `${getNumStr()} 재렌탈 할인 (${pDisplay.rerentalDisc}%) : - ${fmt(pDisplay.rerentalDiscAmt)}\n`;
+    if (raw.disc > 0 && window.modalDiscOverride !== 0) sms += `${getNumStr()} 기본 할인 (${raw.disc}%) : - ${fmt(pDisplay.discAmt)}\n`;
+    if (raw.extraDisc > 0 && window.modalExtraDiscOverride !== 0) sms += `${getNumStr()} 추가 할인 (${raw.extraDisc}%) : - ${fmt(pDisplay.extraDiscAmt)}\n`;
+    if (raw.competitor > 0 && window.modalCompetitorDiscOverride !== 0) sms += `${getNumStr()} 타사보상 할인 : - ${fmt(pDisplay.competitor)}\n`;
+    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null) {
+      let bRate = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : raw.bundleDisc;
+      if (bRate !== 0) sms += `${getNumStr()} 결합 할인 (${bRate}%) : - ${fmt(pDisplay.bundleDiscAmt)}\n`;
+    }
+    if (pDisplay.multiDisc > 0) sms += `${getNumStr()} 동시구매 할인 (${pDisplay.multiDisc}%) : - ${fmt(pDisplay.multiDiscAmt)}\n`;
+    if (pDisplay.corasol > 0) {
+      const totalCorasolSms = pDisplay.corasol * 60;
+      sms += `${getNumStr()} 코라솔 할인 (1개월:${fmt(pDisplay.corasol)}, 5년총:${fmt(totalCorasolSms)}) : - ${fmt(pDisplay.corasol)}\n`;
+    }
+    if (pDisplay.card > 0 && applyCardDiscount) sms += `${getNumStr()} 카드할인 : - ${fmt(pDisplay.card)}\n`;
+    const afterCorasolSms = beforeCorasol - (p.corasol || 0);
+    const savingAmountSms = afterCorasolSms < 0 ? Math.abs(afterCorasolSms) : 0;
+    const rentalDiscountSms = Math.min(p.rental, p.totalDisc - savingAmountSms);
+    let smsEnd = `─────────────────\n렌탈료 할인금액 : - ${fmt(rentalDiscountSms)}\n`;
+    if (savingAmountSms > 0) smsEnd += `적립금 : + ${fmt(savingAmountSms)}\n`;
+    smsEnd += `✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
+    sms += smsEnd;
+    currentSmsText = sms;
   }
 
   window.refreshModalContent = function() {
@@ -1731,6 +1880,12 @@
     if (div) {
       div.style.display = showNoteTotalSaving ? 'block' : 'none';
     }
+    // 화살표 방향 업데이트
+    const noteRow = div && div.previousElementSibling;
+    if (noteRow) {
+      const arrow = noteRow.querySelector('span[style*="1.2rem"]');
+      if (arrow) arrow.textContent = showNoteTotalSaving ? '▲' : '▼';
+    }
   }
 
   // 5년 총 절약 금액 토글 함수 (최고의 할인 혜택 모달)
@@ -1740,6 +1895,9 @@
     if (div) {
       div.style.display = showBestTotalSaving ? 'block' : 'none';
     }
+    // 화살표 방향 업데이트 (렌탈료 할인금액 row)
+    const totalRow = document.querySelector('#bestContent .s-row.total span[style*="1.2rem"]');
+    if (totalRow) totalRow.textContent = showBestTotalSaving ? '▲' : '▼';
   }
 
   let isLongPressed = false;
@@ -1855,10 +2013,8 @@
     const noteModalEl = document.getElementById('noteModal');
     if (noteModalEl) noteModalEl.dataset.productId = id;
 
-    // 5년 총 절약 금액 토글 상태 초기화
+    // 상태 초기화 - 5년 총 절약 금액 기본 숨김
     showNoteTotalSaving = false;
-
-    // 항상 임시 상태 초기화 (모달을 새로 열 때마다 원래 값으로 표시)
     modalCorasolActive = false;
     modalCorasolQty = 1;
     modalCardActive = true;
@@ -1868,290 +2024,9 @@
     window.modalDiscOverride = null;
     window.modalExtraDiscOverride = null;
     window.modalRerentalDiscOverride = null;
-    
-    // 🏷️ 코라솔 & 신용카드 실시간 할인 계산 반영
-    // 먼저 신용카드 할인 없이 계산해서 코라솔 후 소계 확인
-    let workingRaw = { ...raw };
-    if (modalBundleDiscOverride !== null) {
-      workingRaw.bundleDisc = modalBundleDiscOverride;
-    }
-    if (window.modalHalfDiscOverride !== null) {
-      workingRaw.halfDisc = window.modalHalfDiscOverride;
-    }
-    if (window.modalCompetitorDiscOverride !== null) {
-      workingRaw.competitor = window.modalCompetitorDiscOverride;
-    }
-    if (window.modalDiscOverride !== null) {
-      workingRaw.disc = window.modalDiscOverride;
-    }
-    if (window.modalExtraDiscOverride !== null) {
-      workingRaw.extraDisc = window.modalExtraDiscOverride;
-    }
-    if (window.modalRerentalDiscOverride !== null) {
-      workingRaw.rerentalDisc = window.modalRerentalDiscOverride;
-    }
-    let pWithoutCard = calcProduct(workingRaw, false);
-    let displayRaw = { ...raw };
-    if (modalBundleDiscOverride !== null) displayRaw.bundleDisc = modalBundleDiscOverride;
-    if (window.modalHalfDiscOverride !== null) displayRaw.halfDisc = window.modalHalfDiscOverride;
-    if (window.modalCompetitorDiscOverride !== null) displayRaw.competitor = window.modalCompetitorDiscOverride;
-    if (window.modalDiscOverride !== null) displayRaw.disc = window.modalDiscOverride;
-    if (window.modalExtraDiscOverride !== null) displayRaw.extraDisc = window.modalExtraDiscOverride;
-    if (window.modalRerentalDiscOverride !== null) displayRaw.rerentalDisc = window.modalRerentalDiscOverride;
-    let pDisplay = calcProduct(displayRaw, false);
-    let corasolAfterSubtotal = raw.rental || 0;
-    
-    // 코라솔 전까지의 소계 계산
-    if (pWithoutCard.contract > 0) corasolAfterSubtotal -= pWithoutCard.contractAmt;
-    if (pWithoutCard.halfDisc > 0) corasolAfterSubtotal -= pWithoutCard.halfDiscAmt;
-    if (pWithoutCard.rerentalDisc > 0) corasolAfterSubtotal -= pWithoutCard.rerentalDiscAmt;
-    if (pWithoutCard.disc > 0) corasolAfterSubtotal -= pWithoutCard.discAmt;
-    if (pWithoutCard.extraDisc > 0) corasolAfterSubtotal -= pWithoutCard.extraDiscAmt;
-    if (pWithoutCard.competitor > 0) corasolAfterSubtotal -= pWithoutCard.competitor;
-    if (pWithoutCard.bundleDisc > 0) corasolAfterSubtotal -= pWithoutCard.bundleDiscAmt;
-    if (pWithoutCard.multiDisc > 0) corasolAfterSubtotal -= pWithoutCard.multiDiscAmt;
-    if (pWithoutCard.corasol > 0) corasolAfterSubtotal -= pWithoutCard.corasol;
-    if (modalCorasolActive) {
-      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
-      corasolAfterSubtotal -= addedCorasolAmt;
-    }
-    
-    // 코라솔 후 소계가 마이너스이면 신용카드 할인 적용 안함
-    const applyCardDiscount = modalCardActive && corasolAfterSubtotal >= 0;
-    
-    let p = calcProduct(workingRaw, applyCardDiscount);
-    if (modalCorasolActive) {
-      const addedCorasolAmt = modalCorasolQty * CORASOL_UNIT;
-      p.corasol += addedCorasolAmt;
-      p.finalAmt = Math.max(0, p.finalAmt - addedCorasolAmt);
-      p.totalDisc += addedCorasolAmt;
-    }
 
-    const rows = [];
-    const noteDiscRate = p.rental > 0 ? Math.min(100, Math.round((p.totalDisc / p.rental) * 100)) : 0;
-    rows.push(`<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
-      <div class="note-title" style="margin:0;"><span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span> 할인계산</div>
-      <div style="display:inline-block; background: linear-gradient(135deg, #0057a8, #2491ff); padding:8px 20px; border-radius:999px; box-shadow:0 4px 16px rgba(0,87,168,0.3);">
-        <span style="font-size:2.2rem; font-weight:900; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.2);" class="hypno-pulse">${noteDiscRate}%</span>
-        <span style="font-size:1rem; font-weight:700; color:rgba(255,255,255,0.9); margin-left:6px;">할인</span>
-      </div>
-    </div>`);
-    const cleanName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0];
-      rows.push(`<div class="note-product"><a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #aaa;">제품 : ${p.name}</a></div>`);
-    rows.push(`<hr class="note-divider">`);
-    rows.push(`<div class="note-row"><span class="n-label">① 월 렌탈료</span><span class="n-val">${fmt(p.rental)}</span></div>`);
-    let step = 1, running = p.rental;
-    let beforeCorasol = p.rental;
-    const nums = ['②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪'];
-    const push = (label, amt, type, link, canceled = false) => {
-      if (!canceled) running -= amt;
-      const labelStyle = type === 'highlight' ? 'color:#0057a8;' : '';
-      let labelHtml;
-      const tStart = `ontouchstart="window.startLongPressHelper(event, `;
-      const tEnd = `)" ontouchend="window.endLongPressHelper(event)" ontouchmove="window.endLongPressHelper(event)"`;
-
-      if (label === '코라솔 할인') {
-        // 코라솔 할인은 클릭시 이미지 모달 열기
-        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
-      } else if (label.includes('결합 할인')) { 
-        labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="window.handleBundleClick(event)" oncontextmenu="window.handleBundleLong(event)" ${tStart}window.handleBundleLong${tEnd}>${nums[step-1]} ${label}</span>`; 
-      } else if (label.includes('반값 할인')) { 
-        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleHalfDiscClick(event)" oncontextmenu="window.handleHalfDiscLong(event)" ${tStart}window.handleHalfDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
-      } else if (label.includes('타사보상 할인')) { 
-        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleCompetitorClick(event)" oncontextmenu="window.handleCompetitorLong(event)" ${tStart}window.handleCompetitorLong${tEnd}>${nums[step-1]} ${label}</span>`;
-      } else if (label.includes('재렌탈 할인')) { 
-        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleRerentalDiscClick(event)" oncontextmenu="window.handleRerentalDiscLong(event)" ${tStart}window.handleRerentalDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
-      } else if (label.includes('기본 할인')) { 
-        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleDiscClick(event)" oncontextmenu="window.handleDiscLong(event)" ${tStart}window.handleDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
-      } else if (label.includes('추가 할인')) { 
-        let styleStr = 'cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;';
-        labelHtml = `<span class="n-label" style="${styleStr}" onclick="window.handleExtraDiscClick(event)" oncontextmenu="window.handleExtraDiscLong(event)" ${tStart}window.handleExtraDiscLong${tEnd}>${nums[step-1]} ${label}</span>`;
-      } else if (link) {
-        labelHtml = `<a href="${link}" target="_blank" style="color:#0057a8;text-decoration:none;border-bottom:1px dashed #0057a8;font-weight:800;">${nums[step-1]} ${label}</a>`;
-      } else {
-        labelHtml = `<span class="n-label" style="${labelStyle}">${nums[step-1]} ${label}</span>`;
-      }
-      const rowStyle = canceled ? 'text-decoration:line-through; opacity:0.4;' : '';
-      rows.push(`<div class="note-row" style="${rowStyle}">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
-      
-      if (label === '코라솔 할인' && running < 0) {
-        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val" style="color:#d63031;font-weight:800;">${fmt(running)} <span style="background:#ffeaa7;color:#1a2a4a;padding:2px 8px;border-radius:4px;font-size:0.9rem;">적립금</span></span></div>`);
-      } else if (label === '카드할인' && running < 0) {
-        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(0)}</span></div>`);
-      } else {
-        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(running)}</span></div>`);
-      }
-      step++;
-    };
-    if (pDisplay.contract > 0)     { push('약정 할인', pDisplay.contractAmt); beforeCorasol -= pDisplay.contractAmt; }
-    if (raw.halfDisc > 0 || window.modalHalfDiscOverride !== null) {
-      const isCanceled = window.modalHalfDiscOverride === 0;
-      push(`반값 할인 (${pDisplay.halfDisc}%)`, pDisplay.halfDiscAmt, '', null, isCanceled);
-      if (!isCanceled) beforeCorasol -= pDisplay.halfDiscAmt;
-    }
-    if (pDisplay.rerentalDisc > 0 || window.modalRerentalDiscOverride !== null) {
-      const isCanceled = window.modalRerentalDiscOverride === 0;
-      push(`재렌탈 할인 (${pDisplay.rerentalDisc}%)`, pDisplay.rerentalDiscAmt, '', null, isCanceled);
-      if (!isCanceled) beforeCorasol -= pDisplay.rerentalDiscAmt;
-    }
-    if (raw.disc > 0 || window.modalDiscOverride !== null) {
-      const isCanceled = window.modalDiscOverride === 0;
-      push(`기본 할인 (${pDisplay.disc}%)`, pDisplay.discAmt, '', null, isCanceled);
-      if (!isCanceled) beforeCorasol -= pDisplay.discAmt;
-    }
-    if (raw.extraDisc > 0 || window.modalExtraDiscOverride !== null) {
-      const isCanceled = window.modalExtraDiscOverride === 0;
-      push(`추가 할인 (${pDisplay.extraDisc}%)`, pDisplay.extraDiscAmt, '', null, isCanceled);
-      if (!isCanceled) beforeCorasol -= pDisplay.extraDiscAmt;
-    }
-    if (raw.competitor > 0 || window.modalCompetitorDiscOverride !== null) {
-      const isCanceled = window.modalCompetitorDiscOverride === 0;
-      push('타사보상 할인', pDisplay.competitor, '', null, isCanceled);
-      if (!isCanceled) beforeCorasol -= pDisplay.competitor;
-    }
-    // 재렌탈 할인이 있으면 결합 할인도 항상 표시
-    const hasRerental = raw.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0;
-    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null || hasRerental) {
-      let bRate;
-      if (modalBundleDiscOverride !== null) {
-        bRate = modalBundleDiscOverride;
-      } else if (raw.bundleDisc > 0) {
-        bRate = raw.bundleDisc;
-      } else {
-        // 재렌탈 할인만 있을 때 기본값
-        bRate = 3;
-        modalBundleDiscOverride = 3;
-        // displayRaw도 업데이트해서 pDisplay가 올바르게 계산되도록
-        displayRaw.bundleDisc = 3;
-        pDisplay = calcProduct(displayRaw, false);
-      }
-      const isCanceled = bRate === 0;
-      push(`결합 할인 (${bRate}%)`, pDisplay.bundleDiscAmt, '', null, isCanceled);
-      if (!isCanceled) beforeCorasol -= pDisplay.bundleDiscAmt; 
-    }
-    if (pDisplay.multiDisc > 0)    { push(`동시구매 할인 (${pDisplay.multiDisc}%)`, pDisplay.multiDiscAmt); beforeCorasol -= pDisplay.multiDiscAmt; }
-    
-    // 코라솔 할인 표시 (기본 + 추가)
-    if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
-    
-    if (p.card > 0 && applyCardDiscount) push('카드할인', p.card, 'highlight', 'https://coway-m.com/card');
-    rows.push(`<hr class="note-divider">`);
-    
-    // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
-    const afterCorasol = beforeCorasol - (p.corasol || 0);
-    const savingAmount = afterCorasol < 0 ? Math.abs(afterCorasol) : 0;
-    
-    // 렌탈료 할인금액은 총 할인에서 적립금을 뺀 값
-    const rentalDiscount = Math.min(p.rental, p.totalDisc - savingAmount);
-    
-    rows.push(`<div class="note-row"><span class="n-label">렌탈료 할인금액</span><span class="n-minus">- ${fmt(rentalDiscount)}</span></div>`);
-    if (savingAmount > 0) {
-      rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
-    }
-    rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#1a3a6e;font-weight:bold;">✅ 최종납부</span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt">${fmt(p.finalAmt)}</span><span style="font-size:1.2rem;margin-left:8px;">▼</span></div>`);
-    
-    // 🏷️ 5년 총 절약 금액 눈에 띄게 표시 (렌탈료 할인금액 + 적립금)
-    const totalSaving5Years = (rentalDiscount + savingAmount) * 60; // 5년 = 60개월
-    rows.push(`
-      <div id="noteTotalSavingDiv" style="
-        background: linear-gradient(135deg, #4a2c7a 0%, #2d1b4e 100%);
-        color: #ffd700;
-        padding: 20px;
-        border-radius: 18px;
-        margin-top: 16px;
-        text-align: center;
-        box-shadow: 0 6px 24px rgba(74, 44, 122, 0.5);
-        font-weight: 900;
-        border: 2px solid rgba(255, 215, 0, 0.4);
-        animation: pulse 2s ease-in-out infinite;
-        display: none;
-      ">
-        <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.9);">💰 5년 동안 총 절약 금액 💰</div>
-        <div style="font-size: 2.6rem; color: #ffd700; text-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5Years)}</div>
-        <div style="font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-top: 6px;">(1개월: ${fmt(rentalDiscount + savingAmount)} 절약)</div>
-      </div>
-    `);
-    
-    // 🏷️ 코라솔 5년 총 할인금액 눈에 띄게 표시
-    if (p.corasol > 0) {
-      const totalCorasol = p.corasol * 60; // 5년 = 60개월
-      rows.push(`
-        <div style="
-          background: radial-gradient(ellipse 120% 80% at 50% 0%, #2f5fa3 0%, #1e3d6b 42%, #0f1f38 100%);
-          color: #ffd873;
-          padding: 18px;
-          border-radius: 16px;
-          margin-top: 12px;
-          text-align: center;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-          font-weight: 800;
-          border: 1px solid rgba(255, 215, 0, 0.3);
-          animation: pulse 2s ease-in-out infinite;
-        ">
-          <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255, 255, 255, 0.85);">🎉 코라솔 5년 총 할인금액 🎉</div>
-          <div style="font-size: 2.3rem; color: #ffd873; text-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);">${fmt(totalCorasol)}</div>
-          <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); margin-top: 6px;">(1개월: ${fmt(p.corasol)})</div>
-        </div>
-      `);
-    }
-    
-    document.getElementById('noteContent').innerHTML = rows.join('');
-    const today = new Date().toLocaleDateString('ko-KR');
-    document.getElementById('noteStamp').textContent = '작성일 : ' + today;
-    
-    // 🏷️ 코라솔 UI 노출 및 상태 업데이트 (항상 실행)
-    const corasolUI = document.getElementById('corasolControlUI');
-    if (corasolUI) {
-      corasolUI.style.display = 'block';
-      document.getElementById('modalCorasolCheck').checked = modalCorasolActive;
-      document.getElementById('modalCorasolQty').textContent = modalCorasolQty;
-      const qtyArea = document.getElementById('modalCorasolQtyArea');
-      qtyArea.style.opacity = modalCorasolActive ? '1' : '0.5';
-      qtyArea.style.pointerEvents = modalCorasolActive ? 'auto' : 'none';
-      document.getElementById('modalCardCheck').checked = modalCardActive;
-    }
-
-    let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
-    let smsStep = 2;
-    const getNumStr = () => {
-      const smsNums = ['②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫'];
-      return smsNums[smsStep++ - 2];
-    };
-    if (pDisplay.contract > 0) sms += `${getNumStr()} 약정 할인 : - ${fmt(pDisplay.contractAmt)}\n`;
-    if (raw.halfDisc > 0 && window.modalHalfDiscOverride !== 0) sms += `${getNumStr()} 반값 할인 (${raw.halfDisc}%) : - ${fmt(pDisplay.halfDiscAmt)}\n`;
-    if (pDisplay.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0) sms += `${getNumStr()} 재렌탈 할인 (${pDisplay.rerentalDisc}%) : - ${fmt(pDisplay.rerentalDiscAmt)}\n`;
-    if (raw.disc > 0 && window.modalDiscOverride !== 0) sms += `${getNumStr()} 기본 할인 (${raw.disc}%) : - ${fmt(pDisplay.discAmt)}\n`;
-    if (raw.extraDisc > 0 && window.modalExtraDiscOverride !== 0) sms += `${getNumStr()} 추가 할인 (${raw.extraDisc}%) : - ${fmt(pDisplay.extraDiscAmt)}\n`;
-    if (raw.competitor > 0 && window.modalCompetitorDiscOverride !== 0) sms += `${getNumStr()} 타사보상 할인 : - ${fmt(pDisplay.competitor)}\n`;
-    if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null) {
-      let bRate = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : raw.bundleDisc;
-      if (bRate !== 0) sms += `${getNumStr()} 결합 할인 (${bRate}%) : - ${fmt(pDisplay.bundleDiscAmt)}\n`;
-    }
-    if (pDisplay.multiDisc > 0) sms += `${getNumStr()} 동시구매 할인 (${pDisplay.multiDisc}%) : - ${fmt(pDisplay.multiDiscAmt)}\n`;
-    if (pDisplay.corasol > 0) {
-      const totalCorasol = pDisplay.corasol * 60; // 5년 = 60개월
-      sms += `${getNumStr()} 코라솔 할인 (1개월:${fmt(pDisplay.corasol)}, 5년총:${fmt(totalCorasol)}) : - ${fmt(pDisplay.corasol)}\n`;
-    }
-    if (pDisplay.card > 0 && applyCardDiscount) sms += `${getNumStr()} 카드할인 : - ${fmt(pDisplay.card)}\n`;
-    
-    // 적립금은 코라솔 할인 적용 후 소계가 마이너스일 때만
-    const afterCorasolSms = beforeCorasol - (p.corasol || 0);
-    const savingAmountSms = afterCorasolSms < 0 ? Math.abs(afterCorasolSms) : 0;
-    
-    // 렌탈료 할인금액은 총 할인에서 적립금을 뺀 값
-    const rentalDiscountSms = Math.min(p.rental, p.totalDisc - savingAmountSms);
-    
-    let smsEnd = `─────────────────\n렌탈료 할인금액 : - ${fmt(rentalDiscountSms)}\n`;
-    if (savingAmountSms > 0) {
-      smsEnd += `적립금 : + ${fmt(savingAmountSms)}\n`;
-    }
-    smsEnd += `✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
-    sms += smsEnd;
-    currentSmsText = sms;
+    // 공통 렌더링 함수 호출
+    renderModalContent(raw);
 
     const modalOverlay = document.getElementById('noteModal');
     const notePaper = document.getElementById('notePaper');
@@ -2161,15 +2036,17 @@
     if (pushHistoryFlag) {
       pushModalState('note');
     }
-    
-    // 최종 금액 카운트다운 애니메이션 (신규 오픈 시에만 또는 실시간 반영 시에도)
+
+    // 최종 금액 카운트다운 애니메이션
     const el = document.getElementById('noteFinalAmt');
-    if (pushHistoryFlag) {
-      setTimeout(() => {
-        animateNumber(el, p.rental, p.finalAmt, 1000);
-      }, 300);
-    } else {
-      el.textContent = fmt(p.finalAmt);
+    if (pushHistoryFlag && el) {
+      const p = (window.products || []).find(x => x._id === id);
+      if (p) {
+        const calc = calcProduct(p);
+        setTimeout(() => {
+          animateNumber(el, calc.rental, calc.finalAmt, 1000);
+        }, 300);
+      }
     }
 
     // 스와이프로 최고의 할인 모달 전환
