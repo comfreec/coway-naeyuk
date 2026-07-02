@@ -2035,17 +2035,7 @@
       pushModalState('note');
     }
 
-    // 최종 금액 카운트다운 애니메이션
-    const el = document.getElementById('noteFinalAmt');
-    if (pushHistoryFlag && el) {
-      const p = (window.products || []).find(x => x._id === id);
-      if (p) {
-        const calc = calcProduct(p);
-        setTimeout(() => {
-          animateNumber(el, calc.rental, calc.finalAmt, 1000);
-        }, 300);
-      }
-    }
+
 
     // 스와이프로 최고의 할인 모달 전환
     initModalSwipe(notePaper, id, 'note');
@@ -2797,18 +2787,11 @@
       modalCorasolQty = 1;
     }
 
-    // 할인율 및 최종 금액 애니메이션
+    // 할인율 및 최종 금액 설정
     const rateEl = document.getElementById('bestDiscRate');
     const finalEl = document.getElementById('bestFinalAmt');
-    if (pushHistoryFlag) {
-      setTimeout(() => {
-        animateNumber(rateEl, 0, discRate, 1000, (n) => n + '%');
-        animateNumber(finalEl, p.rental, p.finalAmt, 1000, (n) => n.toLocaleString('ko-KR'));
-      }, 300);
-    } else {
-      rateEl.textContent = discRate + '%';
-      finalEl.textContent = p.finalAmt.toLocaleString('ko-KR');
-    }
+    rateEl.textContent = discRate + '%';
+    finalEl.textContent = p.finalAmt.toLocaleString('ko-KR');
 
     // 스와이프로 계산 내역서 모달 전환
     initModalSwipe(bestPaper, id, 'best');
