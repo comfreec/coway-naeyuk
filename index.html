@@ -97,7 +97,7 @@
     .best-modal .bm-close { position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 1.2rem; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; flex: unset; padding: 0; }
     .best-modal .bm-badge { display: inline-block; background: #ffd700; color: #1a1a2e; font-size: 0.8rem; font-weight: 900; padding: 4px 14px; border-radius: 50px; margin-bottom: 10px; letter-spacing: 1px; }
     .best-modal .bm-name { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.75); margin-bottom: 16px; line-height: 1.4; }
-    .best-modal .bm-disc-rate { font-size: 5rem; font-weight: 900; line-height: 1; color: #ffd700; margin-bottom: 2px; text-shadow: 0 0 30px rgba(255,215,0,0.5); }
+    .best-modal .bm-disc-rate { font-size: 5rem; font-weight: 900; line-height: 1; color: #ffd700; margin-bottom: 2px; }
     .best-modal .bm-disc-label { font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 20px; letter-spacing: 2px; }
     .best-modal .bm-compare { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 8px; }
     .best-modal .bm-original { font-size: 1.2rem; color: rgba(255,255,255,0.4); text-decoration: line-through; }
@@ -140,10 +140,9 @@
     padding: 44px 38px; 
     font-family: 'Noto Sans KR', 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; 
     border: 2px solid rgba(200, 190, 170, 0.3); 
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+
     -webkit-overflow-scrolling: touch;
-    will-change: transform;
+
   }
   .note-paper::before { 
     content: ''; 
@@ -353,7 +352,7 @@
       50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
       100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.4)); }
     }
-    .hypno-pulse { animation: hypnoticPulse 2s infinite ease-in-out; display: inline-block; }
+    .hypno-pulse { display: inline-block; }
 
     @keyframes hypnoticBgMove {
       0% { background-position: 0% 50%; }
@@ -362,7 +361,6 @@
     }
     .hypno-bg-animate {
       background-size: 200% 200% !important;
-      animation: hypnoticBgMove 10s infinite linear !important;
     }
 
     .count-up-number { font-variant-numeric: tabular-nums; }
@@ -444,7 +442,7 @@
     .bb-hero { display: flex; justify-content: center; align-items: center; margin: 0 auto 16px; max-width: 100%; }
     .bb-hero svg { width: min(560px, 96vw); height: auto; filter: drop-shadow(0 16px 30px rgba(0,0,0,0.42)); }
     .bb-title-block { text-align: center; margin-bottom: 18px; }
-    .bb-main-title { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 6px; text-shadow: 0 2px 20px rgba(0,0,0,0.25); }
+    .bb-main-title { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 6px; }
     .bb-sub-title { font-size: 0.88rem; color: rgba(255,255,255,0.78); font-weight: 500; }
     .bb-best-banner { margin-bottom: 16px; padding: 14px 16px; border-radius: 18px; background: rgba(126,232,162,0.18); border: 1px solid rgba(126,232,162,0.5); font-size: 0.95rem; color: #e8fff0; text-align: center; line-height: 1.45; }
     .bb-best-banner strong { color: #fff; font-size: 1.02rem; }
@@ -977,7 +975,7 @@
     <div id="careVoucherCaptureArea" style="background:#fff; padding:20px; border-radius:16px; margin-bottom:16px;">
       <div style="text-align:center; position:relative; display:inline-block; width:100%;">
         <img src="케어상품권.jpg" alt="케어상품권" style="max-width:100%; border-radius:12px; display:block;" />
-        <div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#FFD700; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px rgba(0,0,0,0.8);">📞 010-2417-7936</div>
+        <div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#FFD700; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;">📞 010-2417-7936</div>
       </div>
     </div>
     <div style="background:#f8fbff; padding:16px; border-radius:12px; margin-bottom:16px; line-height:1.8;">
@@ -1725,11 +1723,11 @@
         box-shadow: 0 6px 22px rgba(255, 215, 0, 0.25);
         font-weight: 900;
         border: 2px solid rgba(255, 215, 0, 0.4);
-        animation: pulse 2s ease-in-out infinite;
+
         display: ${showNoteTotalSaving ? 'block' : 'none'};
       ">
         <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.9);">💰 5년 동안 총 절약 금액 💰</div>
-        <div style="font-size: 2.6rem; color: #ffd700; text-shadow: 0 3px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5Years)}</div>
+        <div style="font-size: 2.6rem; color: #ffd700;">${fmt(totalSaving5Years)}</div>
         <div style="font-size: 0.95rem; color: rgba(255,255,255,0.85); margin-top: 6px;">(1개월: ${fmt(rentalDiscount + savingAmount)} 절약)</div>
       </div>
     `);
@@ -1748,10 +1746,10 @@
           box-shadow: 0 6px 22px rgba(255, 215, 0, 0.25);
           font-weight: 800;
           border: 2px solid rgba(255, 215, 0, 0.4);
-          animation: pulse 2s ease-in-out infinite;
+  
         ">
           <div style="font-size: 1.1rem; margin-bottom: 8px; color: rgba(255,255,255,0.85);">🎉 코라솔 5년 총 할인금액 🎉</div>
-          <div style="font-size: 2.3rem; color: #ffd873; text-shadow: 0 3px 12px rgba(255, 215, 0, 0.4);">${fmt(totalCorasol)}</div>
+          <div style="font-size: 2.3rem; color: #ffd873;">${fmt(totalCorasol)}</div>
           <div style="font-size: 0.9rem; color: rgba(255,255,255,0.75); margin-top: 6px;">(1개월: ${fmt(p.corasol)})</div>
         </div>
       `);
@@ -2459,7 +2457,7 @@
               <span class="strike">${fmt(p.rental)}</span>
               <span>→</span>
               <span class="bb-lg-final">${fmt(p.finalAmt)}</span>
-              <span class="hypno-pulse" style="font-size: 2.2rem; font-weight: 900; color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2); margin-left: 12px;">-${rate}%</span>
+              <span class="hypno-pulse" style="font-size: 2.2rem; font-weight: 900; color: #FFD700; margin-left: 12px;">-${rate}%</span>
             </div>
             <div class="bb-lg-saving">💰 매월 ${fmt(savingAmt)} 절약</div>
           </div>
@@ -2771,11 +2769,11 @@
         text-align: center;
         box-shadow: 0 6px 22px rgba(255, 215, 0, 0.25);
         border: 2px solid rgba(255, 215, 0, 0.4);
-        animation: pulse 2s ease-in-out infinite;
+
         display: none;
       ">
         <div style="font-size: 1.05rem; color: rgba(255, 255, 255, 0.85); font-weight: 800; margin-bottom: 10px;">💰 5년 총 절약 금액 💰</div>
-        <div style="font-size: 2.3rem; color: #ffd700; font-weight: 900; text-shadow: 0 3px 12px rgba(255, 215, 0, 0.4);">${fmt(totalSaving5YearsBest)}</div>
+        <div style="font-size: 2.3rem; color: #ffd700; font-weight: 900;">${fmt(totalSaving5YearsBest)}</div>
       </div>
       
       <hr class="bm-divider">
