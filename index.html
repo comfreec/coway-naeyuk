@@ -209,7 +209,7 @@
       line-height: 1.5; 
       font-size: 1.25rem; 
       color: #444; 
-      padding: 12px 0; 
+      padding: 9px 0; 
       border-bottom: none; 
     }
     .note-row:last-of-type { border-bottom: none; }
@@ -226,10 +226,6 @@
       color: #0a5bb0; 
       font-size: 1.8rem; 
       font-weight: 900; 
-      background: linear-gradient(135deg, #0a5bb0, #2491ff); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent; 
-      background-clip: text; 
     }
     .note-underline { 
       border-bottom: 3px double #0a5bb0; 
@@ -302,7 +298,7 @@
       .note-paper { padding: 52px 28px 28px 16px; }
       .note-title { font-size: 1.85rem; line-height: 48px; }
       .note-product { font-size: 1.45rem; line-height: 46px; }
-      .note-row { font-size: 1.35rem; line-height: 44px; }
+      .note-row { font-size: 1.35rem; line-height: 40px; padding: 6px 0; }
       .note-row .n-final { font-size: 1.7rem; }
       .note-stamp { font-size: 1.1rem; line-height: 40px; }
     }
@@ -946,7 +942,7 @@
     <div id="careVoucherCaptureArea" style="background:#fff; padding:20px; border-radius:16px; margin-bottom:16px;">
       <div style="text-align:center; position:relative; display:inline-block; width:100%;">
         <img src="케어상품권.jpg" alt="케어상품권" style="max-width:100%; border-radius:12px; display:block;" />
-        <div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#FFD700; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;">📞 010-2417-7936</div>
+        <div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#1a3a6e; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; position: relative;">📞 010-2417-7936<span style="position: absolute; bottom: -4px; left: -2px; width: calc(100% + 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span><span style="position: absolute; bottom: -8px; left: 2px; width: calc(100% - 4px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></div>
       </div>
     </div>
     <div style="background:#f8fbff; padding:16px; border-radius:12px; margin-bottom:16px; line-height:1.8;">
@@ -1001,7 +997,8 @@
     }
   } catch (e) {}
 
-  function fmt(n) { return n.toLocaleString('ko-KR') + '원'; }
+  function fmt(n) { return n.toLocaleString('ko-KR').replace(/,/g, ',​') + '원'; }
+  function fmtSms(n) { return n.toLocaleString('ko-KR').replace(/,/g, ',​') + '원'; }
   function pct(n) { return n > 0 ? n + '%' : '-'; }
 
   // 🔢 숫자 카운트다운 애니메이션 함수
@@ -1543,7 +1540,7 @@
         <span style="font-size:1.6rem; font-weight:800; color:#2c3e50; line-height:1.3;">할인계산</span>
       </div>
       <div style="display:inline-flex; align-items:center; gap:8px; padding: 10px 0; position: relative;">
-        <span style="font-size: 5rem; font-weight: 900; background: linear-gradient(135deg, #0a5bb0, #2491ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: 'Nanum Pen Script', cursive; position: relative;" class="hypno-pulse">
+        <span style="font-size: 5rem; font-weight: 900; color: #0a5bb0; font-family: 'Nanum Pen Script', cursive; position: relative;" class="hypno-pulse">
           ${noteDiscRate}%
           <span style="position: absolute; bottom: 6px; left: -2px; width: calc(100% + 4px); height: 4px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-2deg); border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
           <span style="position: absolute; bottom: 0px; left: 3px; width: calc(100% - 6px); height: 3px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1.5deg); border-radius: 2px;"></span>
@@ -1745,32 +1742,32 @@
     }
 
     // SMS 텍스트 생성
-    let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmt(p.rental)}\n`;
+    let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmtSms(p.rental)}\n`;
     let smsStep = 2;
     const smsNums = ['②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫'];
     const getNumStr = () => smsNums[smsStep++ - 2];
-    if (pDisplay.contract > 0) sms += `${getNumStr()} 약정 할인 : - ${fmt(pDisplay.contractAmt)}\n`;
-    if (raw.halfDisc > 0 && window.modalHalfDiscOverride !== 0) sms += `${getNumStr()} 반값 할인 (${raw.halfDisc}%) : - ${fmt(pDisplay.halfDiscAmt)}\n`;
-    if (pDisplay.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0) sms += `${getNumStr()} 재렌탈 할인 (${pDisplay.rerentalDisc}%) : - ${fmt(pDisplay.rerentalDiscAmt)}\n`;
-    if (raw.disc > 0 && window.modalDiscOverride !== 0) sms += `${getNumStr()} 기본 할인 (${raw.disc}%) : - ${fmt(pDisplay.discAmt)}\n`;
-    if (raw.extraDisc > 0 && window.modalExtraDiscOverride !== 0) sms += `${getNumStr()} 추가 할인 (${raw.extraDisc}%) : - ${fmt(pDisplay.extraDiscAmt)}\n`;
-    if (raw.competitor > 0 && window.modalCompetitorDiscOverride !== 0) sms += `${getNumStr()} 타사보상 할인 : - ${fmt(pDisplay.competitor)}\n`;
+    if (pDisplay.contract > 0) sms += `${getNumStr()} 약정 할인 : - ${fmtSms(pDisplay.contractAmt)}\n`;
+    if (raw.halfDisc > 0 && window.modalHalfDiscOverride !== 0) sms += `${getNumStr()} 반값 할인 (${raw.halfDisc}%) : - ${fmtSms(pDisplay.halfDiscAmt)}\n`;
+    if (pDisplay.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0) sms += `${getNumStr()} 재렌탈 할인 (${pDisplay.rerentalDisc}%) : - ${fmtSms(pDisplay.rerentalDiscAmt)}\n`;
+    if (raw.disc > 0 && window.modalDiscOverride !== 0) sms += `${getNumStr()} 기본 할인 (${raw.disc}%) : - ${fmtSms(pDisplay.discAmt)}\n`;
+    if (raw.extraDisc > 0 && window.modalExtraDiscOverride !== 0) sms += `${getNumStr()} 추가 할인 (${raw.extraDisc}%) : - ${fmtSms(pDisplay.extraDiscAmt)}\n`;
+    if (raw.competitor > 0 && window.modalCompetitorDiscOverride !== 0) sms += `${getNumStr()} 타사보상 할인 : - ${fmtSms(pDisplay.competitor)}\n`;
     if (raw.bundleDisc > 0 || modalBundleDiscOverride !== null) {
       let bRate = (modalBundleDiscOverride !== null) ? modalBundleDiscOverride : raw.bundleDisc;
-      if (bRate !== 0) sms += `${getNumStr()} 결합 할인 (${bRate}%) : - ${fmt(pDisplay.bundleDiscAmt)}\n`;
+      if (bRate !== 0) sms += `${getNumStr()} 결합 할인 (${bRate}%) : - ${fmtSms(pDisplay.bundleDiscAmt)}\n`;
     }
-    if (pDisplay.multiDisc > 0) sms += `${getNumStr()} 동시구매 할인 (${pDisplay.multiDisc}%) : - ${fmt(pDisplay.multiDiscAmt)}\n`;
+    if (pDisplay.multiDisc > 0) sms += `${getNumStr()} 동시구매 할인 (${pDisplay.multiDisc}%) : - ${fmtSms(pDisplay.multiDiscAmt)}\n`;
     if (pDisplay.corasol > 0) {
       const totalCorasolSms = pDisplay.corasol * 60;
-      sms += `${getNumStr()} 코라솔 할인 (1개월:${fmt(pDisplay.corasol)}, 5년총:${fmt(totalCorasolSms)}) : - ${fmt(pDisplay.corasol)}\n`;
+      sms += `${getNumStr()} 코라솔 할인 (1개월:${fmtSms(pDisplay.corasol)}, 5년총:${fmtSms(totalCorasolSms)}) : - ${fmtSms(pDisplay.corasol)}\n`;
     }
-    if (pDisplay.card > 0 && applyCardDiscount) sms += `${getNumStr()} 카드할인 : - ${fmt(pDisplay.card)}\n`;
+    if (pDisplay.card > 0 && applyCardDiscount) sms += `${getNumStr()} 카드할인 : - ${fmtSms(pDisplay.card)}\n`;
     const afterCorasolSms = beforeCorasol - (p.corasol || 0);
     const savingAmountSms = afterCorasolSms < 0 ? Math.abs(afterCorasolSms) : 0;
     const rentalDiscountSms = Math.min(p.rental, p.totalDisc - savingAmountSms);
-    let smsEnd = `─────────────────\n렌탈료 할인금액 : - ${fmt(rentalDiscountSms)}\n`;
-    if (savingAmountSms > 0) smsEnd += `적립금 : + ${fmt(savingAmountSms)}\n`;
-    smsEnd += `✅ 최종 납부금액 : ${fmt(p.finalAmt)}\n작성일 : ${today}`;
+    let smsEnd = `─────────────────\n렌탈료 할인금액 : - ${fmtSms(rentalDiscountSms)}\n`;
+    if (savingAmountSms > 0) smsEnd += `적립금 : + ${fmtSms(savingAmountSms)}\n`;
+    smsEnd += `✅ 최종 납부금액 : ${fmtSms(p.finalAmt)}\n작성일 : ${today}`;
     sms += smsEnd;
     currentSmsText = sms;
   }
