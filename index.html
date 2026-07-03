@@ -559,6 +559,20 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    // 페이지 로드시 사은품 이미지 미리 로딩
+    document.addEventListener('DOMContentLoaded', function() {
+      const giftImage = new Image();
+      giftImage.src = '텐셀메모리폼베계.jpg';
+      console.log('사은품 이미지 프리로딩 시작:', giftImage.src);
+      giftImage.onload = function() {
+        console.log('사은품 이미지 프리로딩 완료!');
+      };
+      giftImage.onerror = function() {
+        console.log('사은품 이미지 프리로딩 오류!');
+      };
+    });
+  </script>
 </head>
 <body>
 
@@ -1536,7 +1550,7 @@
     const noteDiscRate = p.rental > 0 ? Math.min(100, Math.round((p.totalDisc / p.rental) * 100)) : 0;
     rows.push(`<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
       <div style="display:flex; align-items:center; gap:10px;">
-        <span class="share-emoji" onclick="shareImage()" title="이미지로 보내기">📋</span>
+        <span class="share-emoji" onclick="console.log('사은품 버튼 클릭됨!'); event.stopPropagation(); openGiftImage();" title="사은품 보기" style="font-size:2rem; cursor:pointer;">🎁</span>
         <span style="font-size:1.6rem; font-weight:800; color:#2c3e50; line-height:1.3;">할인계산</span>
       </div>
       <div style="display:inline-flex; align-items:center; gap:8px; padding: 10px 0; position: relative;">
@@ -1742,7 +1756,7 @@
     }
 
     // SMS 텍스트 생성
-    let sms = `[코웨이 렌탈료 할인 계산 내역서]\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmtSms(p.rental)}\n`;
+    let sms = `✨ [코웨이 렌탈료 할인 계산 내역서] ✨\n\n제품 : ${p.name}\n─────────────────\n① 월 렌탈료 : ${fmtSms(p.rental)}\n`;
     let smsStep = 2;
     const smsNums = ['②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫'];
     const getNumStr = () => smsNums[smsStep++ - 2];
@@ -1765,9 +1779,9 @@
     const afterCorasolSms = beforeCorasol - (p.corasol || 0);
     const savingAmountSms = afterCorasolSms < 0 ? Math.abs(afterCorasolSms) : 0;
     const rentalDiscountSms = Math.min(p.rental, p.totalDisc - savingAmountSms);
-    let smsEnd = `─────────────────\n렌탈료 할인금액 : - ${fmtSms(rentalDiscountSms)}\n`;
-    if (savingAmountSms > 0) smsEnd += `적립금 : + ${fmtSms(savingAmountSms)}\n`;
-    smsEnd += `✅ 최종 납부금액 : ${fmtSms(p.finalAmt)}\n작성일 : ${today}`;
+    let smsEnd = `─────────────────\n💸 렌탈료 할인금액 : - ${fmtSms(rentalDiscountSms)}\n`;
+    if (savingAmountSms > 0) smsEnd += `💰 적립금 : + ${fmtSms(savingAmountSms)}\n`;
+    smsEnd += `✅ 최종 납부금액 : ${fmtSms(p.finalAmt)}\n\n💡 이번달만 가능한 할인 금액이니 서둘러 신청하세요!\n📅 작성일 : ${today}`;
     sms += smsEnd;
     currentSmsText = sms;
   }
@@ -2029,7 +2043,7 @@
   async function shareImage() {
     try {
       const canvas = await captureNote();
-      const shareText = '⏰ 지금만 가능한 금액이에요!\n확인하시고 빠르게 연락 주세요 😊';
+      const shareText = '✨ 이번달만 가능한 할인 금액이에요!\n확인하시고 빠르게 연락 주세요 😊💡';
       try { await navigator.clipboard.writeText(shareText); } catch(e) {}
 
       canvas.toBlob(async (blob) => {
@@ -3193,15 +3207,31 @@
       document.getElementById('careCardModal').classList.remove('open');
     }
 
+    // 사은품 이미지 열기 (캐시 방지)
+    function openGiftImage() {
+      const timestamp = Date.now();
+      const imgPath = '텐셀메모리폼베계.jpg?t=' + timestamp;
+      console.log('openGiftImage 호출됨! imgPath:', imgPath);
+      openImageZoom(imgPath, imgPath);
+    }
+
     // 이미지 확대 모달
     function openImageZoom(imgPath, fallbackPath) {
+      console.log('openImageZoom 호출됨! imgPath:', imgPath, 'fallbackPath:', fallbackPath);
       const modal = document.getElementById('imageZoomModal');
       const img = document.getElementById('imageZoomImg');
+      console.log('modal 요소:', modal, 'img 요소:', img);
       img.src = imgPath;
       img.onerror = function() {
+        console.log('이미지 로딩 오류! fallbackPath로 대체:', fallbackPath);
         this.src = fallbackPath;
       };
+      img.onload = function() {
+        console.log('이미지 로딩 성공!');
+      };
+      console.log('modal에 open 클래스 추가 전:', modal.classList);
       modal.classList.add('open');
+      console.log('modal에 open 클래스 추가 후:', modal.classList);
     }
 
     function closeImageZoom() {
@@ -3281,6 +3311,7 @@
     window.closeCareCardModalDirect = closeCareCardModalDirect;
     window.shareCareCard = shareCareCard;
     window.openImageZoom = openImageZoom;
+    window.openGiftImage = openGiftImage;
     window.closeImageZoom = closeImageZoom;
 
     // 케어상품권 함수들
