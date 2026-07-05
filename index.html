@@ -2467,7 +2467,6 @@
 
     // 2. 바디(베스트 배너 + 리스트) 렌더링
     document.getElementById('bigBenefitBody').innerHTML = `
-      ${bestProduct ? `<div class="bb-best-banner">🏆 이번 견적에서 혜택이 가장 큰 제품은 <strong>${escapeHtml(bestProduct.name)}</strong>입니다<br><span style="opacity:0.9">월 ${fmt(bestProduct.totalDisc)} 절약</span></div>` : ''}
       ${emptyAll ? `<div class="bb-empty-filter">아직 추가된 제품이 없습니다.<br>아래에서 <strong style="color:#fff;">계산 추가</strong> 후 다시 확인해주세요.</div>` : '<div id="bigBenefitProductList"></div>'}
     `;
 
