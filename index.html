@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -833,9 +833,10 @@
 
 <!-- 이미지 확대 모달 -->
 <div class="modal-overlay" id="imageZoomModal" onclick="closeImageZoom()">
-  <div class="image-zoom-container">
-    <button type="button" class="image-zoom-close" onclick="closeImageZoom()">✕</button>
-    <img id="imageZoomImg" src="" alt="확대된 이미지">
+  <div class="product-image-modal image-zoom-container">
+    <button type="button" class="image-zoom-close product-image-close" onclick="closeImageZoom()">✕</button>
+    <img id="imageZoomImg" src="" alt="확대된 이미지" onclick="closeImageZoom()" style="cursor:pointer;">
+    <div id="imageZoomName" style="font-size:1.1rem;font-weight:700;color:#333;text-align:center;"></div>
   </div>
 </div>
 
@@ -956,7 +957,7 @@
 <div class="modal-overlay" id="productImageModal" onclick="closeProductImageModal(event)">
   <div class="product-image-modal" onclick="event.stopPropagation()">
     <button class="product-image-close" onclick="closeProductImageModal()">✕</button>
-    <img id="productImageModalImg" alt="제품 이미지">
+    <img id="productImageModalImg" alt="제품 이미지" onclick="closeProductImageModal()" style="cursor:pointer;">
     <div id="productImageModalName"></div>
   </div>
 </div>
@@ -1519,7 +1520,7 @@
         <td style="text-align:left;font-weight:600;padding:6px 4px;display:flex;align-items:center;gap:6px;">
           <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
                style="width:36px;height:36px;border-radius:8px;flex-shrink:0;object-fit:cover;cursor:pointer;border:1px solid rgba(0,87,168,0.15);"
-               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}');">
+               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name)}');">
           <span style="flex:1;min-width:0;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;">${escapeHtml(p.name)}</span>
         </td>
         <td style="padding:6px 3px;white-space:nowrap;font-size:0.85rem;">${fmt(p.rental)}</td>
@@ -1710,7 +1711,7 @@
         <div style="display:flex; align-items:center; gap:10px; width:100%;">
           <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
                style="width:60px; height:60px; border-radius:12px; object-fit:cover; cursor:pointer; border:2px solid rgba(0,87,168,0.2); box-shadow:0 2px 8px rgba(0,0,0,0.1);"
-               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}');">
+               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name)}');">
           <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#1a3a6e;text-decoration:none; flex:1; min-width:0;">${p.name}</a>
         </div>
       </div>`);
@@ -1728,7 +1729,7 @@
 
       if (label === '코라솔 할인') {
         // 코라솔 할인은 클릭시 이미지 모달 열기
-        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg', '코라솔');">${nums[step-1]} ${label}</span>`;
       } else if (label.includes('결합 할인')) { 
         labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="window.handleBundleClick(event)" oncontextmenu="window.handleBundleLong(event)" ${tStart}window.handleBundleLong${tEnd}>${nums[step-1]} ${label}</span>`; 
       } else if (label.includes('반값 할인')) { 
@@ -2559,7 +2560,7 @@
           <div class="bb-lg-thumb">
             <img src="${imgPath}" alt="제품 이미지" 
                  onerror="console.log('이미지 로드 실패, fallback 사용'); this.src='${thumb.replace(/'/g, "\\'")}'"
-                 onclick="event.stopPropagation(); openImageZoom('${imgPath.replace(/'/g, "\\'")}', '${thumb.replace(/'/g, "\\'")}')">
+                 onclick="event.stopPropagation(); openImageZoom('${imgPath.replace(/'/g, "\\'")}', '${thumb.replace(/'/g, "\\'")}', '${escapeHtml(p.name)}')">
           </div>
           <div class="bb-lg-main">
             <div class="bb-lg-name">${escapeHtml(p.name)}</div>
@@ -3371,15 +3372,16 @@
       const timestamp = Date.now();
       const imgPath = '텐셀메모리폼베계.jpg?t=' + timestamp;
       console.log('openGiftImage 호출됨! imgPath:', imgPath);
-      openImageZoom(imgPath, imgPath);
+      openImageZoom(imgPath, imgPath, '텐셀메모리폼베개');
     }
 
     // 이미지 확대 모달
-    function openImageZoom(imgPath, fallbackPath) {
-      console.log('openImageZoom 호출됨! imgPath:', imgPath, 'fallbackPath:', fallbackPath);
+    function openImageZoom(imgPath, fallbackPath, productName) {
+      console.log('openImageZoom 호출됨! imgPath:', imgPath, 'fallbackPath:', fallbackPath, 'productName:', productName);
       const modal = document.getElementById('imageZoomModal');
       const img = document.getElementById('imageZoomImg');
-      console.log('modal 요소:', modal, 'img 요소:', img);
+      const nameEl = document.getElementById('imageZoomName');
+      console.log('modal 요소:', modal, 'img 요소:', img, 'nameEl:', nameEl);
       img.src = imgPath;
       img.onerror = function() {
         console.log('이미지 로딩 오류! fallbackPath로 대체:', fallbackPath);
@@ -3388,6 +3390,9 @@
       img.onload = function() {
         console.log('이미지 로딩 성공!');
       };
+      if (nameEl) {
+        nameEl.textContent = productName || '';
+      }
       console.log('modal에 open 클래스 추가 전:', modal.classList);
       modal.classList.add('open');
       console.log('modal에 open 클래스 추가 후:', modal.classList);
