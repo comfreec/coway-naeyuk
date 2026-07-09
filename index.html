@@ -109,19 +109,26 @@
       text-shadow: 0 4px 20px rgba(255,215,0,0.4);
       position: relative;
       display: inline-block;
-      padding-bottom: 18px;
+      padding-bottom: 26px;
     }
+    .best-modal .bm-disc-rate::before,
     .best-modal .bm-disc-rate::after {
       content: '';
       position: absolute;
       left: -10px;
-      bottom: 0;
       width: calc(100% + 20px);
       height: 10px;
       background: linear-gradient(90deg, transparent 0%, #ff8c00 5%, #ff6b00 45%, #ff8c00 55%, #ff8c00 95%, transparent 100%);
-      transform: rotate(-1.5deg);
       border-radius: 50px;
       box-shadow: 0 3px 8px rgba(255,140,0,0.4);
+    }
+    .best-modal .bm-disc-rate::before {
+      bottom: 12px;
+      transform: rotate(-1.5deg);
+    }
+    .best-modal .bm-disc-rate::after {
+      bottom: 0;
+      transform: rotate(1deg);
     }
     .best-modal .bm-disc-label { font-size: 1.1rem; color: rgba(255,255,255,0.75); margin-bottom: 22px; letter-spacing: 2px; font-weight: 600; }
     .best-modal .bm-product-img-container { margin-bottom: 0; display: flex; justify-content: center; }
