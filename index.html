@@ -2866,7 +2866,7 @@
     console.log('제품명:', p.name, '찾은 이미지:', productImagePath);
     
     document.getElementById('bestContent').innerHTML = `
-      <div class="bm-badge">🔥 최고의 할인 혜택</div>
+      <div class="bm-badge" style="cursor:pointer;" onclick="event.stopPropagation(); openGiftImage();">🔥 최고의 할인 혜택</div>
       <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0])}" target="_blank" style="color:#ffffff;text-decoration:none;">
         <div class="bm-name">${p.name}</div>
       </a>
