@@ -2836,11 +2836,14 @@
     const totalSaving5YearsBest = (rentalDiscountBest + savingAmountBest) * 60;
     
     const productImagePath = getProductImagePath(p.name);
+    const cleanName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0];
     console.log('제품명:', p.name, '찾은 이미지:', productImagePath);
     
     document.getElementById('bestContent').innerHTML = `
       <div class="bm-badge">🔥 최고의 할인 혜택</div>
-      <div class="bm-name">${p.name}</div>
+      <div class="bm-name">
+        <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#ffffff;text-decoration:none;">${p.name}</a>
+      </div>
       <div class="bm-disc-section">
         <div class="bm-product-img-container">
           <img class="bm-product-img" src="${escapeHtml(productImagePath)}" alt="${escapeHtml(p.name)}" onclick='openProductImageModal("${escapeHtml(productImagePath)}", "${escapeHtml(p.name)}")' onerror="this.parentNode.innerHTML='<div class=\\'bm-product-img-placeholder\\'>${getProductVisualByName(p.name).icon}</div>'">
