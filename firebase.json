@@ -18,6 +18,13 @@
           }
         ]
       }
+    ],
+    "site": "coway-naeyuk",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   },
   "firestore": {
