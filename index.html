@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -99,18 +99,8 @@
     .best-modal .bm-close:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
     .best-modal .bm-badge { display: inline-block; background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 0.85rem; font-weight: 900; padding: 6px 18px; border-radius: 50px; margin-bottom: 14px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(255,215,0,0.35); }
     .best-modal .bm-name { font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 18px; line-height: 1.5; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-    .best-modal .bm-disc-section { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px; }
-    .best-modal .bm-disc-rate {
-      font-size: 6.5rem;
-      font-family: 'Nanum Pen Script', cursive;
-      line-height: 1;
-      color: #ffd700;
-      margin-bottom: 0;
-      text-shadow: 0 4px 20px rgba(255,215,0,0.4);
-      position: relative;
-      display: inline-block;
-      padding-bottom: 26px;
-    }
+    .best-modal .bm-disc-section { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 15px; }
+    .best-modal .bm-disc-rate { font-size: 5.5rem; font-weight: 900; line-height: 1; color: #ffd700; margin-bottom: 0; text-shadow: 0 4px 20px rgba(255,215,0,0.4); position: relative; display: inline-block; padding-bottom: 26px; }
     .best-modal .bm-disc-rate::before,
     .best-modal .bm-disc-rate::after {
       content: '';
@@ -120,22 +110,14 @@
       height: 4px;
       background: linear-gradient(90deg, transparent 0%, #ff8c00 5%, #ff6b00 45%, #ff8c00 55%, #ff8c00 95%, transparent 100%);
       border-radius: 50px;
-      box-shadow: 0 2px 4px rgba(255,140,0,0.4);
     }
-    .best-modal .bm-disc-rate::before {
-      bottom: 8px;
-      transform: rotate(-1.5deg);
-    }
-    .best-modal .bm-disc-rate::after {
-      bottom: 0;
-      transform: rotate(1deg);
-    }
-    .best-modal .bm-disc-label { font-size: 1.1rem; color: rgba(255,255,255,0.75); margin-bottom: 22px; letter-spacing: 2px; font-weight: 600; }
+    .best-modal .bm-disc-rate::before { bottom: 8px; transform: rotate(-1.5deg); }
+    .best-modal .bm-disc-rate::after { bottom: 0; transform: rotate(1deg); }
     .best-modal .bm-product-img-container { margin-bottom: 0; display: flex; justify-content: center; }
     .best-modal .bm-product-img { width: 120px; height: 120px; object-fit: cover; border-radius: 16px; border: 3px solid rgba(255,215,0,0.4); box-shadow: 0 6px 20px rgba(0,0,0,0.3); cursor: pointer; transition: all 0.3s; }
     .best-modal .bm-product-img:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255,215,0,0.3); border-color: rgba(255,215,0,0.6); }
     .best-modal .bm-product-img-placeholder { width: 120px; height: 120px; border-radius: 16px; border: 3px solid rgba(255,215,0,0.4); box-shadow: 0 6px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 3rem; background: rgba(255,255,255,0.1); }
-    .best-modal .bm-compare { display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 10px; padding: 14px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+    .best-modal .bm-compare { display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 0px; padding: 14px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
     .best-modal .bm-original { font-size: 1.35rem; color: rgba(255,255,255,0.45); text-decoration: line-through; font-weight: 600; }
     .best-modal .bm-arrow { font-size: 1.5rem; color: #ffd700; font-weight: 900; }
     .best-modal .bm-final { font-size: 2.4rem; font-weight: 900; color: #fff; line-height: 1; text-shadow: 0 3px 15px rgba(255,255,255,0.2); }
@@ -1520,7 +1502,7 @@
         <td style="text-align:left;font-weight:600;padding:6px 4px;display:flex;align-items:center;gap:6px;">
           <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
                style="width:36px;height:36px;border-radius:8px;flex-shrink:0;object-fit:cover;cursor:pointer;border:1px solid rgba(0,87,168,0.15);"
-               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name)}');">
+               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name).replace(/'/g, "\\'")}');">
           <span style="flex:1;min-width:0;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;">${escapeHtml(p.name)}</span>
         </td>
         <td style="padding:6px 3px;white-space:nowrap;font-size:0.85rem;">${fmt(p.rental)}</td>
@@ -1711,7 +1693,7 @@
         <div style="display:flex; align-items:center; gap:10px; width:100%;">
           <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
                style="width:60px; height:60px; border-radius:12px; object-fit:cover; cursor:pointer; border:2px solid rgba(0,87,168,0.2); box-shadow:0 2px 8px rgba(0,0,0,0.1);"
-               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name)}');">
+               onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name).replace(/'/g, "\\'")}');">
           <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#1a3a6e;text-decoration:none; flex:1; min-width:0;">${p.name}</a>
         </div>
       </div>`);
@@ -1729,7 +1711,7 @@
 
       if (label === '코라솔 할인') {
         // 코라솔 할인은 클릭시 이미지 모달 열기
-        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg', '코라솔');">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
       } else if (label.includes('결합 할인')) { 
         labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="window.handleBundleClick(event)" oncontextmenu="window.handleBundleLong(event)" ${tStart}window.handleBundleLong${tEnd}>${nums[step-1]} ${label}</span>`; 
       } else if (label.includes('반값 할인')) { 
@@ -2560,7 +2542,7 @@
           <div class="bb-lg-thumb">
             <img src="${imgPath}" alt="제품 이미지" 
                  onerror="console.log('이미지 로드 실패, fallback 사용'); this.src='${thumb.replace(/'/g, "\\'")}'"
-                 onclick="event.stopPropagation(); openImageZoom('${imgPath.replace(/'/g, "\\'")}', '${thumb.replace(/'/g, "\\'")}', '${escapeHtml(p.name)}')">
+                 onclick="event.stopPropagation(); openImageZoom('${imgPath.replace(/'/g, "\\'")}', '${thumb.replace(/'/g, "\\'")}', '${escapeHtml(p.name).replace(/'/g, "\\'")}')">
           </div>
           <div class="bb-lg-main">
             <div class="bb-lg-name">${escapeHtml(p.name)}</div>
@@ -2866,27 +2848,26 @@
     const totalSaving5YearsBest = (rentalDiscountBest + savingAmountBest) * 60;
     
     const productImagePath = getProductImagePath(p.name);
-    const cleanName = p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0];
     console.log('제품명:', p.name, '찾은 이미지:', productImagePath);
     
     document.getElementById('bestContent').innerHTML = `
       <div class="bm-badge">🔥 최고의 할인 혜택</div>
-      <div class="bm-name">
-        <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#ffffff;text-decoration:none;">${p.name}</a>
-      </div>
+      <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(p.name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\{[^}]*\}/g, '').trim().split(/\s+/)[0])}" target="_blank" style="color:#ffffff;text-decoration:none;">
+        <div class="bm-name">${p.name}</div>
+      </a>
       <div class="bm-disc-section">
         <div class="bm-product-img-container">
           <img class="bm-product-img" src="${escapeHtml(productImagePath)}" alt="${escapeHtml(p.name)}" onclick='openProductImageModal("${escapeHtml(productImagePath)}", "${escapeHtml(p.name)}")' onerror="this.parentNode.innerHTML='<div class=\\'bm-product-img-placeholder\\'>${getProductVisualByName(p.name).icon}</div>'">
         </div>
         <div class="bm-disc-rate hypno-pulse" id="bestDiscRate">${discRate}%</div>
       </div>
-      <div class="bm-disc-label">할 인 적 용 !</div>
+
       <div class="bm-compare">
         <span class="bm-original">${fmt(p.rental)}</span>
         <span class="bm-arrow">→</span>
         <div class="bm-final"><small>월 </small><span id="bestFinalAmt" class="hypno-pulse">${p.finalAmt.toLocaleString('ko-KR')}</span><small>원</small></div>
       </div>
-      <div class="bm-per">매달 <strong>${fmt(rentalDiscountBest)}</strong> 절약${savingAmountBest > 0 ? ` + <strong style="color:#d63031;">${fmt(savingAmountBest)}</strong> 적립` : ''}!</div>
+
       
       <hr class="bm-divider">
       ${itemRows}
@@ -3372,7 +3353,7 @@
       const timestamp = Date.now();
       const imgPath = '텐셀메모리폼베계.jpg?t=' + timestamp;
       console.log('openGiftImage 호출됨! imgPath:', imgPath);
-      openImageZoom(imgPath, imgPath, '텐셀메모리폼베개');
+      openImageZoom(imgPath, imgPath);
     }
 
     // 이미지 확대 모달
