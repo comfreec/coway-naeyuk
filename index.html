@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -1207,26 +1207,7 @@
     const productNameLower = productName.toLowerCase();
     const firstWord = productNameLower.split(/\s+/)[0]; // 제품명의 첫 단어 추출
     
-    // 1. 기존 IMAGE_FILES에서 찾기 (정확한 부분 매치 우선)
-    for (const file of IMAGE_FILES) {
-      const fileNameWithoutExt = file.replace('.png', '');
-      const fileNameLower = fileNameWithoutExt.toLowerCase();
-      if (productNameLower.includes(fileNameLower)) {
-        console.log('기존 파일에서 찾은 이미지:', file, '제품명:', productName);
-        return file;
-      }
-    }
-    
-    for (const file of IMAGE_FILES) {
-      const fileNameWithoutExt = file.replace('.png', '');
-      const fileNameLower = fileNameWithoutExt.toLowerCase();
-      if (fileNameLower.includes(productNameLower)) {
-        console.log('기존 파일에서 찾은 이미지:', file, '제품명:', productName);
-        return file;
-      }
-    }
-    
-    // 2. 저장된 매핑에서 찾기 (기존 파일에 없을 때만, 첫 단어 우선)
+    // 1. 저장된 매핑에서 먼저 찾기 (사용자 매핑 우선!)
     // 먼저 제품명의 첫 단어로 매핑 찾기
     for (const mapping of productImageMappings) {
       const mappingProductLower = mapping.productName.toLowerCase();
@@ -1243,6 +1224,25 @@
       if (productNameLower.includes(mappingProductLower) || mappingProductLower.includes(productNameLower)) {
         console.log('매핑에서 부분 매치로 찾은 이미지:', mapping.imageFileName, '제품명:', productName);
         return mapping.imageFileName;
+      }
+    }
+    
+    // 2. 기존 IMAGE_FILES에서 찾기 (정확한 부분 매치 우선)
+    for (const file of IMAGE_FILES) {
+      const fileNameWithoutExt = file.replace('.png', '');
+      const fileNameLower = fileNameWithoutExt.toLowerCase();
+      if (productNameLower.includes(fileNameLower)) {
+        console.log('기존 파일에서 찾은 이미지:', file, '제품명:', productName);
+        return file;
+      }
+    }
+    
+    for (const file of IMAGE_FILES) {
+      const fileNameWithoutExt = file.replace('.png', '');
+      const fileNameLower = fileNameWithoutExt.toLowerCase();
+      if (fileNameLower.includes(productNameLower)) {
+        console.log('기존 파일에서 찾은 이미지:', file, '제품명:', productName);
+        return file;
       }
     }
     
