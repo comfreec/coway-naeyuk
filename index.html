@@ -1201,29 +1201,44 @@
     '더블케어.png'
   ];
 
+  // 확장자 자동 추가 함수
+  function ensureImageExtension(fileName) {
+    const lower = fileName.toLowerCase();
+    if (lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.gif') || lower.endsWith('.webp')) {
+      return fileName;
+    }
+    return fileName + '.png';
+  }
+
   // 제품명과 가장 잘 맞는 이미지 파일 찾기
   function getProductImagePath(name = '') {
     const productName = String(name);
     const productNameLower = productName.toLowerCase();
     const firstWord = productNameLower.split(/\s+/)[0]; // 제품명의 첫 단어 추출
     
+    console.log('🔍 getProductImagePath 호출:', JSON.stringify({ productName, productImageMappings, firstWord }, null, 2));
+    
     // 1. 저장된 매핑에서 먼저 찾기 (사용자 매핑 우선!)
     // 먼저 제품명의 첫 단어로 매핑 찾기
     for (const mapping of productImageMappings) {
       const mappingProductLower = mapping.productName.toLowerCase();
       const mappingFirstWord = mappingProductLower.split(/\s+/)[0];
+      console.log('   - 매핑 확인:', mapping, { mappingProductLower, mappingFirstWord, firstWord });
       if (firstWord && (firstWord.includes(mappingFirstWord) || mappingFirstWord.includes(firstWord))) {
-        console.log('매핑에서 첫 단어로 찾은 이미지:', mapping.imageFileName, '제품명:', productName);
-        return mapping.imageFileName;
+        const result = ensureImageExtension(mapping.imageFileName);
+        console.log('✅ 매핑에서 첫 단어로 찾은 이미지:', result, '제품명:', productName);
+        return result;
       }
     }
     
     // 그 다음 부분 매치로 찾기
     for (const mapping of productImageMappings) {
       const mappingProductLower = mapping.productName.toLowerCase();
+      console.log('   - 매핑 부분 확인:', mapping, { productNameLower, mappingProductLower });
       if (productNameLower.includes(mappingProductLower) || mappingProductLower.includes(productNameLower)) {
-        console.log('매핑에서 부분 매치로 찾은 이미지:', mapping.imageFileName, '제품명:', productName);
-        return mapping.imageFileName;
+        const result = ensureImageExtension(mapping.imageFileName);
+        console.log('✅ 매핑에서 부분 매치로 찾은 이미지:', result, '제품명:', productName);
+        return result;
       }
     }
     
@@ -1247,8 +1262,9 @@
     }
     
     // 3. 기본 이미지 (첫 단어로)
-    console.log('기본 이미지:', firstWord + '.png', '제품명:', productName);
-    return firstWord + '.png';
+    const defaultImage = firstWord + '.png';
+    console.log('기본 이미지:', defaultImage, '제품명:', productName);
+    return defaultImage;
   }
 
   function getProductThumbDataUri(name = '') {
@@ -3729,11 +3745,13 @@
         return;
       }
       
-      listEl.innerHTML = productImageMappings.map((mapping, index) => `
+      listEl.innerHTML = productImageMappings.map((mapping, index) => {
+        const imageSrc = ensureImageExtension(mapping.imageFileName);
+        return `
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8f9fa;border-radius:10px;margin-bottom:8px;">
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="width:40px;height:40px;border-radius:6px;overflow:hidden;border:1px solid #e0e7ef;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0;">
-              <img src="${escapeHtml(mapping.imageFileName)}" alt="${escapeHtml(mapping.productName)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\\'font-size:1.2rem\\'>🖼️</span>';">
+              <img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(mapping.productName)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\\'font-size:1.2rem\\'>🖼️</span>';">
             </div>
             <div style="min-width:0;">
               <div style="font-weight:700;color:#1a3a6e;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(mapping.productName)}</div>
@@ -3745,7 +3763,7 @@
             <button onclick="deleteProductImageMapping(${index})" style="padding:4px 10px;border:none;border-radius:6px;background:#ffcccc;color:#c0392b;cursor:pointer;font-weight:700;font-size:0.75rem;">삭제</button>
           </div>
         </div>
-      `).join('');
+      `}).join('');
     }
 
     async function saveProductImageMappings() {
@@ -3915,7 +3933,7 @@
     // 제품 이미지 매핑 실시간 동기화
     const productImagesDocRef = doc(db, 'settings', 'productImages');
     const unsubProductImages = onSnapshot(productImagesDocRef, async (snap) => {
-      console.log('🚨 제품 이미지 문서 변경 감지!');
+      console.log('🚨 제품 이미지 문서 변경 감지! snap:', snap.exists, snap.data());
       
       let firestoreImages = null;
       if (snap.exists()) {
