@@ -560,6 +560,14 @@
       .bb-lg-thumb { width: 62px; min-width: 62px; height: 62px; }
       .bb-scroll-btns { right: 12px; bottom: 70px; }
     }
+    @media (min-width: 768px) {
+      .big-benefit-paper { width: 900px; padding: 32px 28px 26px; }
+      .bb-main-title { font-size: 2rem; }
+      .bb-lg-name { font-size: 1.15rem; }
+      .bb-lg-final { font-size: 1.5rem; }
+      .bb-hero svg { width: min(700px, 96vw); }
+      .bb-lg-thumb { width: 84px; min-width: 84px; height: 84px; }
+    }
 
     /* 홈 상하 스크롤 버튼 */
     .home-scroll-btns { position: fixed; right: 20px; bottom: 80px; display: none; flex-direction: column; gap: 10px; z-index: 900; }
@@ -645,10 +653,10 @@
     }
     .product-image-slider-container {
       position: relative;
-      width: 95vw;
-      max-width: 1200px;
-      height: 95vh;
-      max-height: 1200px;
+      width: 90vw;
+      max-width: 800px;
+      height: 90vh;
+      max-height: 800px;
       background: rgba(0,0,0,0.95);
       border-radius: 20px;
       display: flex;
@@ -716,7 +724,7 @@
     }
     .product-image-slider-wrapper img {
       max-width: 100%;
-      max-height: 80vh;
+      max-height: 70vh;
       border-radius: 12px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.4);
       object-fit: contain;
