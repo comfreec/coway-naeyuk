@@ -490,6 +490,11 @@
 
     /* 할인 혜택 크게 보기 (고객용 라지 카드) */
     .big-benefit-paper { position: relative; width: 640px; max-width: 96vw; max-height: 92vh; overflow-y: auto; border-radius: 28px; background: radial-gradient(ellipse 120% 80% at 50% 0%, #2f5fa3 0%, #1e3d6b 42%, #0f1f38 100%); box-shadow: 0 22px 70px rgba(0,20,50,0.65); padding: 28px 24px 22px; color: #fff; text-align: left; border: 1px solid rgba(255,255,255,0.15); animation: popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275); }
+    .bb-image-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+    .bb-image-btn { background: transparent; color: #ffd700; border: none; border-radius: 50%; padding: 10px; font-size: 1.5rem; font-weight: 800; cursor: pointer; transition: transform 0.2s; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
+    .bb-image-btn:hover { transform: translateY(-2px) scale(1.1); }
+    .bb-image-btn:active { transform: translateY(0); }
+
     .big-benefit-paper .bb-close { top: 16px; right: 16px; }
     .bb-brand { font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.55); margin-bottom: 6px; font-weight: 800; }
     .bb-hero { display: flex; justify-content: center; align-items: center; margin: 0 auto 16px; max-width: 100%; }
@@ -567,6 +572,7 @@
       .bb-lg-final { font-size: 1.5rem; }
       .bb-hero svg { width: min(700px, 96vw); }
       .bb-lg-thumb { width: 84px; min-width: 84px; height: 84px; }
+      .bb-image-btn { width: 56px; height: 56px; font-size: 1.7rem; }
     }
 
     /* 홈 상하 스크롤 버튼 */
@@ -937,6 +943,12 @@
     <div class="bb-brand">COWAY PREVIEW</div>
     <div class="bb-title-block">
       <div class="bb-main-title" style="font-size: 2.8rem; font-family: 'Nanum Pen Script', cursive; position: relative;">🔥 <span style="color: #FFD700;">최저가</span> 할인<span style="position: absolute; bottom: 4px; left: -2px; width: calc(100% + 4px); height: 4px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span><span style="position: absolute; bottom: 0px; left: 2px; width: calc(100% - 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></div>
+    </div>
+    
+    <!-- 🏷️ 혜택 이미지 버튼 영역 -->
+    <div class="bb-image-buttons">
+      <button type="button" class="bb-image-btn" onclick="openImageZoom('카드할인.jpg', '카드할인 안내')">💳</button>
+      <button type="button" class="bb-image-btn" onclick="openImageZoom('사용해야되는이유.jpg', '사용해야하는 이유')">❓</button>
     </div>
     
     <!-- 🏷️ 혜택크게보기 모달 상단 고정 영역 (카테고리 & 정렬) -->
