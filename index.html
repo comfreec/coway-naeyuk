@@ -791,7 +791,115 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    // 페이지 로드시 사은품 이미지 미리 로딩
+    // 🔥 가장 먼저 실행: localStorage 데이터 즉시 로딩!
+    (function() {
+      console.log('🚀 최초 localStorage 데이터 로딩 시작...');
+      
+      // 제품 데이터 로드
+      try {
+        const savedProducts = localStorage.getItem('coway_products');
+        if (savedProducts) {
+          const parsed = JSON.parse(savedProducts);
+          if (Array.isArray(parsed)) {
+            window.products = parsed;
+            console.log('✅ 최초 제품 데이터 로드:', window.products.length, '개');
+          }
+        }
+      } catch (e) {
+        console.error('❌ 최초 제품 데이터 로드 오류:', e);
+      }
+      
+      // 카테고리 데이터 로드
+      try {
+        const savedCategories = localStorage.getItem('coway_categories');
+        if (savedCategories) {
+          const parsed = JSON.parse(savedCategories);
+          if (Array.isArray(parsed)) {
+            window.CATEGORIES = parsed;
+            console.log('✅ 최초 카테고리 데이터 로드:', window.CATEGORIES);
+          }
+        }
+      } catch (e) {
+        console.error('❌ 최초 카테고리 데이터 로드 오류:', e);
+      }
+      
+      // 제품 이미지 매핑 로드
+      try {
+        const savedProductImages = localStorage.getItem('coway_product_image_mappings');
+        if (savedProductImages) {
+          const parsed = JSON.parse(savedProductImages);
+          if (Array.isArray(parsed)) {
+            window.productImageMappings = parsed;
+            console.log('✅ 최초 제품 이미지 매핑 로드:', window.productImageMappings.length, '개');
+          }
+        }
+      } catch (e) {
+        console.error('❌ 최초 제품 이미지 매핑 로드 오류:', e);
+      }
+    })();
+
+    // 기본 카테고리 초기화
+    window.DEFAULT_CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
+    
+    // 🔒 절대 window.products를 빈 배열로 초기화하지 않고, localStorage에 데이터가 있으면 무조건 유지!
+    if (!window.CATEGORIES) {
+      // localStorage에서 카테고리 다시 확인
+      try {
+        const savedCategories = localStorage.getItem('coway_categories');
+        if (savedCategories) {
+          const parsed = JSON.parse(savedCategories);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            window.CATEGORIES = parsed;
+          } else {
+            window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+          }
+        } else {
+          window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+        }
+      } catch (e) {
+        window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+      }
+    }
+    
+    if (!window.products || window.products.length === 0) {
+      // localStorage에서 제품 데이터 다시 확인 (절대 빈 배열로 두지 않음!)
+      try {
+        const savedProducts = localStorage.getItem('coway_products');
+        if (savedProducts) {
+          const parsed = JSON.parse(savedProducts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            window.products = parsed;
+            console.log('🔒 최종 방어선: localStorage 제품 데이터 로드:', window.products.length, '개');
+          } else {
+            window.products = [];
+          }
+        } else {
+          window.products = [];
+        }
+      } catch (e) {
+        window.products = [];
+      }
+    }
+    
+    if (!window.productImageMappings) {
+      try {
+        const savedProductImages = localStorage.getItem('coway_product_image_mappings');
+        if (savedProductImages) {
+          const parsed = JSON.parse(savedProductImages);
+          if (Array.isArray(parsed)) {
+            window.productImageMappings = parsed;
+          } else {
+            window.productImageMappings = [];
+          }
+        } else {
+          window.productImageMappings = [];
+        }
+      } catch (e) {
+        window.productImageMappings = [];
+      }
+    }
+
+    // 페이지 로드시 사은품 이미지 미리 로딩 + UI 렌더링
     document.addEventListener('DOMContentLoaded', function() {
       const giftImage = new Image();
       giftImage.src = '텐셀메모리폼베계.jpg';
@@ -802,7 +910,42 @@
       giftImage.onerror = function() {
         console.log('사은품 이미지 프리로딩 오류!');
       };
+
+      // 🔥 DOM 로드 완료 후 UI 강제 렌더링! 여러 번 호출해서 절대 데이터가 안 사라지게!
+      console.log('🎨 DOMContentLoaded: UI 렌더링 시작');
+      
+      // 즉시 호출
+      if (typeof window.renderTable === 'function') window.renderTable();
+      if (typeof window.renderSummary === 'function') window.renderSummary();
+      if (typeof window.updateAllCategorySelects === 'function') window.updateAllCategorySelects();
+      
+      // 100ms 후에 다시 호출
+      setTimeout(function() {
+        console.log('🎨 100ms 후 UI 재렌더링');
+        if (typeof window.renderTable === 'function') window.renderTable();
+        if (typeof window.renderSummary === 'function') window.renderSummary();
+      }, 100);
+      
+      // 500ms 후에 다시 호출 (Firestore 리스너가 실행된 후)
+      setTimeout(function() {
+        console.log('🎨 500ms 후 UI 재렌더링');
+        if (typeof window.renderTable === 'function') window.renderTable();
+        if (typeof window.renderSummary === 'function') window.renderSummary();
+      }, 500);
     });
+
+    // Service Worker 등록
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('ServiceWorker 등록 성공:', registration.scope);
+          })
+          .catch(function(err) {
+            console.log('ServiceWorker 등록 실패:', err);
+          });
+      });
+    }
   </script>
 </head>
 <body>
@@ -870,7 +1013,7 @@
     <div class="form-group"><label>결합 할인율 (%)</label><input type="number" id="bundleDiscountRate" placeholder="예) 5" min="0" max="100" /></div>
     <div class="form-group"><label>동시구매 할인율 (%)</label><input type="number" id="multiDiscountRate" placeholder="예) 10" min="0" max="100" /></div>
     <div class="form-group"><label>타사보상 할인금액 (원)</label><input type="number" id="competitorDiscount" placeholder="예) 10000" min="0" /></div>
-    <div class="form-group"><label>코라솔 할인금액 (원)</label><input type="number" id="corasolDiscount" placeholder="예) 16600" min="0" /></div>
+    <div class="form-group"><label>💰 돈모으면 할인금액 (원)</label><input type="number" id="corasolDiscount" placeholder="예) 16600" min="0" /></div>
     <div class="form-group"><label>신용카드 할인금액 (원)</label><input type="number" id="cardDiscount" placeholder="예) 23000" min="0" /></div>
     <div class="btn-row" style="grid-column:1/-1;">
       <button class="btn-add" onclick="addProduct()">계산 추가</button>
@@ -942,7 +1085,7 @@
     <button type="button" class="impact-close bb-close" onclick="closeBigBenefitModalDirect()">✕</button>
     <div class="bb-brand">COWAY PREVIEW</div>
     <div class="bb-title-block">
-      <div class="bb-main-title" style="font-size: 2.8rem; font-family: 'Nanum Pen Script', cursive; position: relative;">🔥 <span style="color: #FFD700;">최저가</span> 할인<span style="position: absolute; bottom: 4px; left: -2px; width: calc(100% + 4px); height: 4px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span><span style="position: absolute; bottom: 0px; left: 2px; width: calc(100% - 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></div>
+      <div class="bb-main-title" style="font-size: 2.8rem; font-family: 'Nanum Pen Script', cursive; position: relative;">🔥 <span style="color: #FFD700;">선착순</span> (품절임박)<span style="position: absolute; bottom: 4px; left: -2px; width: calc(100% + 4px); height: 4px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span><span style="position: absolute; bottom: 0px; left: 2px; width: calc(100% - 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></div>
     </div>
     
     <!-- 🏷️ 혜택 이미지 버튼 영역 -->
@@ -1050,7 +1193,7 @@
       <div class="form-group"><label>결합 할인율 (%)</label><input type="number" id="e_bundleDiscountRate" min="0" max="100" /></div>
       <div class="form-group"><label>동시구매 할인율 (%)</label><input type="number" id="e_multiDiscountRate" min="0" max="100" /></div>
       <div class="form-group"><label>타사보상 할인금액 (원)</label><input type="number" id="e_competitorDiscount" min="0" /></div>
-      <div class="form-group"><label>코라솔 할인금액 (원)</label><input type="number" id="e_corasolDiscount" min="0" /></div>
+      <div class="form-group"><label>💰 돈모으면 할인금액 (원)</label><input type="number" id="e_corasolDiscount" min="0" /></div>
       <div class="form-group"><label>신용카드 할인금액 (원)</label><input type="number" id="e_cardDiscount" min="0" /></div>
     </div>
     <div class="btn-row" style="margin-top:18px;">
@@ -1107,7 +1250,7 @@
       <span class="bulk-field-unit">원</span>
     </div>
     <div class="bulk-field-row">
-      <span class="bulk-field-label">코라솔 할인금액</span>
+      <span class="bulk-field-label">💰 돈모으면 할인금액</span>
       <input type="number" class="bulk-field-input" id="bulk_corasol" placeholder="미변경" min="0" />
       <span class="bulk-field-unit">원</span>
     </div>
@@ -1148,7 +1291,7 @@
       <div class="corasol-control">
         <label class="corasol-check-wrap">
           <input type="checkbox" id="modalCorasolCheck" onchange="toggleModalCorasol()">
-          <span>코라솔 할인</span>
+          <span>💰 돈모으면 할인</span>
         </label>
         <div class="corasol-qty-wrap" id="modalCorasolQtyArea" style="opacity: 0.5; pointer-events: none;">
           <button class="qty-btn" onclick="updateModalCorasolQty(-1)">−</button>
@@ -1280,8 +1423,6 @@
 </div>
 
 <script>
-  let products = [];
-  let productImageMappings = []; // 제품명 -> 이미지 파일명 매핑 배열
   let productImageSliderData = []; // 슬라이드 쇼에 사용될 제품 이미지 데이터 배열
   let currentProductImageIndex = 0; // 현재 슬라이드 쇼 현재 인덱스
   // 자동 오픈 규칙:
@@ -1378,7 +1519,7 @@
     '수납형.png', '모던파운데이션.png', '스마트 s6.png', '하이브리드4.png',
     '엘리트.png', '인버터.png', '더매너.png', '스스로케어.png', '에어컨.png',
     '아이콘 얼음.png', '아이콘3.png', '아이콘2.png', '듀얼클린.png', '노블.png', '스퀘어핏.png',
-    '더블케어.png'
+    '더블케어.png', '트리플체어.png'
   ];
 
   // 확장자 자동 추가 함수
@@ -1396,11 +1537,11 @@
     const productNameLower = productName.toLowerCase();
     const firstWord = productNameLower.split(/\s+/)[0]; // 제품명의 첫 단어 추출
     
-    console.log('🔍 getProductImagePath 호출:', JSON.stringify({ productName, productImageMappings, firstWord }, null, 2));
+    console.log('🔍 getProductImagePath 호출:', JSON.stringify({ productName, productImageMappings: window.productImageMappings, firstWord }, null, 2));
     
     // 1. 저장된 매핑에서 먼저 찾기 (사용자 매핑 우선!)
     // 먼저 제품명의 첫 단어로 매핑 찾기
-    for (const mapping of productImageMappings) {
+    for (const mapping of window.productImageMappings) {
       const mappingProductLower = mapping.productName.toLowerCase();
       const mappingFirstWord = mappingProductLower.split(/\s+/)[0];
       console.log('   - 매핑 확인:', mapping, { mappingProductLower, mappingFirstWord, firstWord });
@@ -1412,7 +1553,7 @@
     }
     
     // 그 다음 부분 매치로 찾기
-    for (const mapping of productImageMappings) {
+    for (const mapping of window.productImageMappings) {
       const mappingProductLower = mapping.productName.toLowerCase();
       console.log('   - 매핑 부분 확인:', mapping, { productNameLower, mappingProductLower });
       if (productNameLower.includes(mappingProductLower) || mappingProductLower.includes(productNameLower)) {
@@ -1647,6 +1788,37 @@
 
   window.renderTable = function() {
     const tbody = document.getElementById('tableBody');
+    
+    // 🔥🔥🔥 가장 강력한 방어선: renderTable()이 호출될 때마다 무조건 localStorage에서 데이터를 불러오고, window.products와 window.productImageMappings를 덮어쓰기!
+    console.log('🔥 renderTable() 호출됨: localStorage에서 최종 데이터 확인');
+    try {
+      const savedProducts = localStorage.getItem('coway_products');
+      if (savedProducts) {
+        const parsed = JSON.parse(savedProducts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          console.log('✅ renderTable에서 localStorage 제품 데이터 강제 적용:', parsed.length, '개');
+          window.products = parsed;
+        }
+      }
+    } catch (e) {
+      console.error('❌ renderTable에서 localStorage 제품 데이터 복구 오류:', e);
+    }
+    
+    // 🔥 제품이미지 매핑도 localStorage에서 다시 불러오기!
+    try {
+      const savedProductImages = localStorage.getItem('coway_product_image_mappings');
+      if (savedProductImages) {
+        const parsed = JSON.parse(savedProductImages);
+        if (Array.isArray(parsed)) {
+          console.log('✅ renderTable에서 localStorage 제품이미지 매핑 강제 적용:', parsed.length, '개');
+          window.productImageMappings = parsed;
+        }
+      }
+    } catch (e) {
+      console.error('❌ renderTable에서 localStorage 제품이미지 매핑 복구 오류:', e);
+    }
+    
+    // 만약 그래도 window.products가 비어있으면, 그냥 빈 배열로 (하지만 localStorage에 데이터가 있으면 절대 비어있지 않음!)
     const products = window.products || [];
     const bigBtn = document.getElementById('bigBenefitBtn');
     const headerBigBtn = document.getElementById('headerBigBenefitBtn');
@@ -1920,9 +2092,9 @@
       const tStart = `ontouchstart="window.startLongPressHelper(event, `;
       const tEnd = `)" ontouchend="window.endLongPressHelper(event)" ontouchmove="window.endLongPressHelper(event)"`;
 
-      if (label === '코라솔 할인') {
+      if (label === '💰 돈모으면 할인') {
         // 코라솔 할인은 클릭시 이미지 모달 열기
-        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} ${label}</span>`;
+        labelHtml = `<span class="n-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');">${nums[step-1]} 💰 돈모으면 할인</span>`;
       } else if (label.includes('결합 할인')) { 
         labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="window.handleBundleClick(event)" oncontextmenu="window.handleBundleLong(event)" ${tStart}window.handleBundleLong${tEnd}>${nums[step-1]} ${label}</span>`; 
       } else if (label.includes('반값 할인')) { 
@@ -1948,8 +2120,8 @@
       const rowStyle = canceled ? 'text-decoration:line-through; opacity:0.4;' : '';
       rows.push(`<div class="note-row" style="${rowStyle}">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
       
-      if (label === '코라솔 할인' && running < 0) {
-        rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val" style="color:#d63031;font-weight:800;">${fmt(running)} <span style="background:#ffeaa7;color:#1a2a4a;padding:2px 8px;border-radius:4px;font-size:0.9rem;">적립금</span></span></div>`);
+      if (label === '💰 돈모으면 할인') {
+        // 돈모으면 할인 밑에는 아무것도 표시하지 않음
       } else if (label === '카드할인' && running < 0) {
         rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(0)}</span></div>`);
       } else {
@@ -2006,7 +2178,7 @@
     if (pDisplay.multiDisc > 0)    { push(`동시구매 할인 (${pDisplay.multiDisc}%)`, pDisplay.multiDiscAmt); beforeCorasol -= pDisplay.multiDiscAmt; }
     
     // 코라솔 할인 표시 (기본 + 추가)
-    if (p.corasol > 0)      push('코라솔 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
+    if (p.corasol > 0)      push('💰 돈모으면 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
     
     if (p.card > 0 && applyCardDiscount) push('카드할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
@@ -2020,7 +2192,7 @@
     
     rows.push(`<div class="note-row"><span class="n-label">렌탈료 할인금액</span><span class="n-minus">- ${fmt(rentalDiscount)}</span></div>`);
     if (savingAmount > 0) {
-      rows.push(`<div class="note-row"><span class="n-label" style="color:#d63031;font-weight:800;">적립금</span><span class="n-val" style="color:#d63031;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
+      rows.push(`<div class="note-row"><span class="n-label" style="background:#ffeaa7;color:#1a2a4a;padding:4px 12px;border-radius:6px;font-size:1.1rem;font-weight:800;">적립금</span><span class="n-val" style="background:#ffeaa7;color:#1a2a4a;padding:4px 12px;border-radius:6px;font-size:1.1rem;font-weight:800;">+ ${fmt(savingAmount)}</span></div>`);
     }
     rows.push(`<div class="note-row note-underline" style="cursor:pointer;" onclick="toggleNoteTotalSaving()"><span class="n-label" style="font-size:2rem;color:#2c3e50;font-weight:bold;position:relative;">✅ 최종납부<span style="position: absolute; bottom: 2px; left: -1px; width: calc(100% + 2px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1deg); border-radius: 2px;"></span><span style="position: absolute; bottom: -2px; left: 2px; width: calc(100% - 4px); height: 2px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(0.8deg); border-radius: 2px;"></span></span><span class="n-final note-underline hypno-pulse" id="noteFinalAmt" style="position: relative;">${fmt(p.finalAmt)}<span style="position: absolute; bottom: 6px; left: -2px; width: calc(100% + 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span><span style="position: absolute; bottom: 1px; left: 2px; width: calc(100% - 4px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></span><span style="font-size:1.2rem;margin-left:8px;">${showNoteTotalSaving ? '▲' : '▼'}</span></div>`);
     
@@ -2105,7 +2277,7 @@
     if (pDisplay.multiDisc > 0) sms += `${getNumStr()} 동시구매 할인 (${pDisplay.multiDisc}%) : - ${fmtSms(pDisplay.multiDiscAmt)}\n`;
     if (pDisplay.corasol > 0) {
       const totalCorasolSms = pDisplay.corasol * 60;
-      sms += `${getNumStr()} 코라솔 할인 (1개월:${fmtSms(pDisplay.corasol)}, 5년총:${fmtSms(totalCorasolSms)}) : - ${fmtSms(pDisplay.corasol)}\n`;
+      sms += `${getNumStr()} 💰 돈모으면 할인 (1개월:${fmtSms(pDisplay.corasol)}, 5년총:${fmtSms(totalCorasolSms)}) : - ${fmtSms(pDisplay.corasol)}\n`;
     }
     if (pDisplay.card > 0 && applyCardDiscount) sms += `${getNumStr()} 카드할인 : - ${fmtSms(pDisplay.card)}\n`;
     const afterCorasolSms = beforeCorasol - (p.corasol || 0);
@@ -3208,7 +3380,7 @@
     if (p.multiDisc > 0)    items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
     if (p.corasol > 0)      {
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
-      items.push([`코라솔 할인 (1개월:${fmt(p.corasol)},5년총:${fmt(totalCorasol)})`, p.corasol]);
+      items.push([`💰 돈모으면 할인`, p.corasol]);
     }
     if (p.card > 0 && applyCardDiscount) items.push(['카드 할인', p.card]);
     const itemRows = items.map(([label, amt]) =>
@@ -3365,7 +3537,7 @@
     const fieldNames = {
       contract:'약정 할인금액', halfDisc:'반값 할인율', rerentalDisc:'재렌탈 할인율',
       disc:'기본 할인율', extraDisc:'추가 할인율', bundleDisc:'결합 할인율',
-      multiDisc:'동시구매 할인율', competitor:'타사보상 할인금액', corasol:'코라솔 할인금액', card:'신용카드 할인금액'
+      multiDisc:'동시구매 할인율', competitor:'타사보상 할인금액', corasol:'💰 돈모으면 할인금액', card:'신용카드 할인금액'
     };
     const summary = Object.entries(updates).map(([k, v]) => `${fieldNames[k]}: ${v}`).join('\n');
     if (!confirm(`전체 ${products.length}개 제품에 아래 항목을 일괄 적용할까요?\n\n${summary}`)) return;
@@ -3442,7 +3614,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { initializeFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc }
+  import { initializeFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, enableIndexedDbPersistence }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const OWNER_EMAIL = "comfreec1@gmail.com";
@@ -3458,12 +3630,23 @@
   const provider = new GoogleAuthProvider();
   const db = initializeFirestore(app, { experimentalForceLongPolling: true });
 
+  // Firestore 오프라인 지속성 활성화
+  enableIndexedDbPersistence(db)
+    .catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('⚠️ 여러 탭이 열려있어 오프라인 지속성을 활성화할 수 없습니다');
+      } else if (err.code === 'unimplemented') {
+        console.warn('⚠️ 이 브라우저는 오프라인 지속성을 지원하지 않습니다');
+      }
+    });
+
   const col = collection(db, 'products');
   const categoriesDocRef = doc(db, 'settings', 'categories');
   let unsubProducts = null;
     let unsubCategories = null;
   window.DEFAULT_CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
   window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+  window.productImageMappings = [];
 
   // DOM이 완전히 로드된 후 실행
   function initApp() {
@@ -4041,13 +4224,13 @@
       }
       
       // 중복 체크
-      const existing = productImageMappings.find(m => m.productName.toLowerCase() === productName.toLowerCase());
+      const existing = window.productImageMappings.find(m => m.productName.toLowerCase() === productName.toLowerCase());
       if (existing) {
         alert('이미 해당 제품의 이미지가 등록되어 있습니다. 수정하려면 목록에서 수정하세요.');
         return;
       }
       
-      productImageMappings.push({ productName, imageFileName });
+      window.productImageMappings.push({ productName, imageFileName });
       await saveProductImageMappings();
       renderProductImageList();
       document.getElementById('newProductName').value = '';
@@ -4055,7 +4238,7 @@
     }
 
     async function editProductImageMapping(index) {
-      const mapping = productImageMappings[index];
+      const mapping = window.productImageMappings[index];
       const newProductName = prompt('새 제품 이름을 입력하세요:', mapping.productName);
       if (newProductName === null) return;
       
@@ -4067,16 +4250,16 @@
         return;
       }
       
-      productImageMappings[index] = { productName: newProductName.trim(), imageFileName: newImageFileName.trim() };
+      window.productImageMappings[index] = { productName: newProductName.trim(), imageFileName: newImageFileName.trim() };
       await saveProductImageMappings();
       renderProductImageList();
     }
 
     async function deleteProductImageMapping(index) {
-      const mapping = productImageMappings[index];
+      const mapping = window.productImageMappings[index];
       if (!confirm(`"${mapping.productName}" 제품의 이미지 매핑을 삭제하시겠습니까?`)) return;
       
-      productImageMappings.splice(index, 1);
+      window.productImageMappings.splice(index, 1);
       await saveProductImageMappings();
       renderProductImageList();
     }
@@ -4085,12 +4268,12 @@
       const listEl = document.getElementById('productImageList');
       if (!listEl) return;
       
-      if (productImageMappings.length === 0) {
+      if (window.productImageMappings.length === 0) {
         listEl.innerHTML = '<div style="text-align:center;color:#999;padding:15px;">등록된 제품 이미지가 없습니다.</div>';
         return;
       }
       
-      listEl.innerHTML = productImageMappings.map((mapping, index) => {
+      listEl.innerHTML = window.productImageMappings.map((mapping, index) => {
         const imageSrc = ensureImageExtension(mapping.imageFileName);
         return `
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8f9fa;border-radius:10px;margin-bottom:8px;">
@@ -4113,14 +4296,14 @@
 
     async function saveProductImageMappings() {
       // localStorage에 저장
-      localStorage.setItem('coway_product_image_mappings', JSON.stringify(productImageMappings));
+      localStorage.setItem('coway_product_image_mappings', JSON.stringify(window.productImageMappings));
       
       // Firestore에 저장 (있으면)
       if (window._firestoreFns) {
         try {
           const { setDoc, doc } = window._firestoreFns;
           const productImagesDocRef = doc(window._db, 'settings', 'productImages');
-          await setDoc(productImagesDocRef, { mappings: productImageMappings });
+          await setDoc(productImagesDocRef, { mappings: window.productImageMappings });
           console.log('✅ 제품 이미지 매핑 Firestore에 저장 완료');
         } catch (e) {
           console.error('❌ Firestore 저장 오류:', e);
@@ -4171,45 +4354,40 @@
       });
     }
 
-    // 초기 카테고리 설정 - 로그인 전까지 기본 카테고리만 보여주기
-    window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
-    updateAllCategorySelects();
-
-    // 🚀 초기 로드: localStorage 데이터를 먼저 보여주기!
-    console.log('📦 localStorage에서 초기 데이터 로드...');
-    try {
-      const savedProducts = localStorage.getItem('coway_products');
-      if (savedProducts) {
-        const parsed = JSON.parse(savedProducts);
-        if (Array.isArray(parsed)) {
-          console.log('✅ localStorage 제품 데이터 로드 성공:', parsed.length, '개');
-          window.products = parsed;
-          if (typeof window.renderTable === 'function') window.renderTable();
-          if (typeof window.renderSummary === 'function') window.renderSummary();
-        }
-      }
-      
-      // 제품 이미지 매핑 로드
-      const savedProductImages = localStorage.getItem('coway_product_image_mappings');
-      if (savedProductImages) {
-        const parsed = JSON.parse(savedProductImages);
-        if (Array.isArray(parsed)) {
-          console.log('✅ localStorage 제품 이미지 매핑 로드 성공:', parsed.length, '개');
-          productImageMappings = parsed;
-        }
-      }
-    } catch (e) {
-      console.error('❌ localStorage 데이터 파싱 오류:', e);
-    }
-
     // 🔐 로그인 기능 완전 제거: 즉시 리스너 시작!
     console.log('📡 Firestore 리스너 즉시 시작 (로그인 우회)');
     
+    // 📦 초기 변수 초기화
+    if (!window.products) window.products = [];
+    if (!window.CATEGORIES) window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+
     // 카테고리 실시간 동기화 - Firestore를 항상 우선으로!
     unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
       console.log('🚨 카테고리 문서 변경 감지!');
       console.log('📍 문서 경로:', snap.ref.path);
       console.log('📄 문서 존재 여부:', snap.exists);
+      console.log('🌐 현재 온라인 상태:', navigator.onLine);
+      
+      // 🔒 오프라인 상태이면 무조건 localStorage 데이터만 사용!
+      if (!navigator.onLine) {
+        console.log('📴 오프라인 상태이므로 카테고리 Firestore 데이터 무시');
+        // localStorage에서 카테고리 로드 시도
+        try {
+          const savedLocal = localStorage.getItem('coway_categories');
+          if (savedLocal) {
+            const parsed = JSON.parse(savedLocal);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              window.CATEGORIES = ensureGitaAtEnd(parsed);
+              console.log('🟢 오프라인 상태에서 localStorage 카테고리 사용:', window.CATEGORIES);
+            }
+          }
+        } catch (e) {
+          console.error('❌ 오프라인 상태에서 카테고리 로드 오류:', e);
+        }
+        updateAllCategorySelects();
+        if (typeof window.renderTable === 'function') window.renderTable();
+        return;
+      }
       
       let firestoreCategories = null;
       if (snap.exists()) {
@@ -4279,6 +4457,30 @@
     const productImagesDocRef = doc(db, 'settings', 'productImages');
     const unsubProductImages = onSnapshot(productImagesDocRef, async (snap) => {
       console.log('🚨 제품 이미지 문서 변경 감지! snap:', snap.exists, snap.data());
+      console.log('🌐 현재 온라인 상태:', navigator.onLine);
+      
+      // 🔒 오프라인 상태이면 무조건 localStorage 데이터만 사용!
+      if (!navigator.onLine) {
+        console.log('📴 오프라인 상태이므로 제품 이미지 Firestore 데이터 무시');
+        // localStorage에서 제품 이미지 매핑 로드 시도
+        try {
+          const savedLocal = localStorage.getItem('coway_product_image_mappings');
+          if (savedLocal) {
+            const parsed = JSON.parse(savedLocal);
+            if (Array.isArray(parsed)) {
+              window.productImageMappings = parsed;
+              console.log('🟢 오프라인 상태에서 localStorage 제품 이미지 사용:', window.productImageMappings.length, '개');
+            }
+          }
+        } catch (e) {
+          console.error('❌ 오프라인 상태에서 제품 이미지 로드 오류:', e);
+        }
+        if (typeof window.renderTable === 'function') window.renderTable();
+        if (document.getElementById('productImageSettingsModal').classList.contains('open')) {
+          renderProductImageList();
+        }
+        return;
+      }
       
       let firestoreImages = null;
       if (snap.exists()) {
@@ -4290,7 +4492,7 @@
       }
       
       if (firestoreImages && Array.isArray(firestoreImages) && firestoreImages.length > 0) {
-        productImageMappings = firestoreImages;
+        window.productImageMappings = firestoreImages;
       } else {
         // Firestore에 없으면 localStorage에서 불러오기
         const savedLocal = localStorage.getItem('coway_product_image_mappings');
@@ -4298,10 +4500,10 @@
           try {
             const parsed = JSON.parse(savedLocal);
             if (Array.isArray(parsed)) {
-              productImageMappings = parsed;
+              window.productImageMappings = parsed;
               // Firestore에 저장
               try {
-                await setDoc(productImagesDocRef, { mappings: productImageMappings });
+                await setDoc(productImagesDocRef, { mappings: window.productImageMappings });
               } catch (e) {
                 console.error('❌ Firestore에 저장 실패:', e);
               }
@@ -4313,7 +4515,7 @@
       }
       
       // localStorage 업데이트
-      localStorage.setItem('coway_product_image_mappings', JSON.stringify(productImageMappings));
+      localStorage.setItem('coway_product_image_mappings', JSON.stringify(window.productImageMappings));
       
       // UI 업데이트
       if (typeof window.renderTable === 'function') window.renderTable();
@@ -4325,10 +4527,44 @@
     });
 
     unsubProducts = onSnapshot(query(col, orderBy('name', 'asc')), (snap) => {
-      window.products = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
-      console.log('📥 Firestore 제품 데이터 로드:', window.products.length, '개');
-      // localStorage에 백업
-      localStorage.setItem('coway_products', JSON.stringify(window.products));
+      const firestoreProducts = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+      console.log('📥 Firestore 제품 데이터 로드:', firestoreProducts.length, '개');
+      console.log('🌐 현재 온라인 상태:', navigator.onLine);
+      
+      // 🔒🔒🔒 절대 규칙: 오프라인이면 무조건 localStorage 데이터만 사용!
+      if (!navigator.onLine) {
+        console.log('📴 오프라인 상태이므로 Firestore 데이터 무시하고 localStorage 유지');
+        // renderTable() 안에 자가 복구 로직이 있으므로 그냥 호출만 함
+        if (typeof window.renderTable === 'function') window.renderTable();
+        if (typeof window.renderSummary === 'function') window.renderSummary();
+        return;
+      }
+      
+      // 🔒🔒🔒 온라인 상태일 때도: Firestore 데이터가 빈 배열이면 절대 window.products를 변경하지 않음!
+      if (firestoreProducts.length > 0) {
+        console.log('✅ 온라인 상태이고 Firestore 데이터가 있으므로 window.products 업데이트');
+        window.products = firestoreProducts;
+        // localStorage에 백업
+        localStorage.setItem('coway_products', JSON.stringify(window.products));
+      } else {
+        console.log('⚠️ 온라인 상태이지만 Firestore 데이터가 빈 배열이므로 localStorage 데이터 유지');
+        // 만약 window.products가 빈 배열이면 localStorage에서 다시 불러오기
+        if (!window.products || window.products.length === 0) {
+          try {
+            const savedProducts = localStorage.getItem('coway_products');
+            if (savedProducts) {
+              const parsed = JSON.parse(savedProducts);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                window.products = parsed;
+                console.log('🔄 온라인 상태에서도 localStorage 제품 데이터 복구:', parsed.length, '개');
+              }
+            }
+          } catch (e) {
+            console.error('❌ 온라인 상태에서 localStorage 데이터 복구 오류:', e);
+          }
+        }
+      }
+      
       if (typeof window.renderTable === 'function') window.renderTable();
       if (typeof window.renderSummary === 'function') window.renderSummary();
       
@@ -4341,22 +4577,29 @@
       console.error('❌ Firestore 제품 로드 오류:', err);
       // 오류가 나도 localStorage 데이터 유지
       console.log('⚠️ Firestore 접근 오류, localStorage 데이터 계속 사용');
+      // 오류 시에도 renderTable() 호출해서 localStorage 데이터 표시
+      if (typeof window.renderTable === 'function') window.renderTable();
+      if (typeof window.renderSummary === 'function') window.renderSummary();
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 100));
+    document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 200));
   } else {
-    setTimeout(initApp, 100);
+    setTimeout(initApp, 200);
   }
 </script>
 
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for(let registration of registrations) {
-        registration.unregister();
-      }
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('✅ Service Worker registered:', registration);
+        })
+        .catch(err => {
+          console.error('❌ Service Worker registration failed:', err);
+        });
     });
   }
 </script>
