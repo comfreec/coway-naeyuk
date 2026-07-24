@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -867,6 +867,14 @@
 
     // 기본 카테고리 초기화
     window.DEFAULT_CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
+    
+    // 드래그 앤 드롭 기능 활성화 여부
+    try {
+      const savedDragDropEnabled = localStorage.getItem('coway_drag_drop_enabled');
+      window.dragDropEnabled = savedDragDropEnabled === 'true';
+    } catch (e) {
+      window.dragDropEnabled = false;
+    }
     
     // 🔒 절대 window.products를 빈 배열로 초기화하지 않고, localStorage에 데이터가 있으면 무조건 유지!
     if (!window.CATEGORIES) {
@@ -2643,7 +2651,37 @@
     window.renderTable();
     window.renderSummary();
     if (document.getElementById('impactModal').classList.contains('open')) openImpactModal();
-    if (document.getElementById('bigBenefitModal').classList.contains('open')) refreshBigBenefitProductList();
+    if (document.getElementById('bigBenefitModal').classList.contains('open')) {
+      // 정렬 버튼 다시 렌더링 (체크박스 표시/숨기기 위해)
+      const sortBtnsEl = document.getElementById('bigBenefitSortBtns');
+      if (sortBtnsEl) {
+        const isFavoriteView = currentCategory === '⭐ 즐겨찾기';
+        sortBtnsEl.innerHTML = `
+          <button type="button" class="bb-sort-btn ${bigSortKey === 'name' ? 'active' : ''}" onclick="setBigBenefitSort('name')">제품명${bigSortKey === 'name' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
+          <button type="button" class="bb-sort-btn ${bigSortKey === 'rental' ? 'active' : ''}" onclick="setBigBenefitSort('rental')">렌탈가격${bigSortKey === 'rental' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
+          ${isFavoriteView ? `
+            <label style="color:#fff; font-size:0.85rem; font-weight:600; margin-left:16px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="dragDropToggle" ${window.dragDropEnabled ? 'checked' : ''} style="width:18px; height:18px; cursor:pointer;">
+              순서 변경
+            </label>
+          ` : ''}
+        `;
+        
+        const toggleCheckbox = sortBtnsEl.querySelector('#dragDropToggle');
+        if (toggleCheckbox) {
+          toggleCheckbox.addEventListener('change', function() {
+            window.dragDropEnabled = this.checked;
+            try {
+              localStorage.setItem('coway_drag_drop_enabled', window.dragDropEnabled.toString());
+            } catch (e) {
+              console.error('드래그 앤 드롭 상태 저장 오류:', e);
+            }
+            refreshBigBenefitProductList();
+          });
+        }
+      }
+      refreshBigBenefitProductList();
+    }
   }
 
   // 5년 총 절약 금액 토글 함수 (할인계산 모달)
@@ -3214,6 +3252,7 @@
       return '<div class="bb-empty-filter">검색 조건에 맞는 제품이 없습니다.</div>';
     }
     const isFavoriteView = currentCategory === '⭐ 즐겨찾기';
+    const isDragDropEnabled = window.dragDropEnabled;
     return psShown.map((p, idx) => {
       const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
       const savingAmt = p.rental - p.finalAmt;
@@ -3224,7 +3263,7 @@
       
       console.log('제품 이미지 경로:', imgPath, p.name, '검색어:', searchName);
       
-      return `<div class="bb-lg-card" data-id="${p._id}" ${isFavoriteView ? 'draggable="true"' : ''} onclick="benefitItemClick('${p._id}')" style="cursor:${isFavoriteView ? 'grab' : 'pointer'}">
+      return `<div class="bb-lg-card" data-id="${p._id}" ${(isFavoriteView && isDragDropEnabled) ? 'draggable="true"' : ''} onclick="benefitItemClick('${p._id}')" style="cursor:${(isFavoriteView && isDragDropEnabled) ? 'grab' : 'pointer'}">
           <div class="bb-lg-rank" style="cursor:pointer;" onclick="event.stopPropagation(); window.open('https://www.coway.com/search?schtxt=${encodeURIComponent(searchName)}', '_blank')">${idx + 1}</div>
           <div class="bb-lg-thumb">
             <img src="${imgPath}" alt="제품 이미지" 
@@ -3255,8 +3294,8 @@
     const shown = data.ps.filter((p) => nameMatchesQuery(p.name, bigBenefitNameSearch));
     listEl.innerHTML = buildBigBenefitProductCardsHtml(shown);
     
-    // Add drag and drop event listeners if in favorite view
-    if (currentCategory === '⭐ 즐겨찾기') {
+    // Add drag and drop event listeners if in favorite view and dragDropEnabled is true
+    if (currentCategory === '⭐ 즐겨찾기' && window.dragDropEnabled) {
       const cards = listEl.querySelectorAll('.bb-lg-card[data-id]');
       cards.forEach(card => {
         card.addEventListener('dragstart', handleDragStart);
@@ -3284,10 +3323,31 @@
     // 1. 상단 정렬 버튼 렌더링
     const sortBtnsEl = document.getElementById('bigBenefitSortBtns');
     if (sortBtnsEl) {
+      const isFavoriteView = currentCategory === '⭐ 즐겨찾기';
       sortBtnsEl.innerHTML = `
         <button type="button" class="bb-sort-btn ${bigSortKey === 'name' ? 'active' : ''}" onclick="setBigBenefitSort('name')">제품명${bigSortKey === 'name' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
         <button type="button" class="bb-sort-btn ${bigSortKey === 'rental' ? 'active' : ''}" onclick="setBigBenefitSort('rental')">렌탈가격${bigSortKey === 'rental' ? (bigSortDir === 1 ? ' ▲' : ' ▼') : ''}</button>
+        ${isFavoriteView ? `
+          <label style="color:#fff; font-size:0.85rem; font-weight:600; margin-left:16px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="dragDropToggle" ${window.dragDropEnabled ? 'checked' : ''} style="width:18px; height:18px; cursor:pointer;">
+            순서 변경
+          </label>
+        ` : ''}
       `;
+      
+      // 체크박스 이벤트 리스너 추가
+      const toggleCheckbox = sortBtnsEl.querySelector('#dragDropToggle');
+      if (toggleCheckbox) {
+        toggleCheckbox.addEventListener('change', function() {
+          window.dragDropEnabled = this.checked;
+          try {
+            localStorage.setItem('coway_drag_drop_enabled', window.dragDropEnabled.toString());
+          } catch (e) {
+            console.error('드래그 앤 드롭 상태 저장 오류:', e);
+          }
+          refreshBigBenefitProductList();
+        });
+      }
     }
 
     // 2. 바디(베스트 배너 + 리스트) 렌더링
