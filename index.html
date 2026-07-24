@@ -57,6 +57,11 @@
     thead tr { background: linear-gradient(135deg, #0a5ab0, #2a8bf3); color: #fff; }
     thead th { padding: 12px 6px; text-align: center; word-break: keep-all; font-weight: 700; }
     tbody tr { transition: background 0.15s; }
+    tbody tr.dragging { opacity: 0.5; background: #ffeb3b !important; }
+    tbody tr.drag-over { border-top: 3px solid #0057a8; }
+    .bb-lg-card { transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s; }
+    .bb-lg-card.dragging { opacity: 0.5; transform: scale(1.02); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+    .bb-lg-card.drag-over { border-top: 4px solid #ffd700; }
     tbody tr:nth-child(even) { background: #f6faff; }
     tbody tr:hover { background: #eaf2ff; }
     tbody td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #edf2fb; word-break: break-all; }
@@ -1672,7 +1677,7 @@
     try {
       const { addDoc } = window._firestoreFns;
       await addDoc(window._col, { name, category, rental, contract, halfDisc, rerentalDisc, disc,
-        extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now() });
+        extraDisc, bundleDisc, multiDisc, competitor, corasol, card, createdAt: Date.now(), favorite: false, order: Date.now() });
       resetForm();
     } catch(e) {
       console.error(e);
@@ -1685,6 +1690,236 @@
     if (!confirm(`'${p ? p.name : '이 제품'}' 을 삭제할까요?`)) return;
     const { deleteDoc, doc } = window._firestoreFns;
     await deleteDoc(doc(window._db, 'products', id));
+  }
+
+  window.toggleFavorite = async function(id) {
+    const products = window.products || [];
+    const productIndex = products.findIndex(x => x._id === id);
+    if (productIndex === -1) return;
+    
+    const product = products[productIndex];
+    const newFavoriteStatus = !product.favorite;
+    
+    // Update local data first
+    products[productIndex].favorite = newFavoriteStatus;
+    
+    // If marking as favorite, set order to max order + 1
+    if (newFavoriteStatus) {
+      const favoriteProducts = products.filter(p => p.favorite === true && p._id !== id);
+      const maxOrder = favoriteProducts.length > 0 
+        ? Math.max(...favoriteProducts.map(p => p.order || 0)) 
+        : 0;
+      products[productIndex].order = maxOrder + 1;
+    }
+    
+    localStorage.setItem('coway_products', JSON.stringify(products));
+    
+    // Update Firestore
+    try {
+      const { updateDoc, doc } = window._firestoreFns;
+      const updateData = { favorite: newFavoriteStatus };
+      if (newFavoriteStatus) {
+        updateData.order = products[productIndex].order;
+      }
+      await updateDoc(doc(window._db, 'products', id), updateData);
+    } catch(e) {
+      console.error('Toggle favorite error:', e);
+    }
+    
+    renderTable();
+  };
+
+  // Drag and drop handlers (mouse and touch)
+  let draggedItemId = null;
+  let draggedElement = null;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchCurrentX = 0;
+  let touchCurrentY = 0;
+  let isDragging = false;
+  let dragStartTime = 0;
+  let dragThreshold = 300; // ms, long press threshold (increased a bit for better UX)
+  let dragMoveThreshold = 5; // px, movement before activating drag
+  let dragGhost = null;
+  let justDragged = false;
+
+  function handleDragStart(e) {
+    draggedItemId = e.currentTarget.getAttribute('data-id');
+    draggedElement = e.currentTarget;
+    draggedElement.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function handleDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+  }
+
+  function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+
+  async function handleDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    await performDrop(e.currentTarget.getAttribute('data-id'));
+  }
+
+  async function performDrop(targetId) {
+    if (!draggedItemId || draggedItemId === targetId) return;
+    
+    const products = window.products || [];
+    const favoriteProducts = products
+      .filter(p => p.favorite === true)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+    
+    const draggedIndex = favoriteProducts.findIndex(p => p._id === draggedItemId);
+    const targetIndex = favoriteProducts.findIndex(p => p._id === targetId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return;
+    
+    // Remove dragged item
+    const [draggedItem] = favoriteProducts.splice(draggedIndex, 1);
+    // Insert at target index
+    favoriteProducts.splice(targetIndex, 0, draggedItem);
+    
+    // Update order values
+    favoriteProducts.forEach((p, idx) => {
+      const productIndex = products.findIndex(x => x._id === p._id);
+      if (productIndex !== -1) {
+        products[productIndex].order = idx + 1;
+      }
+    });
+    
+    // Save to localStorage
+    localStorage.setItem('coway_products', JSON.stringify(products));
+    
+    // Save to Firestore
+    try {
+      const { updateDoc, doc } = window._firestoreFns;
+      const batchWrites = favoriteProducts.map(async (p) => {
+        await updateDoc(doc(window._db, 'products', p._id), { order: p.order });
+      });
+      await Promise.all(batchWrites);
+    } catch(e) {
+      console.error('Order update error:', e);
+    }
+    
+    // Refresh both the main table and big benefit modal list
+    renderTable();
+    refreshBigBenefitProductList();
+  }
+
+  // Touch handlers
+  function handleTouchStart(e) {
+    cancelLongPress(); // Cancel original long press
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchCurrentX = touch.clientX;
+    touchCurrentY = touch.clientY;
+    dragStartTime = Date.now();
+    draggedItemId = e.currentTarget.getAttribute('data-id');
+    draggedElement = e.currentTarget;
+    isDragging = false;
+  }
+
+  function handleTouchMove(e) {
+    if (!draggedElement) return;
+    const touch = e.touches[0];
+    touchCurrentX = touch.clientX;
+    touchCurrentY = touch.clientY;
+    
+    const timeElapsed = Date.now() - dragStartTime;
+    const moveDistance = Math.sqrt(Math.pow(touchCurrentX - touchStartX, 2) + Math.pow(touchCurrentY - touchStartY, 2));
+    
+    if (timeElapsed >= dragThreshold && moveDistance >= dragMoveThreshold) {
+      e.preventDefault();
+      if (!isDragging) {
+        startTouchDrag();
+      }
+      if (isDragging) {
+        updateTouchDrag();
+      }
+    }
+  }
+
+  function startTouchDrag() {
+    isDragging = true;
+    // Prevent scrolling
+    document.body.style.overflow = 'hidden';
+    
+    // Create ghost element
+    dragGhost = draggedElement.cloneNode(true);
+    dragGhost.style.position = 'fixed';
+    dragGhost.style.zIndex = 9999;
+    dragGhost.style.opacity = 0.7;
+    dragGhost.style.width = draggedElement.offsetWidth + 'px';
+    dragGhost.style.pointerEvents = 'none';
+    dragGhost.classList.add('dragging');
+    
+    // Add to DOM
+    document.body.appendChild(dragGhost);
+    
+    draggedElement.style.opacity = '0.3'; // Hide original
+    updateTouchDrag();
+  }
+
+  function updateTouchDrag() {
+    if (!dragGhost) return;
+    dragGhost.style.left = (touchCurrentX - dragGhost.offsetWidth / 2) + 'px';
+    dragGhost.style.top = (touchCurrentY - dragGhost.offsetHeight / 2) + 'px';
+    
+    // Find drop target
+    const elements = document.querySelectorAll('tr[data-id], .bb-lg-card[data-id]');
+    let found = false;
+    elements.forEach(el => {
+      if (el === draggedElement) return;
+      const rect = el.getBoundingClientRect();
+      if (touchCurrentX >= rect.left && touchCurrentX <= rect.right && touchCurrentY >= rect.top && touchCurrentY <= rect.bottom) {
+        document.querySelectorAll('.drag-over').forEach(e => e.classList.remove('drag-over'));
+        el.classList.add('drag-over');
+        found = true;
+      }
+    });
+    
+    if (!found) {
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    }
+  }
+
+  async function handleTouchEnd(e) {
+    if (isDragging) {
+      isDragging = false;
+      justDragged = true;
+      setTimeout(() => { justDragged = false; }, 300); // Clear flag after short time
+      document.body.style.overflow = '';
+      if (dragGhost) {
+        dragGhost.remove();
+        dragGhost = null;
+      }
+      if (draggedElement) {
+        draggedElement.style.opacity = '';
+      }
+      
+      // Find drop target
+      const dropTarget = document.querySelector('.drag-over');
+      if (dropTarget) {
+        dropTarget.classList.remove('drag-over');
+        await performDrop(dropTarget.getAttribute('data-id'));
+      }
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    }
+  }
+
+  function handleTouchCancel(e) {
+    handleTouchEnd(e);
   }
 
   let editingId = null;
@@ -1862,9 +2097,14 @@
     renderCategoryFilters(); // 칩 상태 업데이트
 
     // 필터링 (카테고리 + 검색어) - 검색어 있을 때는 전체 대상으로 검색
-    const filteredByCat = (currentCategory === '전체' || nameQ.trim()) 
-      ? products 
-      : products.filter(p => getSmartCategory(p) === currentCategory);
+    let filteredByCat;
+    if (currentCategory === '⭐ 즐겨찾기') {
+      filteredByCat = products.filter(p => p.favorite === true);
+    } else {
+      filteredByCat = (currentCategory === '전체' || nameQ.trim()) 
+        ? products 
+        : products.filter(p => getSmartCategory(p) === currentCategory);
+    }
     const filtered = filteredByCat.filter((raw) => nameMatchesQuery(raw.name, nameQ));
 
     if (metaEl) {
@@ -1877,6 +2117,12 @@
     let totalRental = 0, totalDisc = 0, totalFinal = 0;
     // 정렬 적용 (필터링된 결과에 대해)
     const sorted = [...filtered].sort((a, b) => {
+      // If in favorite view, sort by order first
+      if (currentCategory === '⭐ 즐겨찾기') {
+        const orderA = a.order || 0;
+        const orderB = b.order || 0;
+        return orderA - orderB;
+      }
       const pa = calcProduct(a), pb = calcProduct(b);
       const va = sortKey === 'name' ? (pa.name || '') : (pa[sortKey] || 0);
       const vb = sortKey === 'name' ? (pb.name || '') : (pb[sortKey] || 0);
@@ -1894,7 +2140,15 @@
       const p = calcProduct(raw);
       totalRental += p.rental; totalDisc += p.totalDisc; totalFinal += p.finalAmt;
       const productImgPath = getProductImagePath(p.name);
-      return `<tr oncontextmenu="copyToForm('${p._id}');return false;" ontouchstart="startLongPress('${p._id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="cursor:pointer;">
+      const isFavorite = raw.favorite || false;
+      return `<tr 
+        data-id="${p._id}"
+        oncontextmenu="copyToForm('${p._id}');return false;" 
+        ontouchstart="startLongPress('${p._id}')" 
+        ontouchend="cancelLongPress()" 
+        ontouchmove="cancelLongPress()" 
+        style="cursor:pointer;${isFavorite ? 'background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent);' : ''}"
+      >
         <td style="text-align:left;font-weight:600;padding:6px 4px;display:flex;align-items:center;gap:6px;">
           <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
                style="width:36px;height:36px;border-radius:8px;flex-shrink:0;object-fit:cover;cursor:pointer;border:1px solid rgba(0,87,168,0.15);"
@@ -1905,6 +2159,7 @@
         <td style="color:#0057a8;font-weight:700;padding:6px 3px;white-space:nowrap;font-size:0.85rem;">${fmt(p.finalAmt)}</td>
         <td style="padding:6px 2px;">
           <div style="display:flex;gap:1px;justify-content:center;align-items:center;flex-wrap:nowrap;">
+            <button class="detail-btn" onclick="event.stopPropagation(); toggleFavorite('${p._id}')" title="즐겨찾기" style="padding:2px 4px;font-size:0.8rem;min-height:24px;min-width:24px;border-color:${isFavorite ? '#ffc107' : '#ddd'};color:${isFavorite ? '#ffc107' : '#aaa'};">${isFavorite ? '⭐' : '☆'}</button>
             <button class="detail-btn" onclick="openModal('${p._id}')" title="상세내역" style="padding:2px 4px;font-size:0.65rem;min-height:24px;min-width:24px;">📝</button>
             <button class="btn-best" onclick="openBestModal('${p._id}')" title="최고의 할인" style="padding:2px 4px;font-size:0.65rem;min-height:24px;min-width:24px;">🔥</button>
             <button class="detail-btn" style="border-color:#f39c12;color:#f39c12;padding:2px 4px;font-size:0.65rem;min-height:24px;min-width:24px;" onclick="openEditModal('${p._id}')" title="수정">✏️</button>
@@ -2348,11 +2603,29 @@
       const categories = window.CATEGORIES || CATEGORIES;
       // 기타를 맨 뒤로
       const sorted = ensureGitaAtEnd(categories);
-      el.innerHTML = sorted.map(cat => {
+      
+      // Add favorite chip first
+      let chips = [];
+      
+      // Add "전체" chip
+      const allActiveClass = currentCategory === '전체' ? 'active' : '';
+      const allModalClass = target.isModal ? 'modal-category-chip' : '';
+      chips.push(`<div class="category-chip ${allActiveClass} ${allModalClass}" onclick="setCategory('전체')">전체</div>`);
+      
+      // Add "⭐ 즐겨찾기" chip
+      const favActiveClass = currentCategory === '⭐ 즐겨찾기' ? 'active' : '';
+      const favModalClass = target.isModal ? 'modal-category-chip' : '';
+      chips.push(`<div class="category-chip ${favActiveClass} ${favModalClass}" onclick="setCategory('⭐ 즐겨찾기')">⭐ 즐겨찾기</div>`);
+      
+      // Add other category chips
+      chips = chips.concat(sorted.map(cat => {
+        if (cat === '전체') return ''; // Skip "전체" since we already added it
         const activeClass = currentCategory === cat ? 'active' : '';
         const modalClass = target.isModal ? 'modal-category-chip' : '';
         return `<div class="category-chip ${activeClass} ${modalClass}" onclick="setCategory('${cat}')">${cat}</div>`;
-      }).join('');
+      }).filter(Boolean));
+      
+      el.innerHTML = chips.join('');
     });
   }
 
@@ -2655,6 +2928,7 @@
     }
   }
   function benefitItemClick(id) {
+    if (justDragged) return;
     const im = document.getElementById('impactModal');
     const bb = document.getElementById('bigBenefitModal');
     if (im.classList.contains('open')) im.style.zIndex = '999';
@@ -2667,13 +2941,25 @@
     if (prods.length === 0) return null;
 
     // 카테고리 필터링 적용 (ignoreCategoryFilter가 true이면 전체 대상)
-    const filteredByCat = (currentCategory === '전체' || ignoreCategoryFilter) 
-      ? prods 
-      : prods.filter(p => getSmartCategory(p) === currentCategory);
+    let filteredByCat;
+    if (ignoreCategoryFilter) {
+      filteredByCat = prods;
+    } else if (currentCategory === '⭐ 즐겨찾기') {
+      filteredByCat = prods.filter(p => p.favorite === true);
+    } else {
+      filteredByCat = (currentCategory === '전체') 
+        ? prods 
+        : prods.filter(p => getSmartCategory(p) === currentCategory);
+    }
 
     if (filteredByCat.length === 0) return { ps: [], bestProduct: null };
 
     const sorted = [...filteredByCat].sort((a, b) => {
+      if (!ignoreCategoryFilter && currentCategory === '⭐ 즐겨찾기') {
+        const orderA = a.order || 0;
+        const orderB = b.order || 0;
+        return orderA - orderB;
+      }
       const pa = calcProduct(a, true), pb = calcProduct(b, true);
       const va = orderKey === 'name' ? (pa.name || '') : (pa[orderKey] || 0);
       const vb = orderKey === 'name' ? (pb.name || '') : (pb[orderKey] || 0);
@@ -2927,6 +3213,7 @@
     if (!psShown || psShown.length === 0) {
       return '<div class="bb-empty-filter">검색 조건에 맞는 제품이 없습니다.</div>';
     }
+    const isFavoriteView = currentCategory === '⭐ 즐겨찾기';
     return psShown.map((p, idx) => {
       const rate = p.rental > 0 ? Math.round((p.totalDisc / p.rental) * 100) : 0;
       const savingAmt = p.rental - p.finalAmt;
@@ -2937,7 +3224,7 @@
       
       console.log('제품 이미지 경로:', imgPath, p.name, '검색어:', searchName);
       
-      return `<div class="bb-lg-card" onclick="benefitItemClick('${p._id}')">
+      return `<div class="bb-lg-card" data-id="${p._id}" ${isFavoriteView ? 'draggable="true"' : ''} onclick="benefitItemClick('${p._id}')" style="cursor:${isFavoriteView ? 'grab' : 'pointer'}">
           <div class="bb-lg-rank" style="cursor:pointer;" onclick="event.stopPropagation(); window.open('https://www.coway.com/search?schtxt=${encodeURIComponent(searchName)}', '_blank')">${idx + 1}</div>
           <div class="bb-lg-thumb">
             <img src="${imgPath}" alt="제품 이미지" 
@@ -2967,6 +3254,23 @@
     if (data.ps.length === 0) { listEl.innerHTML = ''; return; }
     const shown = data.ps.filter((p) => nameMatchesQuery(p.name, bigBenefitNameSearch));
     listEl.innerHTML = buildBigBenefitProductCardsHtml(shown);
+    
+    // Add drag and drop event listeners if in favorite view
+    if (currentCategory === '⭐ 즐겨찾기') {
+      const cards = listEl.querySelectorAll('.bb-lg-card[data-id]');
+      cards.forEach(card => {
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+        card.addEventListener('dragover', handleDragOver);
+        card.addEventListener('dragleave', handleDragLeave);
+        card.addEventListener('drop', handleDrop);
+        // Touch events
+        card.addEventListener('touchstart', handleTouchStart, { passive: false });
+        card.addEventListener('touchmove', handleTouchMove, { passive: false });
+        card.addEventListener('touchend', handleTouchEnd, { passive: false });
+        card.addEventListener('touchcancel', handleTouchCancel, { passive: false });
+      });
+    }
   }
 
   function openBigBenefitModal(pushHistory = true) {
