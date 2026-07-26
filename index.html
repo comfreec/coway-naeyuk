@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -1078,10 +1078,10 @@
     <table id="resultTable">
       <thead>
         <tr>
-          <th style="width:35%;cursor:pointer;" onclick="sortTable('name')">제품명 <span id="sort_name"></span></th>
-          <th style="width:18%;cursor:pointer;" onclick="sortTable('rental')">렌탈료 <span id="sort_rental"></span></th>
-          <th style="width:20%;cursor:pointer;" onclick="sortTable('finalAmt')">최종 납부액 <span id="sort_finalAmt"></span></th>
-          <th style="width:27%"></th>
+          <th style="width:36%;cursor:pointer;" onclick="sortTable('name')">제품명 <span id="sort_name"></span></th>
+          <th style="display:none;" onclick="sortTable('rental')">렌탈료 <span id="sort_rental"></span></th>
+          <th style="width:24%;cursor:pointer;" onclick="sortTable('finalAmt')">최종 납부액 <span id="sort_finalAmt"></span></th>
+          <th style="width:40%"></th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -2163,7 +2163,7 @@
                onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name).replace(/'/g, "\\'")}');">
           <span style="flex:1;min-width:0;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;">${escapeHtml(p.name)}</span>
         </td>
-        <td style="padding:6px 3px;white-space:nowrap;font-size:0.85rem;">${fmt(p.rental)}</td>
+        <td style="padding:6px 3px;white-space:nowrap;font-size:0.85rem;display:none;">${fmt(p.rental)}</td>
         <td style="color:#0057a8;font-weight:700;padding:6px 3px;white-space:nowrap;font-size:0.85rem;">${fmt(p.finalAmt)}</td>
         <td style="padding:6px 2px;">
           <div style="display:flex;gap:1px;justify-content:center;align-items:center;flex-wrap:nowrap;">
