@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -1381,6 +1381,7 @@
     <div style="background:#f8fbff; padding:16px; border-radius:12px; margin-bottom:16px; line-height:1.8;" id="careCardMessageArea">
       <p style="margin:0; font-weight:600; color:#1a3a6e;">👋 고객님~ 덕분에 케어 잘 진행했습니다 😊</p>
       <p style="margin:8px 0 0 0;">📲 카톡으로 코웨이 설문조사가 올 텐데<br>서비스평가 ⭐"매우만족"⭐ 눌러주시면<br>제게 아주 큰 힘이 됩니다 🙏</p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">🧼 무료케어 신청은 아래 링크에서도 가능합니다<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
       <p style="margin:8px 0 0 0;">부탁드리겠습니다!!</p>
       <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
     </div>
@@ -1407,6 +1408,7 @@
       <p style="margin:0; font-weight:600; color:#1a3a6e;">🎁 소중한 분께 특별한 선물을 드려보세요!</p>
       <p style="margin:8px 0 0 0;">🌟 코웨이 케어상품권을 주변 분들께 전달하시면<br>무료로 케어 서비스를 받으실 수 있습니다 ✨</p>
       <p style="margin:8px 0 0 0;">👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~</p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">🧼 무료케어 신청은 아래 링크에서도 가능합니다<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
       <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
     </div>
     <div class="btn-row" id="careVoucherBtnRow">
@@ -4325,12 +4327,18 @@
       document.getElementById('imageZoomModal').classList.remove('open');
     }
 
-    function getCareCardMessage() {
+    function getFreeCareApplyMessage() {
+      return `🧼 무료케어 신청은 아래 링크에서도 가능합니다
+https://free-clean-mattress.vercel.app/home`;
+    }
+
+    function getCareCardMessage(includeFreeCareMessage = true) {
+      const freeCareMessageBlock = includeFreeCareMessage ? `\n\n${getFreeCareApplyMessage()}` : '';
       return `👋 고객님~ 덕분에 케어 잘 진행했습니다 😊
 
 📲 카톡으로 코웨이 설문조사가 올 텐데
 서비스평가 ⭐"매우만족"⭐ 눌러주시면
-제게 아주 큰 힘이 됩니다 🙏
+제게 아주 큰 힘이 됩니다 🙏${freeCareMessageBlock}
 
 부탁드리겠습니다!!
 💙 감사합니다~^^`;
@@ -4433,6 +4441,8 @@
 
 👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~
 
+${getFreeCareApplyMessage()}
+
 💙 감사합니다~^^`;
     }
 
@@ -4534,7 +4544,7 @@
         
         voucherModal.classList.remove('open');
         
-        const shareText = `${getCareCardMessage()}\n\n✨━━━━━━━━━━━━━━━━━━✨\n\n${getCareVoucherMessage()}`;
+        const shareText = `${getCareCardMessage(false)}\n\n✨━━━━━━━━━━━━━━━━━━✨\n\n${getCareVoucherMessage()}`;
         try { await navigator.clipboard.writeText(shareText); } catch(e) { console.warn('클립보드 복사 실패:', e); }
 
         console.log('🗂️ Blob 생성 중...');
