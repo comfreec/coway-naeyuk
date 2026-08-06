@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -1006,8 +1006,9 @@
 <div class="card">
   <div style="display:flex;gap:8px;">
     <button type="button" class="btn-add" onclick="openCareCardModal()" style="flex:1;margin:0;">💳 명함</button>
-    <button type="button" class="btn-add" onclick="openCareVoucherModal()" style="flex:1;margin:0;background:linear-gradient(135deg,#00b09b,#96c93d);">🎁 상품권</button>
-    <button type="button" class="btn-add" id="btnShareBoth" style="flex:1;margin:0;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-weight:800;box-shadow:0 4px 15px rgba(102,126,234,0.4);">🎁 상품권</button>
+    <button type="button" class="btn-add" onclick="openCareVoucherModal()" style="flex:1;margin:0;background:linear-gradient(135deg,#00b09b,#96c93d);">🎁 상품</button>
+    <button type="button" class="btn-add" id="btnShareBoth" style="flex:1;margin:0;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-weight:800;box-shadow:0 4px 15px rgba(102,126,234,0.4);">🎁 상품</button>
+    <button type="button" class="btn-add" id="btnShareMiteVideo" style="flex:1;margin:0;background:linear-gradient(135deg,#ff512f,#dd2476);color:white;font-weight:800;box-shadow:0 4px 15px rgba(255,81,47,0.4);">🎬 영상</button>
   </div>
 </div>
 
@@ -4498,6 +4499,101 @@ ${getFreeCareApplyMessage()}`;
     }
 
     let shareBothLock = false;
+    let shareMiteVideoLock = false;
+
+    const MITE_VIDEO_URL = 'https://youtu.be/terNhLRFTwI?si=vUHTPM7uX6I2kTpd';
+
+    function getMiteVideoMessage() {
+      return `⚠️ 매트리스 진드기, 심각합니다. 꼭 확인하세요.
+
+🦠 침대 속 진드기 사체·배설물이
+아토피·천식·비염·피부 트러블의 원인이 됩니다.
+특히 아이·노약자 계신 가정은 더 위험해요.
+
+🔬 아래 영상으로 실제 상태를 바로 확인해 보세요.
+정기적인 매트리스 케어가 정말 중요합니다.
+
+🎬 진드기 영상 바로보기
+${MITE_VIDEO_URL}
+
+💙 코웨이 매트리스 케어 문의 언제든지 편하게 해주세요!`;
+    }
+
+    async function shareMiteVideo() {
+      if (shareMiteVideoLock) return;
+      shareMiteVideoLock = true;
+      const btn = document.getElementById('btnShareMiteVideo');
+      if (btn) btn.disabled = true;
+
+      try {
+        // 문구 전체를 클립보드에 먼저 복사 (절대 빠지지 않게)
+        const fullText = getMiteVideoMessage();
+        const textWithUrlPrefix = fullText.includes(MITE_VIDEO_URL) ? fullText : `${fullText}\n\n🎬 진드기 영상 바로보기\n${MITE_VIDEO_URL}`;
+        try { await navigator.clipboard.writeText(textWithUrlPrefix); } catch(e) { console.warn('클립보드 복사 실패:', e); }
+
+        if (navigator.share) {
+          let shared = false;
+
+          // 1) 문구 전체(text)만으로 공유 우선 시도
+          if (!shared) {
+            try {
+              await navigator.share({
+                title: '매트리스 진드기 실제 영상',
+                text: textWithUrlPrefix
+              });
+              shared = true;
+            } catch (err) {
+              if (err && err.name === 'AbortError') shared = true;
+            }
+          }
+
+          // 2) 문구 + URL 함께 시도
+          if (!shared) {
+            try {
+              await navigator.share({
+                title: '매트리스 진드기 실제 영상',
+                text: fullText,
+                url: MITE_VIDEO_URL
+              });
+              shared = true;
+            } catch (err) {
+              if (err && err.name === 'AbortError') shared = true;
+            }
+          }
+
+          // 3) URL만으로 마지막 시도
+          if (!shared) {
+            try {
+              await navigator.share({
+                title: '매트리스 진드기 실제 영상',
+                url: MITE_VIDEO_URL
+              });
+              shared = true;
+            } catch (err) {
+              if (err && err.name === 'AbortError') shared = true;
+            }
+          }
+
+          // Web Share를 실패한 경우: 클립보드 복사된 상태 안내
+          if (!shared) {
+            alert('메시지가 클립보드에 복사됐어요!\n붙여넣기로 바로 보내시면 됩니다 😊\n\n' + textWithUrlPrefix);
+          }
+        } else {
+          alert('메시지가 클립보드에 복사됐어요!\n붙여넣기로 바로 보내시면 됩니다 😊\n\n' + textWithUrlPrefix);
+        }
+      } catch (err) {
+        console.error(err);
+        try {
+          const fb = getMiteVideoMessage();
+          alert('메시지가 클립보드에 복사됐어요!\n붙여넣기로 바로 보내시면 됩니다 😊\n\n' + fb);
+        } catch (_) {}
+      } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => { shareMiteVideoLock = false; }, 3000);
+      }
+    }
+
+    window.shareMiteVideo = shareMiteVideo;
 
     // Canvas → Blob 변환 헬퍼 함수 (toDataURL 사용)
     function canvasToBlob(canvas, type = 'image/png') {
@@ -4741,6 +4837,16 @@ ${getFreeCareApplyMessage()}`;
       btnShareBoth.addEventListener('touchstart', (e) => {
         e.preventDefault();
         window.shareBoth();
+      });
+    }
+
+    // 진드기영상 공유 버튼 이벤트 (click/touchstart 중복 방지 → pointerup 단일 이벤트)
+    const btnShareMiteVideo = document.getElementById('btnShareMiteVideo');
+    if (btnShareMiteVideo && !btnShareMiteVideo.dataset.bound) {
+      btnShareMiteVideo.dataset.bound = '1';
+      btnShareMiteVideo.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        window.shareMiteVideo();
       });
     }
 
