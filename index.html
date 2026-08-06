@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -1319,7 +1319,7 @@
       <div class="corasol-control">
         <label class="corasol-check-wrap">
           <input type="checkbox" id="modalCorasolCheck" onchange="toggleModalCorasol()">
-          <span class="corasol-check-text"><strong>💰 월 46,600원</strong><small>내돈모으면 할인</small></span>
+          <span class="corasol-check-text"><strong>💰 월 46,600원</strong><small>저금하면 할인</small></span>
         </label>
         <div class="corasol-qty-wrap" id="modalCorasolQtyArea" style="opacity: 0.5; pointer-events: none;">
           <button class="qty-btn" onclick="updateModalCorasolQty(-1)">−</button>
@@ -1381,8 +1381,8 @@
     <div style="background:#f8fbff; padding:16px; border-radius:12px; margin-bottom:16px; line-height:1.8;" id="careCardMessageArea">
       <p style="margin:0; font-weight:600; color:#1a3a6e;">👋 고객님~ 덕분에 케어 잘 진행했습니다 😊</p>
       <p style="margin:8px 0 0 0;">📲 카톡으로 코웨이 설문조사가 올 텐데<br>서비스평가 ⭐"매우만족"⭐ 눌러주시면<br>제게 아주 큰 힘이 됩니다 🙏</p>
-      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">🧼 무료케어 신청은 아래 링크에서도 가능합니다<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
       <p style="margin:8px 0 0 0;">부탁드리겠습니다!!</p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청 링크<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
       <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
     </div>
     
@@ -1408,8 +1408,7 @@
       <p style="margin:0; font-weight:600; color:#1a3a6e;">🎁 소중한 분께 특별한 선물을 드려보세요!</p>
       <p style="margin:8px 0 0 0;">🌟 코웨이 케어상품권을 주변 분들께 전달하시면<br>무료로 케어 서비스를 받으실 수 있습니다 ✨</p>
       <p style="margin:8px 0 0 0;">👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~</p>
-      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">🧼 무료케어 신청은 아래 링크에서도 가능합니다<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
-      <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청 링크<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
     </div>
     <div class="btn-row" id="careVoucherBtnRow">
       <button type="button" class="btn-reset" onclick="closeCareVoucherModalDirect()">닫기</button>
@@ -2373,9 +2372,9 @@
       const tStart = `ontouchstart="window.startLongPressHelper(event, `;
       const tEnd = `)" ontouchend="window.endLongPressHelper(event)" ontouchmove="window.endLongPressHelper(event)"`;
 
-      if (label === '💰 월 46,600원 내돈모으면 할인') {
+      if (label === '💰 월 46,600원 저금하면 할인') {
         // 코라솔 할인은 클릭시 이미지 모달 열기
-        labelHtml = `<span class="n-label corasol-note-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');"><strong>${nums[step-1]} 💰 월 46,600원</strong><small>내돈모으면 할인</small></span>`;
+        labelHtml = `<span class="n-label corasol-note-label" style="${labelStyle};cursor:pointer;border-bottom:1px dashed #0057a8;font-weight:800;" onclick="console.log('코라솔 할인 클릭됨!'); event.stopPropagation(); openImageZoom('코라솔.jpg', '코라솔.jpg');"><strong>${nums[step-1]} 💰 월 46,600원</strong><small>저금하면 할인</small></span>`;
       } else if (label.includes('결합 할인')) { 
         labelHtml = `<span class="n-label" style="cursor:pointer; user-select:none; border-bottom:1px dashed #0057a8;" onclick="window.handleBundleClick(event)" oncontextmenu="window.handleBundleLong(event)" ${tStart}window.handleBundleLong${tEnd}>${nums[step-1]} ${label}</span>`; 
       } else if (label.includes('반값 할인')) { 
@@ -2401,8 +2400,8 @@
       const rowStyle = canceled ? 'text-decoration:line-through; opacity:0.4;' : '';
       rows.push(`<div class="note-row" style="${rowStyle}">${labelHtml}<span class="n-minus">- ${fmt(amt)}</span></div>`);
       
-      if (label === '💰 월 46,600원 내돈모으면 할인') {
-        // 월 46,600원 내돈모으면 할인 밑에는 아무것도 표시하지 않음
+      if (label === '💰 월 46,600원 저금하면 할인') {
+        // 월 46,600원 저금하면 할인 밑에는 아무것도 표시하지 않음
       } else if (label === '카드할인' && running < 0) {
         rows.push(`<div class="note-row"><span class="n-label">&nbsp;&nbsp;소계</span><span class="n-val">${fmt(0)}</span></div>`);
       } else {
@@ -2459,7 +2458,7 @@
     if (pDisplay.multiDisc > 0)    { push(`동시구매 할인 (${pDisplay.multiDisc}%)`, pDisplay.multiDiscAmt); beforeCorasol -= pDisplay.multiDiscAmt; }
     
     // 코라솔 할인 표시 (기본 + 추가)
-    if (p.corasol > 0)      push('💰 월 46,600원 내돈모으면 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
+    if (p.corasol > 0)      push('💰 월 46,600원 저금하면 할인', p.corasol, 'highlight', 'https://coway-event-52bfd.web.app/2026-05');
     
     if (p.card > 0 && applyCardDiscount) push('카드할인', p.card, 'highlight', 'https://coway-m.com/card');
     rows.push(`<hr class="note-divider">`);
@@ -2558,7 +2557,7 @@
     if (pDisplay.multiDisc > 0) sms += `${getNumStr()} 동시구매 할인 (${pDisplay.multiDisc}%) : - ${fmtSms(pDisplay.multiDiscAmt)}\n`;
     if (pDisplay.corasol > 0) {
       const totalCorasolSms = pDisplay.corasol * 60;
-      sms += `${getNumStr()} 💰 월 46,600원 내돈모으면 할인 (1개월:${fmtSms(pDisplay.corasol)}, 5년총:${fmtSms(totalCorasolSms)}) : - ${fmtSms(pDisplay.corasol)}\n`;
+      sms += `${getNumStr()} 💰 월 46,600원 저금하면 할인 (1개월:${fmtSms(pDisplay.corasol)}, 5년총:${fmtSms(totalCorasolSms)}) : - ${fmtSms(pDisplay.corasol)}\n`;
     }
     if (pDisplay.card > 0 && applyCardDiscount) sms += `${getNumStr()} 카드할인 : - ${fmtSms(pDisplay.card)}\n`;
     const afterCorasolSms = beforeCorasol - (p.corasol || 0);
@@ -3763,12 +3762,12 @@
     if (p.multiDisc > 0)    items.push([`동시구매 할인 (${p.multiDisc}%)`, p.multiDiscAmt]);
     if (p.corasol > 0)      {
       const totalCorasol = p.corasol * 60; // 5년 = 60개월
-      items.push([`💰 월 46,600원 내돈모으면 할인`, p.corasol]);
+      items.push([`💰 월 46,600원 저금하면 할인`, p.corasol]);
     }
     if (p.card > 0 && applyCardDiscount) items.push(['카드 할인', p.card]);
     const itemRows = items.map(([label, amt]) => {
-      const labelHtml = label === '💰 월 46,600원 내돈모으면 할인'
-        ? `<span class="best-corasol-label"><strong>💰 월 46,600원</strong><small>내돈모으면 할인</small></span>`
+      const labelHtml = label === '💰 월 46,600원 저금하면 할인'
+        ? `<span class="best-corasol-label"><strong>💰 월 46,600원</strong><small>저금하면 할인</small></span>`
         : `<span>${label}</span>`;
       return `<div class="s-row">${labelHtml}<span>- ${fmt(amt)}</span></div>`;
     }).join('');
@@ -4328,7 +4327,7 @@
     }
 
     function getFreeCareApplyMessage() {
-      return `🧼 무료케어 신청은 아래 링크에서도 가능합니다
+      return `📣 무료케어 신청 링크
 https://free-clean-mattress.vercel.app/home`;
     }
 
@@ -4441,9 +4440,7 @@ https://free-clean-mattress.vercel.app/home`;
 
 👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~
 
-${getFreeCareApplyMessage()}
-
-💙 감사합니다~^^`;
+${getFreeCareApplyMessage()}`;
     }
 
     async function captureCareVoucher() {
