@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -814,6 +814,163 @@
       color: #aaa !important;
       margin-top: 12px !important;
     }
+
+    /* ===== 로그인 화면 ===== */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(160deg, #0a63c0 0%, #1a3a6e 60%, #0f2450 100%);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px 32px;
+      overflow-y: auto;
+    }
+    #loginScreen.hidden { display: none; }
+    .login-header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .login-header h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 0 4px;
+      letter-spacing: -0.5px;
+    }
+    .login-header p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.75);
+    }
+    .login-form {
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px 16px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .login-form label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #1a3a6e;
+      margin-bottom: 6px;
+    }
+    .login-form-row {
+      display: flex;
+      gap: 8px;
+    }
+    .login-form-row input {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1.5px solid #d6e4f4;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #1a3a6e;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .login-form-row input:focus {
+      border-color: #0a63c0;
+      box-shadow: 0 0 0 3px rgba(10,99,192,0.15);
+    }
+    .login-form-row button {
+      padding: 11px 20px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #0a63c0, #1a3a6e);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(10,99,192,0.3);
+      transition: transform 0.1s;
+    }
+    .login-form-row button:active { transform: scale(0.97); }
+    .login-error-msg {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: #e74c3c;
+      font-weight: 700;
+      min-height: 1rem;
+    }
+    .login-gallery {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .login-gallery-title {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+      padding-left: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .login-gallery-title .count {
+      background: rgba(255,255,255,0.15);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    .login-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 640px) {
+      .login-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    }
+    @media (max-width: 400px) {
+      .login-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .login-grid-item {
+      position: relative;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(4px);
+    }
+    .login-grid-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .login-grid-item .login-grid-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.85);
+      font-size: 2rem;
+      gap: 4px;
+    }
+    .login-grid-item .login-grid-name {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 4px 6px;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,0.75));
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -984,6 +1141,31 @@
   </script>
 </head>
 <body>
+
+<!-- ===== 로그인 화면 ===== -->
+<div id="loginScreen">
+  <div class="login-header">
+    <h1>🔥 최저가 할인혜택</h1>
+    <p>서비스 이용을 위해 비밀번호를 입력해주세요</p>
+  </div>
+
+  <form class="login-form" id="loginForm" onsubmit="return false;">
+    <label for="loginPassword">🔐 비밀번호</label>
+    <div class="login-form-row">
+      <input id="loginPassword" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="" autocomplete="off" />
+      <button type="button" id="loginSubmitBtn">확인</button>
+    </div>
+    <div class="login-error-msg" id="loginErrorMsg">&nbsp;</div>
+  </form>
+
+  <div class="login-gallery">
+    <div class="login-gallery-title">
+      <span>💎 코웨이 제품 둘러보기</span>
+      <span class="count" id="loginGalleryCount">0개</span>
+    </div>
+    <div class="login-grid" id="loginProductGrid"></div>
+  </div>
+</div>
 
 <div class="site-header">
   <h1>🔥 최저가 할인혜택</h1>
@@ -1374,7 +1556,7 @@
     <!-- 명함 캡쳐 영역 -->
     <div id="careCardCaptureArea" style="background:#fff; padding:20px; border-radius:16px; margin-bottom:16px;">
       <div style="text-align:center;">
-        <img id="careCardImage" src="명함.png" alt="명함" style="max-width:100%; border-radius:12px;" />
+        <img id="careCardImage" src="손진호명함.jpg" alt="명함" style="max-width:100%; border-radius:12px;" />
       </div>
     </div>
     
@@ -2047,36 +2229,40 @@
   window.renderTable = function() {
     const tbody = document.getElementById('tableBody');
     
-    // 🔥🔥🔥 가장 강력한 방어선: renderTable()이 호출될 때마다 무조건 localStorage에서 데이터를 불러오고, window.products와 window.productImageMappings를 덮어쓰기!
-    console.log('🔥 renderTable() 호출됨: localStorage에서 최종 데이터 확인');
-    try {
-      const savedProducts = localStorage.getItem('coway_products');
-      if (savedProducts) {
-        const parsed = JSON.parse(savedProducts);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          console.log('✅ renderTable에서 localStorage 제품 데이터 강제 적용:', parsed.length, '개');
-          window.products = parsed;
+    // ⚠️ renderTable()이 호출될 때마다 localStorage를 덮어쓰지 않음!
+    // 오직 window.products / window.productImageMappings가 **비어있을 때만** localStorage에서 복구 (방어 용도)
+    // Firestore onSnapshot이나 사용자 등록으로 최신 데이터가 메모리에 있으면 그것을 그대로 존중해야 함
+    if (!window.products || window.products.length === 0) {
+      try {
+        const savedProducts = localStorage.getItem('coway_products');
+        if (savedProducts) {
+          const parsed = JSON.parse(savedProducts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            console.log('🩹 renderTable: products가 비어있어 localStorage에서 복구:', parsed.length, '개');
+            window.products = parsed;
+          }
         }
+      } catch (e) {
+        console.error('❌ renderTable에서 localStorage 제품 데이터 복구 오류:', e);
       }
-    } catch (e) {
-      console.error('❌ renderTable에서 localStorage 제품 데이터 복구 오류:', e);
     }
     
-    // 🔥 제품이미지 매핑도 localStorage에서 다시 불러오기!
-    try {
-      const savedProductImages = localStorage.getItem('coway_product_image_mappings');
-      if (savedProductImages) {
-        const parsed = JSON.parse(savedProductImages);
-        if (Array.isArray(parsed)) {
-          console.log('✅ renderTable에서 localStorage 제품이미지 매핑 강제 적용:', parsed.length, '개');
-          window.productImageMappings = parsed;
+    if (!window.productImageMappings || window.productImageMappings.length === 0) {
+      try {
+        const savedProductImages = localStorage.getItem('coway_product_image_mappings');
+        if (savedProductImages) {
+          const parsed = JSON.parse(savedProductImages);
+          if (Array.isArray(parsed)) {
+            console.log('🩹 renderTable: productImageMappings가 비어있어 localStorage에서 복구:', parsed.length, '개');
+            window.productImageMappings = parsed;
+          }
         }
+      } catch (e) {
+        console.error('❌ renderTable에서 localStorage 제품이미지 매핑 복구 오류:', e);
       }
-    } catch (e) {
-      console.error('❌ renderTable에서 localStorage 제품이미지 매핑 복구 오류:', e);
     }
     
-    // 만약 그래도 window.products가 비어있으면, 그냥 빈 배열로 (하지만 localStorage에 데이터가 있으면 절대 비어있지 않음!)
+    // 만약 그래도 window.products가 비어있으면, 그냥 빈 배열로
     const products = window.products || [];
     const bigBtn = document.getElementById('bigBenefitBtn');
     const headerBigBtn = document.getElementById('headerBigBenefitBtn');
@@ -2162,6 +2348,7 @@
         <td style="text-align:left;font-weight:600;padding:6px 4px;display:flex;align-items:center;gap:6px;">
           <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
                style="width:36px;height:36px;border-radius:8px;flex-shrink:0;object-fit:cover;cursor:pointer;border:1px solid rgba(0,87,168,0.15);"
+               onerror="window.fallbackProductThumb(this, '${escapeHtml(p.name).replace(/'/g, "\\'")}');"
                onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name).replace(/'/g, "\\'")}');">
           <span style="flex:1;min-width:0;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.85rem;">${escapeHtml(p.name)}</span>
         </td>
@@ -2357,6 +2544,7 @@
         <div style="display:flex; align-items:center; gap:10px; width:100%;">
           <img src="${productImgPath}" alt="${escapeHtml(p.name)}" 
                style="width:60px; height:60px; border-radius:12px; object-fit:cover; cursor:pointer; border:2px solid rgba(0,87,168,0.2); box-shadow:0 2px 8px rgba(0,0,0,0.1);"
+               onerror="window.fallbackProductThumb(this, '${escapeHtml(p.name).replace(/'/g, "\\'")}');"
                onclick="event.stopPropagation(); openImageZoom('${productImgPath.replace(/'/g, "\\'")}', '${productImgPath.replace(/'/g, "\\'")}', '${escapeHtml(p.name).replace(/'/g, "\\'")}');">
           <a href="https://www.coway.com/search?schtxt=${encodeURIComponent(cleanName)}" target="_blank" style="color:#1a3a6e;text-decoration:none; flex:1; min-width:0;">${p.name}</a>
         </div>
@@ -4030,14 +4218,168 @@
   let unsubProducts = null;
     let unsubCategories = null;
   window.DEFAULT_CATEGORIES = ['전체', '제습기', '공기청정기', '정수기', '에어컨', '비데', '침대', '프레임', '안마의자', '인덕션', '연수기', '의류청정기', '기타'];
-  window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
-  window.productImageMappings = [];
+  window.CATEGORIES = window.CATEGORIES && window.CATEGORIES.length > 0 ? window.CATEGORIES : [...window.DEFAULT_CATEGORIES];
+  if (!window.productImageMappings || !Array.isArray(window.productImageMappings)) {
+    window.productImageMappings = [];
+  }
 
   // DOM이 완전히 로드된 후 실행
   function initApp() {
+    // 🔴 DOM 요소는 상단에서 미리 선언 (간단 로그인 + 기존 Google 로그인 공통 사용)
     const loginBtn = document.getElementById('btnLogin');
     const logoutBtn = document.getElementById('btnLogout');
     const authStatusEl = document.getElementById('authStatus');
+
+    // ===== 간단 비밀번호 로그인 시스템 (0070) =====
+    const LOGIN_PASSWORD = '0070';
+    const LOGIN_STORAGE_KEY = 'coway_simple_login';
+
+    function isLoggedIn() {
+      try {
+        return localStorage.getItem(LOGIN_STORAGE_KEY) === '1';
+      } catch (e) {
+        return false;
+      }
+    }
+    function setLoggedIn(val) {
+      try {
+        if (val) localStorage.setItem(LOGIN_STORAGE_KEY, '1');
+        else localStorage.removeItem(LOGIN_STORAGE_KEY);
+      } catch (e) {}
+    }
+    function showLoginScreen() {
+      const screen = document.getElementById('loginScreen');
+      if (screen) screen.classList.remove('hidden');
+      const pwInput = document.getElementById('loginPassword');
+      if (pwInput) { pwInput.value = ''; setTimeout(() => pwInput.focus(), 100); }
+      renderLoginGallery();
+    }
+    function hideLoginScreen() {
+      const screen = document.getElementById('loginScreen');
+      if (screen) screen.classList.add('hidden');
+    }
+    function renderLoginGallery() {
+      const gridEl = document.getElementById('loginProductGrid');
+      const countEl = document.getElementById('loginGalleryCount');
+      if (!gridEl) return;
+
+      // products가 있으면 사용, 없으면 localStorage fallback
+      let list = Array.isArray(window.products) ? window.products.slice() : [];
+      if (list.length === 0) {
+        try {
+          const saved = localStorage.getItem('coway_products');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) list = parsed.slice();
+          }
+        } catch (e) {}
+      }
+
+      // 중복 제거 + 이미지 있는 제품 우선 (최대 40개)
+      const seen = new Set();
+      const products = [];
+      for (const p of list) {
+        const key = (p.name || '').trim().toLowerCase();
+        if (!key) continue;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        products.push(p);
+        if (products.length >= 40) break;
+      }
+
+      if (countEl) countEl.textContent = products.length + '개';
+      if (products.length === 0) {
+        gridEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.6);padding:30px 0;font-size:0.85rem;">등록된 제품이 아직 없습니다.<br>로그인 후 제품을 추가해보세요 😊</div>';
+        return;
+      }
+
+      gridEl.innerHTML = products.map((p) => {
+        const name = p.name || '';
+        const imgPath = typeof getProductImagePath === 'function' ? getProductImagePath(name) : '';
+        const vis = typeof getProductVisualByName === 'function' ? getProductVisualByName(name) : { icon: '✨' };
+        const fb = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${vis.c1 || '#2f80ed'}"/><stop offset="1" stop-color="${vis.c2 || '#56ccf2'}"/></linearGradient></defs><rect width="100" height="100" rx="12" fill="url(#g)"/><text x="50" y="62" font-size="40" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">${vis.icon || '✨'}</text></svg>`
+        )}`;
+        return `<div class="login-grid-item">
+          <img src="${imgPath}" alt="${escapeHtml(name)}"
+               onerror="this.onerror=null;this.src='${fb}';">
+          <div class="login-grid-name">${escapeHtml(name)}</div>
+        </div>`;
+      }).join('');
+    }
+    function tryLogin() {
+      const input = document.getElementById('loginPassword');
+      const errEl = document.getElementById('loginErrorMsg');
+      const val = input ? input.value.trim() : '';
+      if (val === LOGIN_PASSWORD) {
+        setLoggedIn(true);
+        if (errEl) errEl.innerHTML = '&nbsp;';
+        hideLoginScreen();
+      } else {
+        if (errEl) errEl.textContent = '비밀번호가 일치하지 않습니다. 다시 확인해주세요.';
+        if (input) {
+          input.value = '';
+          input.focus();
+          input.style.borderColor = '#e74c3c';
+          setTimeout(() => { input.style.borderColor = ''; }, 600);
+        }
+      }
+    }
+    function doLogout() {
+      if (!confirm('로그아웃 하시겠습니까?')) return;
+      setLoggedIn(false);
+      // signOutOwner가 있으면 Firebase 로그아웃도 같이
+      if (typeof window.signOutOwner === 'function') {
+        window.signOutOwner().catch(() => {});
+      }
+      // UI 동기화: authStatus 초기화
+      const statusEl = document.getElementById('authStatus');
+      const lBtn = document.getElementById('btnLogin');
+      const loBtn = document.getElementById('btnLogout');
+      if (statusEl) { statusEl.textContent = '로그인이 필요합니다'; statusEl.classList.add('warn'); }
+      if (lBtn) lBtn.style.display = '';
+      if (loBtn) loBtn.style.display = 'none';
+      showLoginScreen();
+    }
+
+    // 이벤트 바인딩
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const pwInput = document.getElementById('loginPassword');
+    if (submitBtn && !submitBtn.dataset.bound) {
+      submitBtn.dataset.bound = '1';
+      submitBtn.addEventListener('pointerup', (e) => { e.preventDefault(); tryLogin(); });
+    }
+    if (pwInput && !pwInput.dataset.bound) {
+      pwInput.dataset.bound = '1';
+      pwInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); tryLogin(); }
+      });
+      pwInput.addEventListener('input', () => {
+        const errEl = document.getElementById('loginErrorMsg');
+        if (errEl && errEl.textContent !== '\u00a0') errEl.innerHTML = '&nbsp;';
+      });
+    }
+
+    // 기존 logoutBtn에 간단 로그아웃도 연결
+    if (logoutBtn && !logoutBtn.dataset.simpleBound) {
+      logoutBtn.dataset.simpleBound = '1';
+      logoutBtn.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        doLogout();
+      });
+    }
+
+    // 초기 분기
+    if (!isLoggedIn()) {
+      showLoginScreen();
+    } else {
+      hideLoginScreen();
+    }
+    // 간단 로그인 상태여도 products/Firestore 변경 시 갤러리 새로고침
+    window._refreshLoginGallery = renderLoginGallery;
+
+    // ===== 기존 Google 로그인 로직 =====
 
     window._db  = db;
     window._col = col;
@@ -4364,6 +4706,12 @@ https://free-clean-mattress.vercel.app/home`;
 
     let shareCareCardLock = false;
 
+    async function loadImageBlob(url) {
+      const res = await fetch(url + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('이미지 로드 실패: ' + res.status);
+      return await res.blob();
+    }
+
     async function shareCareCard() {
       if (shareCareCardLock) return;
       shareCareCardLock = true;
@@ -4371,30 +4719,35 @@ https://free-clean-mattress.vercel.app/home`;
       if (btn) btn.disabled = true;
 
       try {
-        const canvas = await captureCareCard();
         const shareText = getCareCardMessage();
         try { await navigator.clipboard.writeText(shareText); } catch(e) {}
 
-        await new Promise((resolve) => {
-          canvas.toBlob(async (blob) => {
-            const safeName = '케어후명함';
-            const file = new File([blob], `${safeName}.png`, { type: 'image/png' });
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-              try {
-                await navigator.share({ files: [file], title: '케어후명함', text: shareText });
-              } catch (err) {
-                if (err.name !== 'AbortError') downloadCanvas(canvas, `${safeName}.png`);
-              }
-            } else {
-              downloadCanvas(canvas, `${safeName}.png`);
+        const blob = await loadImageBlob('손진호명함.jpg');
+        const file = new File([blob], '손진호명함.jpg', { type: blob.type || 'image/jpeg' });
+        const files = [file];
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
+          try {
+            await navigator.share({ files, title: '케어후명함', text: shareText });
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = '손진호명함.jpg';
+              a.click();
               alert('메시지가 클립보드에 복사됐어요!\n명함 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
             }
-            resolve();
-          }, 'image/png');
-        });
+          }
+        } else {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = '손진호명함.jpg';
+          a.click();
+          alert('메시지가 클립보드에 복사됐어요!\n명함 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
+        }
       } catch (err) {
         console.error(err);
-        alert('이미지 생성에 실패했습니다.');
+        alert('명함 이미지 로드에 실패했습니다.\n\n오류: ' + err.message);
       } finally {
         if (btn) btn.disabled = false;
         setTimeout(() => { shareCareCardLock = false; }, 3000);
@@ -4408,6 +4761,14 @@ https://free-clean-mattress.vercel.app/home`;
     window.openImageZoom = openImageZoom;
     window.openGiftImage = openGiftImage;
     window.closeImageZoom = closeImageZoom;
+    window.fallbackProductThumb = function (imgEl, productName) {
+      try {
+        imgEl.onerror = null;
+        imgEl.src = getProductThumbDataUri(productName);
+      } catch (e) {
+        imgEl.removeAttribute('src');
+      }
+    };
 
     // 케어상품권 함수들
     let shareCareVoucherLock = false;
@@ -5063,6 +5424,7 @@ ${MITE_VIDEO_URL}
       
       if (typeof window.renderTable === 'function') window.renderTable();
       if (typeof window.renderSummary === 'function') window.renderSummary();
+      if (typeof window._refreshLoginGallery === 'function') window._refreshLoginGallery();
       
       // 모달이 열려있으면 제품 리스트 새로고침
       const bbModal = document.getElementById('bigBenefitModal');
@@ -5076,6 +5438,7 @@ ${MITE_VIDEO_URL}
       // 오류 시에도 renderTable() 호출해서 localStorage 데이터 표시
       if (typeof window.renderTable === 'function') window.renderTable();
       if (typeof window.renderSummary === 'function') window.renderSummary();
+      if (typeof window._refreshLoginGallery === 'function') window._refreshLoginGallery();
     });
   }
 
