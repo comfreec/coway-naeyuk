@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -644,6 +644,42 @@
     .bulk-apply-btn:hover { opacity: 0.88; }
     .btn-bulk { background: linear-gradient(135deg, #6a11cb, #9b59b6); color: #fff; border: none; border-radius: 14px; padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; flex: unset; box-shadow: 0 4px 14px rgba(106,17,203,0.28); transition: all 0.2s; letter-spacing: 0.3px; }
     .btn-bulk:hover { transform: translateY(-1px); opacity: 1; }
+
+    /* 담당자 선택 모달 */
+    .staff-pick-wrap { background: #fff; border-radius: 20px; padding: 24px; max-width: 420px; width: 92vw; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .staff-pick-wrap h2 { margin: 0 0 4px 0; font-size: 1.15rem; color: #0a4d98; font-weight: 800; }
+    .staff-pick-wrap .sub { font-size: 0.8rem; color: #7a8aaa; margin-bottom: 18px; }
+    .staff-list { display: flex; flex-direction: column; gap: 10px; }
+    .staff-item { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 1.5px solid #e3ecfb; border-radius: 14px; cursor: pointer; transition: all 0.2s; background: #fbfdff; }
+    .staff-item:hover { border-color: #0a67cb; background: #eff6ff; transform: translateY(-1px); }
+    .staff-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg,#0a63c0,#2491ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; flex-shrink: 0; overflow: hidden; }
+    .staff-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .staff-meta { flex: 1; min-width: 0; }
+    .staff-name { font-weight: 800; color: #0f3a6b; font-size: 0.95rem; }
+    .staff-phone { font-size: 0.78rem; color: #6b7b9a; margin-top: 2px; letter-spacing: 0.3px; }
+    .staff-footer { margin-top: 16px; padding-top: 14px; border-top: 1px dashed #dbe6f8; font-size: 0.72rem; color: #90a0c0; text-align: center; line-height: 1.5; }
+    .staff-admin-manage-btn { background: linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none; padding:7px 12px; border-radius:10px; font-weight:700; font-size:0.75rem; cursor:pointer; margin-top: 8px; font-family: inherit; }
+
+    /* 담당자 관리 모달 */
+    .staff-manage-list { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; padding-right: 4px; }
+    .staff-manage-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8fbff; border-radius: 12px; border: 1px solid #e3ecfb; }
+    .staff-manage-meta { flex: 1; min-width: 0; }
+    .staff-manage-meta .n { font-weight: 700; font-size: 0.9rem; color: #0f3a6b; }
+    .staff-manage-meta .p { font-size: 0.75rem; color: #6b7b9a; margin-top: 2px; }
+    .staff-manage-meta .f { font-size: 0.72rem; color: #8899ba; margin-top: 2px; word-break: break-all; }
+    .staff-manage-btns { display: flex; flex-direction: column; gap: 4px; }
+    .staff-manage-btns button { border: none; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.7rem; font-family: inherit; }
+    .btn-sm-edit { background: #dbeafe; color: #1d4ed8; }
+    .btn-sm-del { background: #fee2e2; color: #b91c1c; }
+    .staff-add-row { display: flex; gap: 8px; margin-top: 14px; }
+    .staff-add-row button { flex: 1; padding: 11px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-family: inherit; font-size: 0.88rem; }
+    .btn-staff-add { background: linear-gradient(135deg,#10b981,#059669); color: #fff; }
+    .btn-staff-swap { background: #eef2ff; color: #4f46e5; }
+
+    /* 상단 현재 담당자 표시 */
+    .current-staff-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: #ecf6ff; border-radius: 999px; font-size: 0.72rem; font-weight: 700; color: #0a5bb0; cursor: pointer; border: 1px solid #cfe4fb; }
+    .current-staff-chip:hover { background: #dbeafe; }
+    .current-staff-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
     /* 이미지 확대 모달 */
     #imageZoomModal {
       z-index: 9999; /* 다른 모든 모달보다 위에 오게 */
@@ -1170,6 +1206,10 @@
 <div class="site-header">
   <h1>🔥 최저가 할인혜택</h1>
   <div class="header-meta">
+    <span class="current-staff-chip" id="currentStaffChip" onclick="openStaffPickerModal()">
+      <span class="dot"></span>
+      <span id="currentStaffChipName">담당자: 로딩중</span>
+    </span>
     <button type="button" class="btn-big-benefit" onclick="window.open('https://m.coway.com/', '_blank')" style="background:linear-gradient(135deg,#0057a8,#0a63c0);">🏠 코웨이 사이트</button>
     <button type="button" class="btn-big-benefit" onclick="openBigBenefitModal()" id="headerBigBenefitBtn" style="display:none;">📺 할인 혜택 크게 보기</button>
   </div>
@@ -1196,8 +1236,9 @@
 
 <div class="card">
   <div style="display:flex;gap:8px;">
-    <button type="button" class="btn-add" onclick="openCategoryManager()" style="flex:1;margin:0;">🏷️ 제품군 관리</button>
-    <button type="button" class="btn-add" onclick="openProductImageSettings()" style="flex:1;margin:0;">🖼️ 제품 이미지 관리</button>
+    <button type="button" class="btn-add" onclick="openStaffManageModal()" style="flex:1;margin:0;background:linear-gradient(135deg,#f59e0b,#ef4444);">👥 담당자</button>
+    <button type="button" class="btn-add" onclick="openCategoryManager()" style="flex:1;margin:0;">🏷️ 제품군</button>
+    <button type="button" class="btn-add" onclick="openProductImageSettings()" style="flex:1;margin:0;">🖼️ 이미지</button>
   </div>
 </div>
 
@@ -1565,7 +1606,7 @@
       <p style="margin:0; font-weight:600; color:#1a3a6e;">👋 고객님~ 덕분에 케어 잘 진행했습니다 😊</p>
       <p style="margin:8px 0 0 0;">📲 카톡으로 코웨이 설문조사가 올 텐데<br>서비스평가 ⭐"매우만족"⭐ 눌러주시면<br>제게 아주 큰 힘이 됩니다 🙏</p>
       <p style="margin:8px 0 0 0;">부탁드리겠습니다!!</p>
-      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청 링크<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:손진호)<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
       <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
     </div>
     
@@ -1584,18 +1625,49 @@
     <div id="careVoucherCaptureArea" style="background:#fff; padding:20px; border-radius:16px; margin-bottom:16px;">
       <div style="text-align:center; position:relative; display:inline-block; width:100%;">
         <img src="케어상품권.jpg" alt="케어상품권" style="max-width:100%; border-radius:12px; display:block;" />
-        <div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#1a3a6e; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; position: relative;">📞 010-2417-7936<span style="position: absolute; bottom: -4px; left: -2px; width: calc(100% + 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span><span style="position: absolute; bottom: -8px; left: 2px; width: calc(100% - 4px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></div>
+        <div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#1a3a6e; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; position: relative;">📞 010-2417-7936 (담당자:손진호)<span style="position: absolute; bottom: -4px; left: -2px; width: calc(100% + 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span><span style="position: absolute; bottom: -8px; left: 2px; width: calc(100% - 4px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span></div>
       </div>
     </div>
     <div style="background:#f8fbff; padding:16px; border-radius:12px; margin-bottom:16px; line-height:1.8;">
       <p style="margin:0; font-weight:600; color:#1a3a6e;">🎁 소중한 분께 특별한 선물을 드려보세요!</p>
       <p style="margin:8px 0 0 0;">🌟 코웨이 케어상품권을 주변 분들께 전달하시면<br>무료로 케어 서비스를 받으실 수 있습니다 ✨</p>
       <p style="margin:8px 0 0 0;">👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~</p>
-      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청 링크<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:손진호)<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
     </div>
     <div class="btn-row" id="careVoucherBtnRow">
       <button type="button" class="btn-reset" onclick="closeCareVoucherModalDirect()">닫기</button>
       <button type="button" class="btn-add" id="shareCareVoucherBtn" style="background:linear-gradient(135deg,#00b09b,#96c93d);">📸💬 상품권+메시지 보내기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 담당자 선택 모달 -->
+<div class="modal-overlay" id="staffPickerModal">
+  <div class="staff-pick-wrap">
+    <h2>👤 담당자를 선택해주세요</h2>
+    <div class="sub">선택한 담당자 정보로 명함/상품권/영상이 공유됩니다.</div>
+    <div class="staff-list" id="staffPickerList"></div>
+    <div style="text-align:center;">
+      <button type="button" class="staff-admin-manage-btn" onclick="openStaffManageModalFromPicker()">⚙️ 담당자 추가/수정 (관리자)</button>
+    </div>
+    <div class="staff-footer">선택은 이 기기에서만 기억됩니다<br>다른 기기에서는 다시 선택하세요</div>
+  </div>
+</div>
+
+<!-- 담당자 관리 모달 -->
+<div class="modal-overlay" id="staffManageModal" onclick="closeStaffManageModal(event)">
+  <div class="modal-content" style="max-width:520px;width:92%;">
+    <div class="modal-header">
+      <h3>👥 담당자 관리</h3>
+      <button class="modal-close" onclick="closeStaffManageModalDirect()">&times;</button>
+    </div>
+    <div style="font-size:0.78rem;color:#7a8aaa;margin-bottom:14px;line-height:1.5;">
+      이름/전화번호/명함이미지 파일을 등록하세요. <strong>명함 이미지 파일은 미리 서버에 업로드</strong>되어 있어야 합니다 (예: <code style="background:#f1f5fb;padding:2px 6px;border-radius:4px;">김철수명함.jpg</code>).
+    </div>
+    <div class="staff-manage-list" id="staffManageList"></div>
+    <div class="staff-add-row">
+      <button type="button" class="btn-staff-add" onclick="addStaffProfile()">➕ 새 담당자 추가</button>
+      <button type="button" class="btn-staff-swap" onclick="openStaffPickerModalFromManage()">👤 담당자 선택</button>
     </div>
   </div>
 </div>
@@ -1848,7 +1920,23 @@
              extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt };
   }
 
+  // ========== 🔐 관리자 비밀번호 인증 (0000) ==========
+  const ADMIN_PASSWORD = '0000';
+  let _adminVerified = false;
+  function requireAdminPassword() {
+    if (_adminVerified) return true;
+    const input = prompt('🔐 관리자 비밀번호 4자리를 입력해주세요:');
+    if (input === null) return false;
+    if (input === ADMIN_PASSWORD) {
+      _adminVerified = true;
+      return true;
+    }
+    if (input !== '') alert('❌ 비밀번호가 일치하지 않습니다.');
+    return false;
+  }
+
   async function addProduct() {
+    if (!requireAdminPassword()) return;
     if (!window._firestoreFns) { alert('데이터베이스 연결 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     const name         = document.getElementById('productName').value.trim();
     const category     = document.getElementById('productCategory').value;
@@ -1878,6 +1966,7 @@
   }
 
   async function deleteProduct(id) {
+    if (!requireAdminPassword()) return;
     const p = (window.products || []).find(x => x._id === id);
     if (!confirm(`'${p ? p.name : '이 제품'}' 을 삭제할까요?`)) return;
     const { deleteDoc, doc } = window._firestoreFns;
@@ -2116,6 +2205,7 @@
 
   let editingId = null;
   window.openEditModal = function(id) {
+    if (!requireAdminPassword()) return;
     const p = (window.products || []).find(x => x._id === id);
     if (!p) return;
     editingId = id;
@@ -2151,6 +2241,7 @@
   }
 
   window.saveEdit = async function() {
+    if (!requireAdminPassword()) return;
     if (!window._firestoreFns) { alert('데이터베이스 초기화 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     if (!editingId) { alert('수정할 제품 아이디(ID)가 없습니다. 창을 닫고 다시 시도해주세요.'); return; }
 
@@ -4072,6 +4163,7 @@
   }
 
   function openBulkModal() {
+    if (!requireAdminPassword()) return;
     // 입력값 초기화
     ['bulk_contract','bulk_halfDisc','bulk_rerentalDisc','bulk_disc','bulk_extraDisc',
      'bulk_bundleDisc','bulk_multiDisc','bulk_competitor','bulk_card']
@@ -4084,6 +4176,7 @@
   function closeBulkModalDirect() { document.getElementById('bulkModal').classList.remove('open'); }
 
   async function applyBulkEdit() {
+    if (!requireAdminPassword()) return;
     const products = window.products || [];
     if (products.length === 0) { alert('변경할 제품이 없습니다.'); return; }
 
@@ -4443,7 +4536,7 @@
         
         select.innerHTML = '';
         
-        if (select.id === 'productCategory' || select.id === 'editCategory') {
+        if (select.id === 'productCategory' || select.id === 'editCategory' || select.id === 'e_productCategory') {
           const autoOption = document.createElement('option');
           autoOption.value = '';
           autoOption.textContent = '자동 분류 (제목 기준)';
@@ -4472,6 +4565,7 @@
     }
 
     function openCategoryManager() {
+      if (!requireAdminPassword()) return;
       const modal = document.getElementById('categoryManagerModal');
       if (modal) {
         renderCategoryList();
@@ -4487,6 +4581,7 @@
     }
 
     async function addCategory() {
+      if (!requireAdminPassword()) return;
       const input = document.getElementById('newCategoryName');
       const name = input.value.trim();
       
@@ -4575,6 +4670,7 @@
     }
 
     async function editCategory(index) {
+      if (!requireAdminPassword()) return;
       const oldName = window.CATEGORIES[index];
       const newName = prompt('새로운 카테고리 이름을 입력해주세요:', oldName);
       
@@ -4596,6 +4692,7 @@
     }
 
     async function deleteCategory(index) {
+      if (!requireAdminPassword()) return;
       const name = window.CATEGORIES[index];
       
       if (!confirm(`"${name}" 카테고리를 삭제하시겠습니까?`)) return;
@@ -4670,11 +4767,15 @@
     }
 
     function getFreeCareApplyMessage() {
-      return `📣 무료케어 신청 링크
+      if (typeof window.getFreeCareApplyMessage === 'function') {
+        return window.getFreeCareApplyMessage();
+      }
+      return `📣 무료케어 신청(담당자:손진호)
 https://free-clean-mattress.vercel.app/home`;
     }
 
     function getCareCardMessage(includeFreeCareMessage = true) {
+      const staffName = (typeof window.getCurrentStaff === 'function' && window.getCurrentStaff().name) || '손진호';
       const freeCareMessageBlock = includeFreeCareMessage ? `\n\n${getFreeCareApplyMessage()}` : '';
       return `👋 고객님~ 덕분에 케어 잘 진행했습니다 😊
 
@@ -4683,7 +4784,7 @@ https://free-clean-mattress.vercel.app/home`;
 제게 아주 큰 힘이 됩니다 🙏${freeCareMessageBlock}
 
 부탁드리겠습니다!!
-💙 감사합니다~^^`;
+💙 ${staffName} 드림~^^`;
     }
 
     async function captureCareCard() {
@@ -4722,8 +4823,15 @@ https://free-clean-mattress.vercel.app/home`;
         const shareText = getCareCardMessage();
         try { await navigator.clipboard.writeText(shareText); } catch(e) {}
 
-        const blob = await loadImageBlob('손진호명함.jpg');
-        const file = new File([blob], '손진호명함.jpg', { type: blob.type || 'image/jpeg' });
+        // 현재 담당자의 명함 이미지 동적 로딩 (PNG/JPG 지원)
+        const staff = typeof window.getCurrentStaff === 'function' ? window.getCurrentStaff() : {};
+        const cardFileName = (staff && staff.cardImage) || '손진호명함.jpg';
+        const mimeTypeFn = typeof window.mimeTypeFromFileName === 'function'
+          ? window.mimeTypeFromFileName
+          : (n) => String(n || '').toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+        const mimeType = mimeTypeFn(cardFileName);
+        const blob = await loadImageBlob(cardFileName);
+        const file = new File([blob], cardFileName, { type: blob.type || mimeType });
         const files = [file];
 
         if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
@@ -4733,7 +4841,7 @@ https://free-clean-mattress.vercel.app/home`;
             if (err.name !== 'AbortError') {
               const a = document.createElement('a');
               a.href = URL.createObjectURL(blob);
-              a.download = '손진호명함.jpg';
+              a.download = cardFileName;
               a.click();
               alert('메시지가 클립보드에 복사됐어요!\n명함 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
             }
@@ -4741,7 +4849,7 @@ https://free-clean-mattress.vercel.app/home`;
         } else {
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
-          a.download = '손진호명함.jpg';
+          a.download = cardFileName;
           a.click();
           alert('메시지가 클립보드에 복사됐어요!\n명함 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
         }
@@ -4795,6 +4903,7 @@ https://free-clean-mattress.vercel.app/home`;
     }
 
     function getCareVoucherMessage() {
+      const staffName = (typeof window.getCurrentStaff === 'function' && window.getCurrentStaff().name) || '손진호';
       return `🎁 소중한 분께 특별한 선물을 드려보세요!
 
 🌟 코웨이 케어상품권을 주변 분들께 전달하시면
@@ -4802,7 +4911,9 @@ https://free-clean-mattress.vercel.app/home`;
 
 👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~
 
-${getFreeCareApplyMessage()}`;
+${getFreeCareApplyMessage()}
+
+💙 ${staffName} 드림`;
     }
 
     async function captureCareVoucher() {
@@ -4865,6 +4976,11 @@ ${getFreeCareApplyMessage()}`;
     const MITE_VIDEO_URL = 'https://youtu.be/terNhLRFTwI?si=vUHTPM7uX6I2kTpd';
 
     function getMiteVideoMessage() {
+      // window 에 노출된 동적 버전 우선 사용 (담당자 이름 반영)
+      if (typeof window.getMiteVideoMessage === 'function') {
+        return window.getMiteVideoMessage();
+      }
+      const staffName = (typeof window.getCurrentStaff === 'function' && window.getCurrentStaff().name) || '담당자';
       return `⚠️ 매트리스 진드기, 심각합니다. 꼭 확인하세요.
 
 🦠 침대 속 진드기 사체·배설물이
@@ -4877,7 +4993,8 @@ ${getFreeCareApplyMessage()}`;
 🎬 진드기 영상 바로보기
 ${MITE_VIDEO_URL}
 
-💙 코웨이 매트리스 케어 문의 언제든지 편하게 해주세요!`;
+💙 코웨이 매트리스 케어 문의 언제든지 편하게 해주세요!
+💙 ${staffName} 드림`;
     }
 
     async function shareMiteVideo() {
@@ -4892,10 +5009,40 @@ ${MITE_VIDEO_URL}
         const textWithUrlPrefix = fullText.includes(MITE_VIDEO_URL) ? fullText : `${fullText}\n\n🎬 진드기 영상 바로보기\n${MITE_VIDEO_URL}`;
         try { await navigator.clipboard.writeText(textWithUrlPrefix); } catch(e) { console.warn('클립보드 복사 실패:', e); }
 
+        // 명함 이미지 Blob 미리 로드 (현재 담당자 이미지 동적 사용 + PNG 지원)
+        let cardBlob = null;
+        let cardFile = null;
+        try {
+          if (typeof loadImageBlob === 'function') {
+            const staff = typeof window.getCurrentStaff === 'function' ? window.getCurrentStaff() : {};
+            const cardFileName = (staff && staff.cardImage) || '손진호명함.jpg';
+            const mimeTypeFn = typeof window.mimeTypeFromFileName === 'function'
+              ? window.mimeTypeFromFileName
+              : (n) => String(n || '').toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+            const mimeType = mimeTypeFn(cardFileName);
+            cardBlob = await loadImageBlob(cardFileName);
+            cardFile = new File([cardBlob], cardFileName, { type: cardBlob.type || mimeType });
+          }
+        } catch (e) { console.warn('명함 이미지 로드 실패:', e); }
+
         if (navigator.share) {
           let shared = false;
 
-          // 1) 문구 전체(text)만으로 공유 우선 시도
+          // 1) 명함 이미지 + 문구 함께 공유 우선 시도
+          if (!shared && cardFile && navigator.canShare && navigator.canShare({ files: [cardFile] })) {
+            try {
+              await navigator.share({
+                files: [cardFile],
+                title: '매트리스 진드기 실제 영상',
+                text: textWithUrlPrefix
+              });
+              shared = true;
+            } catch (err) {
+              if (err && err.name === 'AbortError') shared = true;
+            }
+          }
+
+          // 2) 문구 전체(text)만으로 공유 시도
           if (!shared) {
             try {
               await navigator.share({
@@ -4908,7 +5055,7 @@ ${MITE_VIDEO_URL}
             }
           }
 
-          // 2) 문구 + URL 함께 시도
+          // 3) 문구 + URL 함께 시도
           if (!shared) {
             try {
               await navigator.share({
@@ -4922,7 +5069,7 @@ ${MITE_VIDEO_URL}
             }
           }
 
-          // 3) URL만으로 마지막 시도
+          // 4) URL만으로 마지막 시도
           if (!shared) {
             try {
               await navigator.share({
@@ -4935,12 +5082,29 @@ ${MITE_VIDEO_URL}
             }
           }
 
-          // Web Share를 실패한 경우: 클립보드 복사된 상태 안내
+          // Web Share를 실패한 경우: 명함 다운로드 + 클립보드 안내
           if (!shared) {
-            alert('메시지가 클립보드에 복사됐어요!\n붙여넣기로 바로 보내시면 됩니다 😊\n\n' + textWithUrlPrefix);
+            if (cardBlob) {
+              try {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(cardBlob);
+                a.download = '손진호명함.jpg';
+                a.click();
+              } catch (_) {}
+            }
+            alert('메시지가 클립보드에 복사됐어요!\n명함 이미지가 다운로드됐어요.\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + textWithUrlPrefix);
           }
         } else {
-          alert('메시지가 클립보드에 복사됐어요!\n붙여넣기로 바로 보내시면 됩니다 😊\n\n' + textWithUrlPrefix);
+          // Web Share 미지원: 명함 다운로드 + 클립보드 안내
+          if (cardBlob) {
+            try {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(cardBlob);
+              a.download = '손진호명함.jpg';
+              a.click();
+            } catch (_) {}
+          }
+          alert('메시지가 클립보드에 복사됐어요!\n명함 이미지가 다운로드됐어요.\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + textWithUrlPrefix);
         }
       } catch (err) {
         console.error(err);
@@ -5051,6 +5215,7 @@ ${MITE_VIDEO_URL}
 
     // 제품 이미지 관리 함수
     function openProductImageSettings() {
+      if (!requireAdminPassword()) return;
       document.getElementById('productImageSettingsModal').classList.add('open');
       renderProductImageList();
     }
@@ -5062,6 +5227,7 @@ ${MITE_VIDEO_URL}
     }
 
     async function addProductImageMapping() {
+      if (!requireAdminPassword()) return;
       const productName = document.getElementById('newProductName').value.trim();
       const imageFileName = document.getElementById('newImageFileName').value.trim();
       
@@ -5085,6 +5251,7 @@ ${MITE_VIDEO_URL}
     }
 
     async function editProductImageMapping(index) {
+      if (!requireAdminPassword()) return;
       const mapping = window.productImageMappings[index];
       const newProductName = prompt('새 제품 이름을 입력하세요:', mapping.productName);
       if (newProductName === null) return;
@@ -5103,6 +5270,7 @@ ${MITE_VIDEO_URL}
     }
 
     async function deleteProductImageMapping(index) {
+      if (!requireAdminPassword()) return;
       const mapping = window.productImageMappings[index];
       if (!confirm(`"${mapping.productName}" 제품의 이미지 매핑을 삭제하시겠습니까?`)) return;
       
@@ -5217,6 +5385,438 @@ ${MITE_VIDEO_URL}
     // 📦 초기 변수 초기화
     if (!window.products) window.products = [];
     if (!window.CATEGORIES) window.CATEGORIES = [...window.DEFAULT_CATEGORIES];
+
+    // ========== 👥 담당자(Staff) 시스템 ==========
+    const DEFAULT_STAFF = Object.freeze({
+      id: 'staff_default_son',
+      name: '손진호',
+      phone: '010-2417-7936',
+      cardImage: '손진호명함.jpg'
+    });
+    const STAFF_STORAGE_KEY = 'coway_current_staff_id';
+    const STAFF_LOCAL_CACHE = 'coway_staff_list_cache';
+    if (!Array.isArray(window.staffProfiles)) window.staffProfiles = [];
+    if (!window._currentStaff) window._currentStaff = { ...DEFAULT_STAFF };
+
+    // -- 헬퍼: 현재 담당자 정보 가져오기 (항상 유효한 값 리턴) --
+    window.getCurrentStaff = function () {
+      if (window._currentStaff && window._currentStaff.name) return window._currentStaff;
+      return { ...DEFAULT_STAFF };
+    };
+    function formatPhoneForDisplay(p) {
+      if (!p) return '';
+      const digits = String(p).replace(/\D/g, '');
+      if (digits.length === 11) return digits.slice(0, 3) + '-' + digits.slice(3, 7) + '-' + digits.slice(7);
+      if (digits.length === 10) return digits.slice(0, 3) + '-' + digits.slice(3, 6) + '-' + digits.slice(6);
+      return p;
+    }
+    function initialOf(name) { return (name || '?').trim().charAt(0) || '👤'; }
+
+    // -- 헬퍼: 명함/상품권 모달 재렌더링 --
+    function refreshStaffDisplay() {
+      const staff = window.getCurrentStaff();
+      // 상단 칩
+      const chip = document.getElementById('currentStaffChipName');
+      if (chip) chip.textContent = '담당자: ' + staff.name;
+      // 명함 모달 이미지
+      const ci = document.getElementById('careCardImage');
+      if (ci) ci.src = staff.cardImage || DEFAULT_STAFF.cardImage;
+      // 명함 모달 고객문구 - (담당자:OOO)
+      const ccMsg = document.getElementById('careCardMessageArea');
+      if (ccMsg) {
+        const link = 'https://free-clean-mattress.vercel.app/home';
+        ccMsg.innerHTML =
+          `<p style="margin:0; font-weight:600; color:#1a3a6e;">👋 고객님~ 덕분에 케어 잘 진행했습니다 😊</p>` +
+          `<p style="margin:8px 0 0 0;">📲 카톡으로 코웨이 설문조사가 올 텐데<br>서비스평가 ⭐"매우만족"⭐ 눌러주시면<br>제게 아주 큰 힘이 됩니다 🙏</p>` +
+          `<p style="margin:8px 0 0 0;">부탁드리겠습니다!!</p>` +
+          `<p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:${staff.name})<br><a href="${link}" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">${link}</a></p>` +
+          `<p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>`;
+      }
+      // 케어상품권 모달 오버레이 - 전화번호 + 담당자
+      const cvCap = document.getElementById('careVoucherCaptureArea');
+      if (cvCap) {
+        const inner = cvCap.querySelector('div');
+        if (inner) {
+          inner.innerHTML =
+            `<img src="케어상품권.jpg" alt="케어상품권" style="max-width:100%; border-radius:12px; display:block;" />` +
+            `<div style="position:absolute; bottom:2px; right:16px; background:transparent; color:#1a3a6e; font-size:1.15rem; font-weight:900; letter-spacing:1.5px; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; position: relative;">📞 ${formatPhoneForDisplay(staff.phone)} (담당자:${staff.name})` +
+              `<span style="position: absolute; bottom: -4px; left: -2px; width: calc(100% + 4px); height: 3px; background: linear-gradient(90deg, transparent 0%, #e74c3c 5%, #c0392b 50%, #e74c3c 95%, transparent 100%); transform: rotate(-1.5deg); border-radius: 2px;"></span>` +
+              `<span style="position: absolute; bottom: -8px; left: 2px; width: calc(100% - 4px); height: 2.5px; background: linear-gradient(90deg, transparent 0%, #c0392b 8%, #e74c3c 50%, #c0392b 92%, transparent 100%); transform: rotate(1deg); border-radius: 2px;"></span>` +
+            `</div>`;
+        }
+      }
+      // 케어상품권 모달 고객문구
+      if (document.getElementById('careVoucherModal')) {
+        const boxes = document.querySelectorAll('#careVoucherModal div[style*="background:#f8fbff"]');
+        boxes.forEach((box) => {
+          const link = 'https://free-clean-mattress.vercel.app/home';
+          if (box.innerHTML && box.innerHTML.includes('무료케어 신청')) {
+            box.innerHTML =
+              `<p style="margin:0; font-weight:600; color:#1a3a6e;">🎁 소중한 분께 특별한 선물을 드려보세요!</p>` +
+              `<p style="margin:8px 0 0 0;">🌟 코웨이 케어상품권을 주변 분들께 전달하시면<br>무료로 케어 서비스를 받으실 수 있습니다 ✨</p>` +
+              `<p style="margin:8px 0 0 0;">👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~</p>` +
+              `<p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:${staff.name})<br><a href="${link}" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">${link}</a></p>`;
+          }
+        });
+      }
+    }
+
+    // -- 담당자 선택 모달 렌더/오픈 --
+    function renderStaffPicker() {
+      const list = Array.isArray(window.staffProfiles) && window.staffProfiles.length > 0
+        ? window.staffProfiles
+        : [{ ...DEFAULT_STAFF }];
+      const el = document.getElementById('staffPickerList');
+      if (!el) return;
+      el.innerHTML = list.map((s) => {
+        const avatarImg = s.cardImage
+          ? `<img src="${escapeHtml(s.cardImage)}" alt="" onerror="this.replaceWith(document.createTextNode('${initialOf(s.name)}'));">`
+          : initialOf(s.name);
+        return `<div class="staff-item" onclick="pickStaff('${escapeHtml(s.id)}')">
+          <div class="staff-avatar">${avatarImg}</div>
+          <div class="staff-meta">
+            <div class="staff-name">${escapeHtml(s.name)}</div>
+            <div class="staff-phone">📞 ${escapeHtml(formatPhoneForDisplay(s.phone))}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    window.pickStaff = function (id) {
+      const list = Array.isArray(window.staffProfiles) && window.staffProfiles.length > 0
+        ? window.staffProfiles
+        : [{ ...DEFAULT_STAFF }];
+      const found = list.find((s) => s.id === id) || list[0];
+      window._currentStaff = { ...DEFAULT_STAFF, ...found };
+      try { localStorage.setItem(STAFF_STORAGE_KEY, window._currentStaff.id); } catch (_) {}
+      document.getElementById('staffPickerModal').classList.remove('open');
+      refreshStaffDisplay();
+    };
+    window.openStaffPickerModal = function () {
+      renderStaffPicker();
+      document.getElementById('staffPickerModal').classList.add('open');
+    };
+    window.openStaffManageModalFromPicker = function () {
+      document.getElementById('staffPickerModal').classList.remove('open');
+      setTimeout(() => openStaffManageModal(), 120);
+    };
+    window.openStaffPickerModalFromManage = function () {
+      document.getElementById('staffManageModal').classList.remove('open');
+      setTimeout(() => window.openStaffPickerModal(), 120);
+    };
+
+    // -- 담당자 관리 모달 (관리자 비밀번호 필요) --
+    function renderStaffManageList() {
+      const list = Array.isArray(window.staffProfiles) && window.staffProfiles.length > 0
+        ? window.staffProfiles
+        : [{ ...DEFAULT_STAFF }];
+      const el = document.getElementById('staffManageList');
+      if (!el) return;
+      el.innerHTML = list.map((s, i) => `
+        <div class="staff-manage-item">
+          <div class="staff-avatar" style="width:38px;height:38px;">
+            ${s.cardImage
+              ? `<img src="${escapeHtml(s.cardImage)}" alt="" onerror="this.replaceWith(document.createTextNode('${initialOf(s.name)}'));">`
+              : initialOf(s.name)}
+          </div>
+          <div class="staff-manage-meta">
+            <div class="n">${escapeHtml(s.name)} ${s.id === DEFAULT_STAFF.id ? '<span style="font-size:0.7rem;color:#0a67cb;background:#e8f2ff;padding:1px 6px;border-radius:999px;">기본</span>' : ''}</div>
+            <div class="p">📞 ${escapeHtml(formatPhoneForDisplay(s.phone))}</div>
+            <div class="f">🖼️ ${escapeHtml(s.cardImage || '(없음)')}</div>
+          </div>
+          <div class="staff-manage-btns">
+            <button class="btn-sm-edit" onclick="editStaffProfile(${i})">수정</button>
+            <button class="btn-sm-del" onclick="deleteStaffProfile(${i})" ${s.id === DEFAULT_STAFF.id ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>삭제</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function staffToFirebaseList() {
+      const list = Array.isArray(window.staffProfiles) && window.staffProfiles.length > 0
+        ? window.staffProfiles
+        : [{ ...DEFAULT_STAFF }];
+      return list.map(({ id, name, phone, cardImage }) => ({ id, name, phone, cardImage }));
+    }
+    async function saveStaffToFirestore() {
+      try {
+        if (!window._firestoreFns) return;
+        const { setDoc, doc } = window._firestoreFns;
+        const ref = doc(window._db, 'settings', 'staff');
+        await setDoc(ref, { list: staffToFirebaseList() }, { merge: false });
+      } catch (e) {
+        console.warn('staff 저장 실패 (로컬만 반영):', e);
+      }
+      try { localStorage.setItem(STAFF_LOCAL_CACHE, JSON.stringify(staffToFirebaseList())); } catch (_) {}
+    }
+    window.openStaffManageModal = function () {
+      if (!requireAdminPassword()) return;
+      renderStaffManageList();
+      document.getElementById('staffManageModal').classList.add('open');
+    };
+    function closeStaffManageModal(e) {
+      if (e && e.target === document.getElementById('staffManageModal')) closeStaffManageModalDirect();
+    }
+    window.closeStaffManageModal = closeStaffManageModal;
+    function closeStaffManageModalDirect() {
+      document.getElementById('staffManageModal').classList.remove('open');
+    }
+    window.closeStaffManageModalDirect = closeStaffManageModalDirect;
+    function uid() { return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function mimeTypeFromFileName(name) {
+      if (!name) return 'image/jpeg';
+      const n = String(name).toLowerCase();
+      if (n.endsWith('.png')) return 'image/png';
+      if (n.endsWith('.webp')) return 'image/webp';
+      if (n.endsWith('.gif')) return 'image/gif';
+      if (n.endsWith('.bmp')) return 'image/bmp';
+      return 'image/jpeg';
+    }
+    window.mimeTypeFromFileName = mimeTypeFromFileName;
+    function pickStaffCardDefaultFileName(nameTrimmed) {
+      // png 파일명을 기본으로 추천 (실제 서버에 png 파일이 주로 있음)
+      return (nameTrimmed || '담당자') + '명함.png';
+    }
+    window.addStaffProfile = async function () {
+      if (!requireAdminPassword()) return;
+      const name = prompt('새 담당자 이름을 입력해주세요:');
+      if (!name || !name.trim()) return;
+      const phone = prompt('전화번호를 입력해주세요 (예: 01012345678):', '010');
+      if (phone === null) return;
+      const defaultFname = pickStaffCardDefaultFileName(name.trim());
+      const cardImage = prompt('명함 이미지 파일명을 입력해주세요\n(파일은 미리 서버에 업로드되어야 함)\n예: 김철수명함.png', defaultFname);
+      if (cardImage === null) return;
+      if (!Array.isArray(window.staffProfiles) || window.staffProfiles.length === 0) window.staffProfiles = [{ ...DEFAULT_STAFF }];
+      window.staffProfiles.push({
+        id: uid(),
+        name: name.trim(),
+        phone: phone.trim(),
+        cardImage: cardImage.trim()
+      });
+      await saveStaffToFirestore();
+      renderStaffManageList();
+    };
+    window.editStaffProfile = async function (index) {
+      if (!requireAdminPassword()) return;
+      const list = Array.isArray(window.staffProfiles) && window.staffProfiles.length > 0 ? window.staffProfiles : [{ ...DEFAULT_STAFF }];
+      const s = list[index]; if (!s) return;
+      const name = prompt('이름:', s.name); if (name === null) return;
+      const phone = prompt('전화번호:', s.phone); if (phone === null) return;
+      const cardImage = prompt('명함 이미지 파일명:', s.cardImage); if (cardImage === null) return;
+      if (s.id === DEFAULT_STAFF.id) {
+        // 기본 담당자는 수정 시 기존 DEFAULT_STAFF 기반으로 값 업데이트만
+        s.name = name.trim() || s.name;
+        s.phone = phone.trim() || s.phone;
+        s.cardImage = cardImage.trim() || s.cardImage;
+      } else {
+        s.name = name.trim() || s.name;
+        s.phone = phone.trim() || s.phone;
+        s.cardImage = cardImage.trim() || s.cardImage;
+      }
+      // 현재 선택된 담당자가 수정되었으면 반영
+      if (window._currentStaff && window._currentStaff.id === s.id) {
+        window._currentStaff = { ...window._currentStaff, ...s };
+        refreshStaffDisplay();
+      }
+      await saveStaffToFirestore();
+      renderStaffManageList();
+      renderStaffPicker();
+    };
+    window.deleteStaffProfile = async function (index) {
+      if (!requireAdminPassword()) return;
+      const list = Array.isArray(window.staffProfiles) && window.staffProfiles.length > 0 ? window.staffProfiles : [{ ...DEFAULT_STAFF }];
+      const s = list[index]; if (!s || s.id === DEFAULT_STAFF.id) return;
+      if (!confirm(`"${s.name}" 담당자를 삭제할까요?\n삭제 시 이 기기에서 기본 담당자로 자동 복귀됩니다.`)) return;
+      window.staffProfiles.splice(index, 1);
+      if (window._currentStaff && window._currentStaff.id === s.id) {
+        window._currentStaff = { ...DEFAULT_STAFF };
+        try { localStorage.setItem(STAFF_STORAGE_KEY, DEFAULT_STAFF.id); } catch (_) {}
+        refreshStaffDisplay();
+      }
+      await saveStaffToFirestore();
+      renderStaffManageList();
+      renderStaffPicker();
+    };
+
+    // -- getFreeCareApplyMessage 동적 치환 --
+    window.getFreeCareApplyMessage = function () {
+      const staff = window.getCurrentStaff();
+      return `📣 무료케어 신청(담당자:${staff.name})
+https://free-clean-mattress.vercel.app/home`;
+    };
+
+    // -- getMiteVideoMessage 동적 치환 (담당자 이름 반영 + 기본 문구 복원) --
+    window.getMiteVideoMessage = function () {
+      const staff = window.getCurrentStaff();
+      const staffName = (staff && staff.name) || '담당자';
+      return `⚠️ 매트리스 진드기, 심각합니다. 꼭 확인하세요.
+
+🦠 침대 속 진드기 사체·배설물이
+아토피·천식·비염·피부 트러블의 원인이 됩니다.
+특히 아이·노약자 계신 가정은 더 위험해요.
+
+🔬 아래 영상으로 실제 상태를 바로 확인해 보세요.
+정기적인 매트리스 케어가 정말 중요합니다.
+
+🎬 진드기 영상 바로보기
+${MITE_VIDEO_URL}
+
+💙 코웨이 매트리스 케어 문의 언제든지 편하게 해주세요!
+💙 ${staffName} 드림`;
+    };
+
+    // -- shareCareCard 동적 명함 --
+    window.shareCareCard = async function () {
+      if (window.shareCareCardLock) return;
+      window.shareCareCardLock = true;
+      const btn = document.getElementById('shareCareCardBtn');
+      if (btn) btn.disabled = true;
+      const staff = window.getCurrentStaff();
+      try {
+        const shareText = window.getCareCardMessage ? window.getCareCardMessage() : '';
+        try { await navigator.clipboard.writeText(shareText); } catch(e) {}
+        const cardBlob = await loadImageBlob(staff.cardImage || DEFAULT_STAFF.cardImage);
+        const fileName = staff.cardImage && staff.cardImage.trim() ? staff.cardImage.trim() : (staff.name + '명함.jpg');
+        const file = new File([cardBlob], fileName, { type: cardBlob.type || 'image/jpeg' });
+        const files = [file];
+        if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
+          try {
+            await navigator.share({ files, title: '코웨이 명함', text: shareText });
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(cardBlob);
+              a.download = fileName;
+              a.click();
+              alert('메시지가 클립보드에 복사됐어요!\n명함 다운로드됐어요. 이미지 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
+            }
+          }
+        } else {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(cardBlob);
+          a.download = fileName;
+          a.click();
+          alert('메시지가 클립보드에 복사됐어요!\n명함 다운로드됐어요. 이미지 전송 후 붙여넣기 하세요 😊\n\n' + shareText);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('명함 이미지 로드에 실패했어요.\n\n오류: ' + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => { window.shareCareCardLock = false; }, 3000);
+      }
+    };
+
+    // -- shareMiteVideo 동적 명함 --
+    window.shareMiteVideo = async function () {
+      if (window.shareMiteVideoLock) return;
+      window.shareMiteVideoLock = true;
+      const btn = document.getElementById('btnShareMiteVideo');
+      if (btn) btn.disabled = true;
+      const staff = window.getCurrentStaff();
+      try {
+        const fullText = window.getMiteVideoMessage ? window.getMiteVideoMessage() : '';
+        const textWithUrlPrefix = fullText && fullText.includes(MITE_VIDEO_URL) ? fullText : `${fullText}\n\n🎬 진드기 영상 바로보기\n${MITE_VIDEO_URL}`;
+        try { await navigator.clipboard.writeText(textWithUrlPrefix); } catch(e) { console.warn('클립보드 복사 실패:', e); }
+        let cardBlob = null;
+        let cardFile = null;
+        try {
+          if (typeof loadImageBlob === 'function') {
+            const imgPath = staff.cardImage || DEFAULT_STAFF.cardImage;
+            cardBlob = await loadImageBlob(imgPath);
+            const fn = staff.cardImage && staff.cardImage.trim() ? staff.cardImage.trim() : (staff.name + '명함.jpg');
+            cardFile = new File([cardBlob], fn, { type: cardBlob.type || 'image/jpeg' });
+          }
+        } catch (e) { console.warn('명함 이미지 로드 실패:', e); }
+        const fileNameFb = staff.cardImage && staff.cardImage.trim() ? staff.cardImage.trim() : (staff.name + '명함.jpg');
+        if (navigator.share) {
+          let shared = false;
+          if (!shared && cardFile && navigator.canShare && navigator.canShare({ files: [cardFile] })) {
+            try { await navigator.share({ files: [cardFile], title: '매트리스 진드기 실제 영상', text: textWithUrlPrefix }); shared = true; }
+            catch (err) { if (err && err.name === 'AbortError') shared = true; }
+          }
+          if (!shared) { try { await navigator.share({ title: '매트리스 진드기 실제 영상', text: textWithUrlPrefix }); shared = true; } catch (err) { if (err && err.name === 'AbortError') shared = true; } }
+          if (!shared) { try { await navigator.share({ title: '매트리스 진드기 실제 영상', text: fullText, url: MITE_VIDEO_URL }); shared = true; } catch (err) { if (err && err.name === 'AbortError') shared = true; } }
+          if (!shared) { try { await navigator.share({ title: '매트리스 진드기 실제 영상', url: MITE_VIDEO_URL }); shared = true; } catch (err) { if (err && err.name === 'AbortError') shared = true; } }
+          if (!shared) {
+            if (cardBlob) { try { const a = document.createElement('a'); a.href = URL.createObjectURL(cardBlob); a.download = fileNameFb; a.click(); } catch (_) {} }
+            alert('메시지가 클립보드에 복사됐어요!\n명함 이미지가 다운로드됐어요.\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + textWithUrlPrefix);
+          }
+        } else {
+          if (cardBlob) { try { const a = document.createElement('a'); a.href = URL.createObjectURL(cardBlob); a.download = fileNameFb; a.click(); } catch (_) {} }
+          alert('메시지가 클립보드에 복사됐어요!\n명함 이미지가 다운로드됐어요.\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + textWithUrlPrefix);
+        }
+      } catch (err) {
+        console.error(err);
+        try { const fb = window.getMiteVideoMessage ? window.getMiteVideoMessage() : ''; alert('메시지가 클립보드에 복사됐어요!\n붙여넣기로 바로 보내시면 됩니다 😊\n\n' + fb); } catch (_) {}
+      } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => { window.shareMiteVideoLock = false; }, 3000);
+      }
+    };
+
+    // -- 담당자 Firestore 실시간 로드 --
+    const staffDocRef = doc(db, 'settings', 'staff');
+    function applyStaffList(rawList) {
+      let list = Array.isArray(rawList) && rawList.length > 0 ? rawList.slice() : null;
+      if (!list || list.length === 0) list = [{ ...DEFAULT_STAFF }];
+      // 기본 담당자가 없으면 맨 앞에 강제로 삽입
+      if (!list.find((x) => x.id === DEFAULT_STAFF.id)) list.unshift({ ...DEFAULT_STAFF });
+      window.staffProfiles = list;
+      try { localStorage.setItem(STAFF_LOCAL_CACHE, JSON.stringify(list)); } catch (_) {}
+      // localStorage에 기억된 담당자 ID로 복원, 없으면 첫 번째
+      let savedId = null;
+      try { savedId = localStorage.getItem(STAFF_STORAGE_KEY); } catch (_) {}
+      const picked = (savedId && list.find((s) => s.id === savedId)) || list[0];
+      window._currentStaff = { ...DEFAULT_STAFF, ...picked };
+      try { localStorage.setItem(STAFF_STORAGE_KEY, window._currentStaff.id); } catch (_) {}
+      refreshStaffDisplay();
+      renderStaffPicker();
+    }
+    (async function initStaffBootstrap() {
+      // 1단계: 로컬 캐시로 즉시 표시 (없으면 기본값)
+      let localList = null;
+      try {
+        const raw = localStorage.getItem(STAFF_LOCAL_CACHE);
+        if (raw) localList = JSON.parse(raw);
+      } catch (_) {}
+      applyStaffList(localList);
+      // 2단계: Firestore onSnapshot 실시간 구독
+      onSnapshot(staffDocRef, async (snap) => {
+        if (!navigator.onLine) return;
+        let data = null;
+        try {
+          if (snap.exists()) data = snap.data();
+        } catch (_) {}
+        if (data && Array.isArray(data.list) && data.list.length > 0) {
+          applyStaffList(data.list);
+          // 저장된 상태에 기본 담당자 없을 경우 1번만 Firestore에 기본값도 함께 저장
+          if (!data.list.find((x) => x.id === DEFAULT_STAFF.id)) {
+            saveStaffToFirestore();
+          }
+        } else {
+          // Firestore에 아직 문서가 없으면 기본 담당자 1명 저장
+          if (!window._staffInitialSaved) {
+            window._staffInitialSaved = true;
+            window.staffProfiles = [{ ...DEFAULT_STAFF }];
+            saveStaffToFirestore();
+            applyStaffList([{ ...DEFAULT_STAFF }]);
+          }
+        }
+      }, (err) => {
+        console.warn('staff onSnapshot 오류 (로컬 데이터로 계속 진행):', err);
+      });
+      // 3단계: 최초 접속 & 아직 담당자 기억값 없으면 (기본값 말고 딱히 저장된게 아니어도) - 바로 선택 모달 띄우기
+      try {
+        const remember = localStorage.getItem(STAFF_STORAGE_KEY);
+        if (!remember) {
+          // 살짝 지연 후 담당자 선택 모달
+          setTimeout(() => {
+            const listCnt = Array.isArray(window.staffProfiles) ? window.staffProfiles.length : 0;
+            // 담당자가 2명 이상일 때만 선택 유도 (1명이면 굳이 안 띄워도 됨)
+            if (listCnt >= 2) window.openStaffPickerModal();
+          }, 800);
+        }
+      } catch (_) {}
+    })();
 
     // 카테고리 실시간 동기화 - Firestore를 항상 우선으로!
     unsubCategories = onSnapshot(categoriesDocRef, async (snap) => {
