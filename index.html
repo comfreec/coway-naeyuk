@@ -3085,10 +3085,10 @@
     // - 검색어가 있거나 / 특정 카테고리 선택 / 즐겨찾기 보기 / 고급필터 활성
     //   → 엑셀 제품까지 전부 표시 (기존처럼)
     const hasAdv = hasAdvFilters('home');
-    // 검색어가 있을 때만 엑셀 포함 전체 표시
-    // 카테고리 선택 / 즐겨찾기 / 고급필터만으로는 수동 등록 제품만 표시
-    const includeExcel = Boolean(nameQ.trim());
-    const hasAnyFilter = includeExcel || currentCategory !== '전체' || currentCategory === '⭐ 즐겨찾기' || hasAdv;
+    // 검색어 또는 복합필터가 있을 때 엑셀 포함 전체 표시
+    // 카테고리 선택 / 즐겨찾기만으로는 수동 등록 제품만 표시
+    const includeExcel = Boolean(nameQ.trim()) || hasAdv;
+    const hasAnyFilter = includeExcel || currentCategory !== '전체' || currentCategory === '⭐ 즐겨찾기';
     const sourceFiltered = includeExcel
       ? products
       : products.filter(p => !p.source || p.source === 'manual');
@@ -3407,24 +3407,26 @@
       if (contractText) infoChips.push(`<div class="excel-info-chip"><span class="chip-label">약정</span><span class="chip-value">${escapeHtml(contractText)}</span></div>`);
       if (cycleText) infoChips.push(`<div class="excel-info-chip"><span class="chip-label">주기</span><span class="chip-value">${escapeHtml(cycleText)}</span></div>`);
       if (monthsText) infoChips.push(`<div class="excel-info-chip"><span class="chip-label">총 기간</span><span class="chip-value">${monthsText}</span></div>`);
-      if (exclText) infoChips.push(`<div class="excel-info-chip"><span class="chip-label">일시불</span><span class="chip-value">${exclText}</span></div>`);
 
       const promoBadges = [];
+      const addedBadgeKeys = new Set();
+      const pushBadge = (html, key) => {
+        const k = key.replace(/\s+/g,'').toLowerCase();
+        if (!addedBadgeKeys.has(k)) { addedBadgeKeys.add(k); promoBadges.push(html); }
+      };
       // promoExtraText가 있으면 파싱된 배지만 사용 (원문과 중복 방지)
-      // promoExtraText가 없을 때만 원문 배지 표시
-      if (promoText && !promoExtraText) promoBadges.push(`<div class="excel-promo-badge" title="${escapeHtml(promoText)}">${escapeHtml(promoText)}</div>`);
+      if (promoText && !promoExtraText) pushBadge(`<div class="excel-promo-badge" title="${escapeHtml(promoText)}">${escapeHtml(promoText)}</div>`, promoText);
       if (promoExtraText) {
         promoExtraText.split(/[,|;\/]/).map(s => s.trim()).filter(Boolean).forEach(t => {
-          // 계산에 반영된 항목은 ✅ 표시
           const isReflected = (t.includes('반값') && window.modalHalfDiscOverride > 0)
                            || (t.includes('타사') && window.modalCompetitorDiscOverride > 0);
-          promoBadges.push(`<div class="excel-promo-badge highlight">${isReflected ? '✅ ' : ''}${escapeHtml(t)}</div>`);
+          pushBadge(`<div class="excel-promo-badge highlight">${isReflected ? '✅ ' : ''}${escapeHtml(t)}</div>`, t);
         });
       }
       // 카드할인 기본값 배지
       const cardAmt = window.modalCardAmtOverride != null ? window.modalCardAmtOverride : (raw.card || 0);
       if (cardAmt > 0) {
-        promoBadges.push(`<div class="excel-promo-badge" style="background:linear-gradient(135deg,#e8f4fd,#c8e6f9);color:#1a5276;border-color:rgba(41,128,185,0.4);">✅ 카드할인 ${cardAmt.toLocaleString()}원</div>`);
+        pushBadge(`<div class="excel-promo-badge" style="background:linear-gradient(135deg,#e8f4fd,#c8e6f9);color:#1a5276;border-color:rgba(41,128,185,0.4);">✅ 카드할인 ${cardAmt.toLocaleString()}원</div>`, `카드할인${cardAmt}`);
       }
 
       rows.push(`
@@ -3581,11 +3583,15 @@
     const promotionText = raw.promotion ? String(raw.promotion).trim() : '';
     const promotionExtraText = raw.promotionExtra ? String(raw.promotionExtra).trim() : '';
     const promoItems = [];
-    if (promotionText && promotionText !== '-' && promotionText !== '0') {
+    if (promotionText && promotionText !== '-' && promotionText !== '0' && !promotionExtraText) {
       promoItems.push(promotionText);
     }
     if (promotionExtraText) {
-      promotionExtraText.split(/[,|;\/]/).map(s => s.trim()).filter(Boolean).forEach(t => promoItems.push(t));
+      promotionExtraText.split(/[,|;\/]/).map(s => s.trim()).filter(Boolean).forEach(t => {
+        if (!promoItems.some(existing => existing.replace(/\s+/g,'') === t.replace(/\s+/g,''))) {
+          promoItems.push(t);
+        }
+      });
     }
     // 할인 필드 기반 프로모션 자동 추출
     if (raw.halfDisc > 0) promoItems.push(`반값할인 ${raw.halfDisc}%`);
@@ -3594,9 +3600,11 @@
     if (raw.extraDisc > 0) promoItems.push(`추가할인 ${raw.extraDisc}%`);
     if (raw.corasol > 0) promoItems.push(`코라솔 할인`);
     if (raw.card > 0) promoItems.push(`신용카드 할인`);
+    // 중복 제거
+    const uniquePromoItems = [...new Map(promoItems.map(t => [t.replace(/\s+/g,'').toLowerCase(), t])).values()];
     
-    if (promoItems.length > 0) {
-      const promoHtml = promoItems.map(t => `<div style="background:linear-gradient(135deg, #fff4d6, #ffe7a8);border:1px solid rgba(255,205,80,0.55);color:#8a5a00;padding:6px 14px;border-radius:999px;font-weight:700;font-size:0.95rem;white-space:nowrap;">🎁 ${escapeHtml(t)}</div>`).join('');
+    if (uniquePromoItems.length > 0) {
+      const promoHtml = uniquePromoItems.map(t => `<div style="background:linear-gradient(135deg, #fff4d6, #ffe7a8);border:1px solid rgba(255,205,80,0.55);color:#8a5a00;padding:6px 14px;border-radius:999px;font-weight:700;font-size:0.95rem;white-space:nowrap;">🎁 ${escapeHtml(t)}</div>`).join('');
       rows.push(`
         <div style="margin-top:16px; padding:14px 12px; background:linear-gradient(135deg, #fff9e6 0%, #fff3d1 100%); border:1px dashed rgba(243, 156, 18, 0.5); border-radius:16px;">
           <div style="font-size:1.05rem; font-weight:800; color:#b9770e; margin-bottom:10px; text-align:center;">🏷️ 적용 가능한 프로모션 혜택</div>
@@ -3848,16 +3856,30 @@
         if (yearsRaw !== undefined && yearsRaw !== null && yearsRaw !== '') {
           const years = Number(yearsRaw) || 0;
           const target = Number(f.contractYears);
-          if (!(years === target)) return false;
+          // contractYears가 0이면 contractName 원문에서 보조 파싱
+          if (years === 0) {
+            const contractName = String(g(p, 'contractName') || '');
+            const m = contractName.match(/(\d+)\s*년/) || contractName.match(/[^\d](\d+)$/);
+            const parsedYears = m ? parseInt(m[1], 10) : 0;
+            if (!(parsedYears === target)) return false;
+          } else {
+            if (!(years === target)) return false;
+          }
         }
       }
       // 2) 관리 구분 (핵심 키워드 기반 매칭 + 공백 제거 양방향)
       if (f.careType) {
-        const careValRaw = String(g(p, 'careType') || '');
-        const careVal = careValRaw.replace(/\s+/g, '');
+        let careValRaw = String(g(p, 'careType') || '');
+        // careType 비어있으면 contractName에서 보조 파싱
+        if (!careValRaw) {
+          careValRaw = String(g(p, 'contractName') || '');
+        }
+        // careType + contractName 둘 다 합쳐서 매칭 (약정명에 토탈케어 등 포함된 경우)
+        const contractNameVal = String(g(p, 'contractName') || '');
+        const combinedVal = (careValRaw + ' ' + contractNameVal).replace(/\s+/g, '').replace(/_/g, '');
         const filterVal = String(f.careType || '').replace(/\s+/g, '');
-        // careType 필드가 없는 수동 등록 제품은 이 조건만 건너뜀
-        if (careValRaw) {
+        // careType/contractName 둘 다 없는 수동 등록 제품은 이 조건만 건너뜀
+        if (careValRaw || contractNameVal) {
           // 핵심 키워드 매칭 맵
           const keywordMap = {
             '토탈케어': ['토탈', 'total', '토탈케어'],
@@ -3868,9 +3890,9 @@
             '셀프관리': ['셀프', 'self', '셀프관리', '스스로']
           };
           const keywords = keywordMap[filterVal] || [filterVal];
-          const matched = keywords.some(kw => careVal.includes(kw.replace(/\s+/g, '')))
-                        || filterVal.includes(careVal)
-                        || careVal.includes(filterVal);
+          const matched = keywords.some(kw => combinedVal.includes(kw.replace(/\s+/g, '')))
+                        || filterVal.includes(combinedVal)
+                        || combinedVal.includes(filterVal);
           if (!matched) return false;
         }
       }
@@ -3892,17 +3914,19 @@
       // 6) 토탈 케어 포함
       if (f.totalCare) {
         const careValRaw = String(g(p, 'careType') || '');
-        if (careValRaw) {
-          const careVal = careValRaw.replace(/\s+/g, '');
-          if (!careVal.includes('토탈케어') && !careVal.includes('토탈')) return false;
+        const contractNameVal = String(g(p, 'contractName') || '');
+        if (careValRaw || contractNameVal) {
+          const combined = (careValRaw + contractNameVal).replace(/[\s_]/g, '');
+          if (!combined.includes('토탈케어') && !combined.includes('토탈')) return false;
         }
       }
       // 7) 스페셜체인지 (프리미엄) 포함
       if (f.premiumCare) {
         const careValRaw = String(g(p, 'careType') || '');
-        if (careValRaw) {
-          const careVal = careValRaw.replace(/\s+/g, '');
-          if (!careVal.includes('스페셜체인지') && !careVal.includes('프리미엄') && !careVal.includes('스페셜')) return false;
+        const contractNameVal = String(g(p, 'contractName') || '');
+        if (careValRaw || contractNameVal) {
+          const combined = (careValRaw + contractNameVal).replace(/[\s_]/g, '');
+          if (!combined.includes('스페셜체인지') && !combined.includes('프리미엄') && !combined.includes('스페셜')) return false;
         }
       }
       // 8) 타사보상 포함
@@ -5570,7 +5594,8 @@
       const c = String(contract || '');
       let hasCompetitor = false;
       let years = 0;
-      const y = c.match(/(\d+)년/);
+      // "7년", "7Y", "케어7", "코웨이케어7", "7년형" 등 다양한 패턴 지원
+      const y = c.match(/(\d+)\s*년/) || c.match(/[케어코웨이]*(\d+)/);
       if (y) years = parseInt(y[1], 10);
       if (c.includes('타사')) hasCompetitor = true;
       return { years, hasCompetitor };
