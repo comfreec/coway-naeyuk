@@ -2570,8 +2570,11 @@
 
   // 엑셀 제품 자동 할인 오버라이드 (카드할인/반값/타사보상)
   function applyExcelOverride(raw) {
-    if (!raw || (raw.source !== 'excel' && raw.source !== 'coway_excel')) return raw;
+    if (!raw) return raw;
     const wx = { ...raw };
+    // 결합할인 기본 5% (openModal과 동일)
+    if (!wx.bundleDisc || wx.bundleDisc === 0) wx.bundleDisc = 5;
+    if (raw.source !== 'excel' && raw.source !== 'coway_excel') return wx;
     if (!(raw.card > 0)) wx.card = 24000;
     const promoStr = String(raw.promotion || '').toLowerCase();
     if (raw.halfDisc <= 0 && promoStr.includes('반값')) wx.halfDisc = 50;
@@ -4286,23 +4289,23 @@
     window.modalExtraDiscOverride = null;
     window.modalRerentalDiscOverride = null;
 
-    // 엑셀 제품: 카드할인 기본값 23,000원 + 프로모션 할인 자동 반영
+    // 엑셀 제품: 카드할인 기본값 + 프로모션 할인 자동 반영
     const isExcelProduct = raw.source === 'excel' || raw.source === 'coway_excel';
     if (isExcelProduct) {
-      // 카드할인: raw.card가 0이면 기본 24,000원 주입
       if (!(raw.card > 0)) window.modalCardAmtOverride = 24000;
       else window.modalCardAmtOverride = null;
-      // 프로모션 → 반값할인 파싱
       const promoStr = String(raw.promotion || '').toLowerCase();
       if (raw.halfDisc <= 0 && promoStr.includes('반값')) {
         window.modalHalfDiscOverride = 50;
       }
-      // 타사보상: 렌탈료의 10% 자동 반영
       if (raw.competitor <= 0 && (raw.hasCompetitorTag || promoStr.includes('타사') || promoStr.includes('보상'))) {
         window.modalCompetitorDiscOverride = Math.round((raw.rental || 0) * 0.1);
       }
     } else {
+      // 수동 제품: 이전 엑셀 오버라이드 완전 초기화
       window.modalCardAmtOverride = null;
+      window.modalHalfDiscOverride = null;
+      window.modalCompetitorDiscOverride = null;
     }
 
     // 공통 렌더링 함수 호출
@@ -4481,7 +4484,18 @@
         const orderB = b.order || 0;
         return orderA - orderB;
       }
-      const pa = calcProduct(applyExcelOverride(a), true), pb = calcProduct(applyExcelOverride(b), true);
+      const calcWithCard = (raw) => {
+        const wx = applyExcelOverride(raw);
+        const pNoCard = calcProduct(wx, false);
+        const corasolSub = (wx.rental || 0)
+          - (pNoCard.contractAmt || 0) - (pNoCard.halfDiscAmt || 0)
+          - (pNoCard.rerentalDiscAmt || 0) - (pNoCard.discAmt || 0)
+          - (pNoCard.extraDiscAmt || 0) - (pNoCard.competitor || 0)
+          - (pNoCard.bundleDiscAmt || 0) - (pNoCard.multiDiscAmt || 0)
+          - (pNoCard.corasol || 0);
+        return calcProduct(wx, corasolSub >= 0);
+      };
+      const pa = calcWithCard(a), pb = calcWithCard(b);
       const va = orderKey === 'name' ? (pa.name || '') : (pa[orderKey] || 0);
       const vb = orderKey === 'name' ? (pb.name || '') : (pb[orderKey] || 0);
       if (typeof va === 'string') return va.localeCompare(vb, 'ko') * orderDir;
@@ -4489,7 +4503,20 @@
     });
     const ps = sorted.map(x => {
       const wx = applyExcelOverride(x);
-      const calculated = calcProduct(wx, true);
+      // 코라솔 후 소계 계산해서 카드 적용 여부 결정 (renderModalContent와 동일 로직)
+      const pNoCard = calcProduct(wx, false);
+      const corasolSub = (wx.rental || 0)
+        - (pNoCard.contractAmt || 0)
+        - (pNoCard.halfDiscAmt || 0)
+        - (pNoCard.rerentalDiscAmt || 0)
+        - (pNoCard.discAmt || 0)
+        - (pNoCard.extraDiscAmt || 0)
+        - (pNoCard.competitor || 0)
+        - (pNoCard.bundleDiscAmt || 0)
+        - (pNoCard.multiDiscAmt || 0)
+        - (pNoCard.corasol || 0);
+      const applyCard = corasolSub >= 0;
+      const calculated = calcProduct(wx, applyCard);
       if (x.source) calculated._source = x.source;
       if (x.model) calculated._model = x.model;
       if (x.careType) calculated._careType = x.careType;
@@ -5276,10 +5303,14 @@
       }
     } else {
       window.modalCardAmtOverride = null;
+      window.modalHalfDiscOverride = null;
+      window.modalCompetitorDiscOverride = null;
     }
 
     // workingRaw에 오버라이드 반영
     let workingRaw = { ...raw };
+    // bundleDisc 기본 5% (openModal과 동일)
+    if (!workingRaw.bundleDisc || workingRaw.bundleDisc === 0) workingRaw.bundleDisc = 5;
     if (modalBundleDiscOverride !== null) workingRaw.bundleDisc = modalBundleDiscOverride;
     if (window.modalHalfDiscOverride !== null) workingRaw.halfDisc = window.modalHalfDiscOverride;
     if (window.modalCompetitorDiscOverride !== null) workingRaw.competitor = window.modalCompetitorDiscOverride;
@@ -5461,6 +5492,8 @@
       window.modalExtraDiscOverride = null;
       window.modalRerentalDiscOverride = null;
       window.modalCardAmtOverride = null;
+      window.modalHalfDiscOverride = null;
+      window.modalCompetitorDiscOverride = null;
       if (history.state && history.state.modal === 'note') history.back();
     }
 
