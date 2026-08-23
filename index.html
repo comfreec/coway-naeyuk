@@ -2237,7 +2237,7 @@
       <p style="margin:0; font-weight:600; color:#1a3a6e;">👋 고객님~ 덕분에 케어 잘 진행했습니다 😊</p>
       <p style="margin:8px 0 0 0;">📲 카톡으로 코웨이 설문조사가 올 텐데<br>서비스평가 ⭐"매우만족"⭐ 눌러주시면<br>제게 아주 큰 힘이 됩니다 🙏</p>
       <p style="margin:8px 0 0 0;">부탁드리겠습니다!!</p>
-      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:손진호)<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:손진호)<br><a href="https://free-clean-mattress.vercel.app/?ref=%EC%86%90%EC%A7%84%ED%98%B8" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/?ref=%EC%86%90%EC%A7%84%ED%98%B8</a></p>
       <p style="margin:12px 0 0 0; color:#0a5bb0; font-weight:700;">💙 감사합니다~^^</p>
     </div>
     
@@ -2263,7 +2263,7 @@
       <p style="margin:0; font-weight:600; color:#1a3a6e;">🎁 소중한 분께 특별한 선물을 드려보세요!</p>
       <p style="margin:8px 0 0 0;">🌟 코웨이 케어상품권을 주변 분들께 전달하시면<br>무료로 케어 서비스를 받으실 수 있습니다 ✨</p>
       <p style="margin:8px 0 0 0;">👨‍👩‍👧‍👦 가족, 친구, 이웃에게 공유해보세요~</p>
-      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:손진호)<br><a href="https://free-clean-mattress.vercel.app/home" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/home</a></p>
+      <p style="margin:8px 0 0 0; color:#0a5bb0; font-weight:700;">📣 무료케어 신청(담당자:손진호)<br><a href="https://free-clean-mattress.vercel.app/?ref=%EC%86%90%EC%A7%84%ED%98%B8" target="_blank" rel="noopener noreferrer" style="color:#0a5bb0; word-break:break-all;">https://free-clean-mattress.vercel.app/?ref=%EC%86%90%EC%A7%84%ED%98%B8</a></p>
     </div>
     <div class="btn-row" id="careVoucherBtnRow">
       <button type="button" class="btn-reset" onclick="closeCareVoucherModalDirect()">닫기</button>
@@ -6419,7 +6419,7 @@
         return window.getFreeCareApplyMessage();
       }
       return `📣 무료케어 신청(담당자:손진호)
-https://free-clean-mattress.vercel.app/home`;
+https://free-clean-mattress.vercel.app/?ref=%EC%86%90%EC%A7%84%ED%98%B8`;
     }
 
     function getCareCardMessage(includeFreeCareMessage = true) {
@@ -7072,7 +7072,7 @@ ${MITE_VIDEO_URL}
       // 명함 모달 고객문구 - (담당자:OOO)
       const ccMsg = document.getElementById('careCardMessageArea');
       if (ccMsg) {
-        const link = 'https://free-clean-mattress.vercel.app/home';
+        const link = getStaffFreeCareUrl(staff.name);
         ccMsg.innerHTML =
           `<p style="margin:0; font-weight:600; color:#1a3a6e;">👋 고객님~ 덕분에 케어 잘 진행했습니다 😊</p>` +
           `<p style="margin:8px 0 0 0;">📲 카톡으로 코웨이 설문조사가 올 텐데<br>서비스평가 ⭐"매우만족"⭐ 눌러주시면<br>제게 아주 큰 힘이 됩니다 🙏</p>` +
@@ -7097,7 +7097,7 @@ ${MITE_VIDEO_URL}
       if (document.getElementById('careVoucherModal')) {
         const boxes = document.querySelectorAll('#careVoucherModal div[style*="background:#f8fbff"]');
         boxes.forEach((box) => {
-          const link = 'https://free-clean-mattress.vercel.app/home';
+          const link = getStaffFreeCareUrl(staff.name);
           if (box.innerHTML && box.innerHTML.includes('무료케어 신청')) {
             box.innerHTML =
               `<p style="margin:0; font-weight:600; color:#1a3a6e;">🎁 소중한 분께 특별한 선물을 드려보세요!</p>` +
@@ -7285,10 +7285,18 @@ ${MITE_VIDEO_URL}
     };
 
     // -- getFreeCareApplyMessage 동적 치환 --
+    const STAFF_FREE_CARE_URLS = {
+      '손진호': 'https://free-clean-mattress.vercel.app/?ref=%EC%86%90%EC%A7%84%ED%98%B8',
+      '박정식': 'https://free-clean-mattress.vercel.app/?ref=%EB%B0%95%EC%A0%95%EC%8B%9D',
+      '임성욱': 'https://free-clean-mattress.vercel.app/?ref=%EC%9E%84%EC%84%B1%EC%9A%B1'
+    };
+    function getStaffFreeCareUrl(staffName) {
+      return STAFF_FREE_CARE_URLS[staffName] || `https://free-clean-mattress.vercel.app/?ref=${encodeURIComponent(staffName)}`;
+    }
     window.getFreeCareApplyMessage = function () {
       const staff = window.getCurrentStaff();
-      return `📣 무료케어 신청(담당자:${staff.name})
-https://free-clean-mattress.vercel.app/home`;
+      const url = getStaffFreeCareUrl(staff.name);
+      return `📣 무료케어 신청(담당자:${staff.name})\n${url}`;
     };
 
     // -- getMiteVideoMessage 동적 치환 (담당자 이름 반영 + 기본 문구 복원) --
