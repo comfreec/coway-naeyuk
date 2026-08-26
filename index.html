@@ -2568,19 +2568,15 @@
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   }
 
-  // 엑셀 제품 자동 할인 오버라이드 (카드할인/반값/타사보상)
+  // 엑셀 제품 자동 할인 오버라이드 (카드할인 + 결합할인)
   function applyExcelOverride(raw) {
     if (!raw) return raw;
     const wx = { ...raw };
     // 결합할인 기본 5% (openModal과 동일)
     if (!wx.bundleDisc || wx.bundleDisc === 0) wx.bundleDisc = 5;
     if (raw.source !== 'excel' && raw.source !== 'coway_excel') return wx;
+    // 엑셀 제품: 카드할인 기본 24,000원 (약정/타사보상은 이미 렌탈료에 반영됨)
     if (!(raw.card > 0)) wx.card = 24000;
-    const promoStr = String(raw.promotion || '').toLowerCase();
-    if (raw.halfDisc <= 0 && promoStr.includes('반값')) wx.halfDisc = 50;
-    if (raw.competitor <= 0 && (raw.hasCompetitorTag || promoStr.includes('타사') || promoStr.includes('보상'))) {
-      wx.competitor = Math.round((raw.rental || 0) * 0.1);
-    }
     return wx;
   }
 
@@ -3245,6 +3241,7 @@
   let modalBundleDiscOverride = null;
   window.modalHalfDiscOverride = null;
   window.modalCompetitorDiscOverride = null;
+  window.modalPromoAmtOverride = null; // 프로모션 추가할인 금액 (결합할인 전 적용)
   window.modalDiscOverride = null;
   window.modalExtraDiscOverride = null;
   window.modalRerentalDiscOverride = null;
@@ -3318,6 +3315,11 @@
     if (window.modalCompetitorDiscOverride !== null) {
       workingRaw.competitor = window.modalCompetitorDiscOverride;
     }
+    // 프로모션 추가할인 금액: calcProduct의 competitor에 합산 (결합할인 전 적용되도록)
+    const promoAmtApplied = window.modalPromoAmtOverride > 0 ? window.modalPromoAmtOverride : 0;
+    if (promoAmtApplied > 0) {
+      workingRaw.competitor = (workingRaw.competitor || 0) + promoAmtApplied;
+    }
     if (window.modalDiscOverride !== null) {
       workingRaw.disc = window.modalDiscOverride;
     }
@@ -3336,6 +3338,7 @@
     if (modalBundleDiscOverride !== null) displayRaw.bundleDisc = modalBundleDiscOverride;
     if (window.modalHalfDiscOverride !== null) displayRaw.halfDisc = window.modalHalfDiscOverride;
     if (window.modalCompetitorDiscOverride !== null) displayRaw.competitor = window.modalCompetitorDiscOverride;
+    if (promoAmtApplied > 0) displayRaw.competitor = (displayRaw.competitor || 0) + promoAmtApplied;
     if (window.modalDiscOverride !== null) displayRaw.disc = window.modalDiscOverride;
     if (window.modalExtraDiscOverride !== null) displayRaw.extraDisc = window.modalExtraDiscOverride;
     if (window.modalRerentalDiscOverride !== null) displayRaw.rerentalDisc = window.modalRerentalDiscOverride;
@@ -3538,8 +3541,14 @@
     }
     if (raw.competitor > 0 || window.modalCompetitorDiscOverride !== null) {
       const isCanceled = window.modalCompetitorDiscOverride === 0;
-      push('타사보상 할인', pDisplay.competitor, '', null, isCanceled);
-      if (!isCanceled) beforeCorasol -= pDisplay.competitor;
+      const competitorDispAmt = promoAmtApplied > 0 ? pDisplay.competitor - promoAmtApplied : pDisplay.competitor;
+      push('타사보상 할인', competitorDispAmt, '', null, isCanceled);
+      if (!isCanceled) beforeCorasol -= competitorDispAmt;
+    }
+    // 프로모션 추가할인 (N회 N만원 할인)
+    if (promoAmtApplied > 0) {
+      push('프로모션 추가할인', promoAmtApplied);
+      beforeCorasol -= promoAmtApplied;
     }
     // 재렌탈 할인이 있으면 결합 할인도 항상 표시
     const hasRerental = raw.rerentalDisc > 0 && window.modalRerentalDiscOverride !== 0;
@@ -3607,7 +3616,36 @@
     const uniquePromoItems = [...new Map(promoItems.map(t => [t.replace(/\s+/g,'').toLowerCase(), t])).values()];
     
     if (uniquePromoItems.length > 0) {
-      const promoHtml = uniquePromoItems.map(t => `<div style="background:linear-gradient(135deg, #fff4d6, #ffe7a8);border:1px solid rgba(255,205,80,0.55);color:#8a5a00;padding:6px 14px;border-radius:999px;font-weight:700;font-size:0.95rem;white-space:nowrap;">🎁 ${escapeHtml(t)}</div>`).join('');
+      const promoHtml = uniquePromoItems.map(t => {
+        const tLower = t.replace(/\s+/g,'').toLowerCase();
+        // 이미 계산에 반영된 항목 확인
+        const isHalfApplied = (tLower.includes('반값')) && window.modalHalfDiscOverride > 0;
+        const isCompApplied = (tLower.includes('타사') || tLower.includes('보상')) && window.modalCompetitorDiscOverride > 0;
+        const isApplied = isHalfApplied || isCompApplied;
+        // 클릭 핸들러 결정
+        let onclick = '';
+        let promoAmt = 0;
+        // "12회 2만원 할인" 패턴에서 금액 추출
+        const amtMatch = t.match(/(\d+)\s*만\s*원/) || t.match(/(\d+)\s*천\s*원/);
+        if (amtMatch) {
+          promoAmt = t.includes('만') ? parseInt(amtMatch[1]) * 10000 : parseInt(amtMatch[1]) * 1000;
+        }
+        if (tLower.includes('반값')) {
+          onclick = `onclick="window.modalHalfDiscOverride = window.modalHalfDiscOverride > 0 ? null : 50; refreshModalContent();"`;
+        } else if (tLower.includes('타사') || tLower.includes('보상')) {
+          onclick = `onclick="window.modalCompetitorDiscOverride = window.modalCompetitorDiscOverride > 0 ? null : Math.round((${raw.rental || 0}) * 0.1); refreshModalContent();"`;
+        } else if (promoAmt > 0) {
+          // N회 N만원 할인 → 프로모션 추가할인 금액 토글
+          onclick = `onclick="window.modalPromoAmtOverride = window.modalPromoAmtOverride > 0 ? null : ${promoAmt}; refreshModalContent();"`;
+        }
+        // 프로모션 금액 적용 여부 체크
+        const isPromoAmtApplied = promoAmt > 0 && window.modalPromoAmtOverride === promoAmt;
+        const isAppliedFinal = isApplied || isPromoAmtApplied;
+        const appliedStyle = isAppliedFinal ? 'background:linear-gradient(135deg, #d4efdf, #a9dfbf);border-color:rgba(39,174,96,0.55);color:#1e8449;' : 'background:linear-gradient(135deg, #fff4d6, #ffe7a8);border-color:rgba(255,205,80,0.55);color:#8a5a00;';
+        const cursor = onclick ? 'cursor:pointer;' : '';
+        const prefix = isAppliedFinal ? '✅ ' : '🎁 ';
+        return `<div style="${appliedStyle}padding:6px 14px;border-radius:999px;font-weight:700;font-size:0.95rem;white-space:nowrap;border:1px solid;${cursor}" ${onclick}>${prefix}${escapeHtml(t)}</div>`;
+      }).join('');
       rows.push(`
         <div style="margin-top:16px; padding:14px 12px; background:linear-gradient(135deg, #fff9e6 0%, #fff3d1 100%); border:1px dashed rgba(243, 156, 18, 0.5); border-radius:16px;">
           <div style="font-size:1.05rem; font-weight:800; color:#b9770e; margin-bottom:10px; text-align:center;">🏷️ 적용 가능한 프로모션 혜택</div>
@@ -4288,24 +4326,21 @@
     window.modalDiscOverride = null;
     window.modalExtraDiscOverride = null;
     window.modalRerentalDiscOverride = null;
+    window.modalPromoAmtOverride = null;
 
-    // 엑셀 제품: 카드할인 기본값 + 프로모션 할인 자동 반영
+    // 엑셀 제품: 카드할인 기본값 적용 (약정/타사보상은 이미 렌탈료에 반영됨)
     const isExcelProduct = raw.source === 'excel' || raw.source === 'coway_excel';
     if (isExcelProduct) {
+      // 카드할인: raw.card가 0이면 기본 24,000원 주입
       if (!(raw.card > 0)) window.modalCardAmtOverride = 24000;
       else window.modalCardAmtOverride = null;
-      const promoStr = String(raw.promotion || '').toLowerCase();
-      if (raw.halfDisc <= 0 && promoStr.includes('반값')) {
-        window.modalHalfDiscOverride = 50;
-      }
-      if (raw.competitor <= 0 && (raw.hasCompetitorTag || promoStr.includes('타사') || promoStr.includes('보상'))) {
-        window.modalCompetitorDiscOverride = Math.round((raw.rental || 0) * 0.1);
-      }
+      // 타사보상/반값/프로모션 추가할인은 이미 렌탈료에 반영되었거나 배지 클릭으로 수동 적용
     } else {
       // 수동 제품: 이전 엑셀 오버라이드 완전 초기화
       window.modalCardAmtOverride = null;
       window.modalHalfDiscOverride = null;
       window.modalCompetitorDiscOverride = null;
+      window.modalPromoAmtOverride = null;
     }
 
     // 공통 렌더링 함수 호출
@@ -5296,15 +5331,11 @@
     if (isExcelProduct) {
       if (!(raw.card > 0)) window.modalCardAmtOverride = 24000;
       else window.modalCardAmtOverride = null;
-      const promoStr = String(raw.promotion || '').toLowerCase();
-      if (raw.halfDisc <= 0 && promoStr.includes('반값')) window.modalHalfDiscOverride = 50;
-      if (raw.competitor <= 0 && (raw.hasCompetitorTag || promoStr.includes('타사') || promoStr.includes('보상'))) {
-        window.modalCompetitorDiscOverride = Math.round((raw.rental || 0) * 0.1);
-      }
     } else {
       window.modalCardAmtOverride = null;
       window.modalHalfDiscOverride = null;
       window.modalCompetitorDiscOverride = null;
+      window.modalPromoAmtOverride = null;
     }
 
     // workingRaw에 오버라이드 반영
@@ -5494,6 +5525,7 @@
       window.modalCardAmtOverride = null;
       window.modalHalfDiscOverride = null;
       window.modalCompetitorDiscOverride = null;
+      window.modalPromoAmtOverride = null;
       if (history.state && history.state.modal === 'note') history.back();
     }
 
