@@ -1678,7 +1678,10 @@
   <p style="font-size:0.75rem;color:#aaa;margin-bottom:10px;">행을 길게 누르면 입력폼에 자동 복사됩니다</p>
   <div class="table-name-filter-wrap">
     <label for="tableNameFilter">제품명 검색</label>
-    <input type="search" id="tableNameFilter" class="table-name-filter" placeholder="제품명을 입력하세요" autocomplete="off" oninput="window.renderTable()" />
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="search" id="tableNameFilter" class="table-name-filter" placeholder="단어 조합 검색 (예: 미니 얼음 7년)" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();window.renderTable();}" style="flex:1;" />
+      <button type="button" onclick="window.renderTable()" style="padding:6px 12px;border:1px solid #0a5bb0;border-radius:8px;background:#0a5bb0;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;white-space:nowrap;">검색</button>
+    </div>
   </div>
 
   <!-- 🏷️ 복합 필터 토글 버튼 (홈) -->
@@ -1876,7 +1879,10 @@
       
       <div class="bb-toolbar" id="bigBenefitToolbar" style="display:none; margin:10px 0;">
         <label class="bb-search-label" for="bigBenefitNameFilter">제품명 검색</label>
-        <input type="search" id="bigBenefitNameFilter" class="bb-name-filter" placeholder="제품명을 입력하세요" autocomplete="off" />
+        <div style="display:flex;gap:4px;align-items:center;">
+          <input type="search" id="bigBenefitNameFilter" class="bb-name-filter" placeholder="단어 조합 검색 (예: 미니 얼음 7년)" autocomplete="off" style="flex:1;" />
+          <button type="button" onclick="bigBenefitNameSearch=document.getElementById('bigBenefitNameFilter').value;refreshBigBenefitProductList();" style="padding:6px 12px;border:1px solid #fff;border-radius:8px;background:rgba(255,255,255,0.2);color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;white-space:nowrap;">검색</button>
+        </div>
       </div>
 
       <!-- 🏷️ 빅베네핏 모달 복합 필터 토글 -->
@@ -2408,7 +2414,20 @@
   function nameMatchesQuery(name, query) {
     const q = String(query || '').trim().toLowerCase();
     if (!q) return true;
-    return String(name || '').toLowerCase().includes(q);
+    const target = String(name || '').toLowerCase();
+    // 다중 단어 AND 검색: 모든 단어가 포함되어야 매칭
+    const words = q.split(/\s+/).filter(Boolean);
+    return words.every(w => target.includes(w));
+  }
+  // 검색 대상 텍스트 생성 (제품명 + 약정명 + 모델 + 관리구분 등 합산)
+  function getSearchText(raw) {
+    if (raw.search) return raw.search;
+    const parts = [raw.name || ''];
+    if (raw.contractName) parts.push(raw.contractName);
+    if (raw.model) parts.push(raw.model);
+    if (raw.careType) parts.push(raw.careType);
+    if (raw.category) parts.push(raw.category);
+    return parts.join(' ');
   }
   function escapeHtml(s) {
     return String(s ?? '')
@@ -2607,12 +2626,12 @@
              extraDiscAmt, bundleDiscAmt, multiDiscAmt, totalDisc, finalAmt };
   }
 
-  // ========== 🔐 관리자 비밀번호 인증 (0000) ==========
-  const ADMIN_PASSWORD = '0000';
+  // ========== 🔐 관리자 비밀번호 인증 ==========
+  const ADMIN_PASSWORD = 'comfreec';
   let _adminVerified = false;
   function requireAdminPassword() {
     if (_adminVerified) return true;
-    const input = prompt('🔐 관리자 비밀번호 4자리를 입력해주세요:');
+    const input = prompt('🔐 관리자 비밀번호를 입력해주세요:');
     if (input === null) return false;
     if (input === ADMIN_PASSWORD) {
       _adminVerified = true;
@@ -3101,7 +3120,7 @@
         ? sourceFiltered
         : sourceFiltered.filter(p => getSmartCategory(p) === currentCategory);
     }
-    let filtered = filteredByCat.filter((raw) => nameMatchesQuery(raw.name, nameQ));
+    let filtered = filteredByCat.filter((raw) => nameMatchesQuery(getSearchText(raw), nameQ));
 
     // ===== 복합 필터 적용 (AND 조건) =====
     if (hasAdv) {
@@ -4915,7 +4934,7 @@
       listEl.innerHTML = '<div class="bb-empty-filter">조건에 맞는 제품이 없습니다.</div>';
       return;
     }
-    const shown = data.ps.filter((p) => nameMatchesQuery(p.name, bigBenefitNameSearch));
+    const shown = data.ps.filter((p) => nameMatchesQuery(getSearchText(p), bigBenefitNameSearch));
     // 이름 검색 후 복합 필터 한번 더 적용 (이름 검색으로 ignoreFilter가 true일 때 소스/카테고리 필터가 무시된 채로 가져왔으므로, 고급 필터는 한번 더 적용)
     const hasAdv = hasAdvFilters('bb');
     const finalShown = hasAdv ? applyAdvancedFilters(shown, 'bb') : shown;
@@ -4994,9 +5013,12 @@
         filterEl.value = bigBenefitNameSearch;
         if (!filterEl.dataset.bbListen) {
           filterEl.dataset.bbListen = '1';
-          filterEl.addEventListener('input', () => {
-            bigBenefitNameSearch = filterEl.value;
-            refreshBigBenefitProductList();
+          filterEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              bigBenefitNameSearch = filterEl.value;
+              refreshBigBenefitProductList();
+            }
           });
         }
       }
@@ -5107,7 +5129,7 @@
     const data = getBenefitOverviewData(bigSortKey, bigSortDir, ignoreFilter, ignoreFilter);
     if (!data || !data.ps || data.ps.length === 0) return;
 
-    const shownProducts = data.ps.filter((p) => nameMatchesQuery(p.name, bigBenefitNameSearch));
+    const shownProducts = data.ps.filter((p) => nameMatchesQuery(getSearchText(p), bigBenefitNameSearch));
     productImageSliderData = shownProducts.map((p) => {
       const calculated = calcProduct(p, true);
       const discountRate = calculated.rental > 0 ? Math.min(100, Math.round((calculated.totalDisc / calculated.rental) * 100)) : 0;
