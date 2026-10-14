@@ -4,9 +4,32 @@
     "ignore": [
       "firebase.json",
       ".firebaserc",
+      ".codex-remote-attachments",
       "node_modules",
       "firestore.rules",
-      "*.py"
+      "*.py",
+      "read_coway.js",
+      "analyze_coway.js",
+      "build_products_from_excel.js",
+      "coway_data_preview.json",
+      "coway_all_products_preview.json"
+    ],
+    "redirects": [
+      {
+        "source": "/care",
+        "destination": "https://free-clean-mattress.vercel.app/?ref=%EC%86%90%EC%A7%84%ED%98%B8",
+        "type": 302
+      },
+      {
+        "source": "/care/park",
+        "destination": "https://free-clean-mattress.vercel.app/?ref=%EB%B0%95%EC%A0%95%EC%8B%9D",
+        "type": 302
+      },
+      {
+        "source": "/care/lim",
+        "destination": "https://free-clean-mattress.vercel.app/?ref=%EC%9E%84%EC%84%B1%EC%9A%B1",
+        "type": 302
+      }
     ],
     "headers": [
       {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'coway-naeyuk-v9';
+const CACHE_NAME = 'coway-naeyuk-v11';
 const FILES_TO_CACHE = [
   '/',
   '/index.html',
@@ -35,7 +35,12 @@ const FILES_TO_CACHE = [
   '/텐셀메모리폼베계.jpg',
   '/텐셀메모리폼베계1.jpg',
   '/트리플체어.png',
-  '/하이브리드4.png'
+  '/하이브리드4.png',
+  '/events/2026-09/berex-festa-price.jpg',
+  '/events/2026-09/berex-festa-guide.jpg',
+  '/events/2026-09/food-waste-launch.jpg',
+  '/events/2026-09/card-promotion-1.jpg',
+  '/events/2026-09/card-promotion-2.jpg'
 ];
 
 self.addEventListener('install', event => {
