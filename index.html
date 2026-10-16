@@ -1752,6 +1752,26 @@
       .event-head { padding-left: 3px; }
       .event-head p::after { content: ' · 카드를 두 번 터치하면 큰 화면으로 열립니다'; }
     }
+    .monthly-event-control { margin:2px 48px 18px 0; padding:12px 14px; border:1px solid #ffd0bd; border-radius:16px; background:linear-gradient(135deg,#fff8f2,#fff0e8); box-shadow:0 6px 18px rgba(235,91,39,.1); }
+    .monthly-event-control label { display:flex; align-items:center; gap:11px; cursor:pointer; }
+    .monthly-event-control input { width:23px; height:23px; flex:0 0 auto; accent-color:#ef4b23; }
+    .monthly-event-control span { display:flex; flex-direction:column; gap:3px; color:#7b2d16; line-height:1.25; }
+    .monthly-event-control b { font-size:1.04rem; }
+    .monthly-event-control small { color:#9a6756; font-size:.78rem; }
+    .monthly-event-poster { overflow:hidden; position:relative; border-radius:24px; padding:30px 24px 28px; text-align:center; color:#fff; background:radial-gradient(circle at 15% 10%,rgba(77,190,255,.38),transparent 28%),radial-gradient(circle at 90% 88%,rgba(255,198,62,.25),transparent 30%),linear-gradient(150deg,#071e49 0%,#073a80 52%,#0969b2 100%); box-shadow:0 18px 45px rgba(7,49,105,.28); }
+    .monthly-event-poster::before { content:''; position:absolute; inset:10px; border:1px solid rgba(255,255,255,.2); border-radius:18px; pointer-events:none; }
+    .monthly-event-poster::after { content:none; }
+    .monthly-event-poster .monthly-event-kicker { position:relative; display:inline-block; padding:7px 14px; border-radius:999px; background:#ffdf69; color:#543900; font-weight:900; font-size:.82rem; letter-spacing:.06em; }
+    .monthly-event-poster .monthly-event-title { position:relative; margin:14px 0 5px; color:#fff; font-size:1.65rem; font-weight:900; letter-spacing:-.05em; }
+    .monthly-event-product { position:relative; display:block; margin:5px auto 15px; color:#dcecff; font-size:1.05rem; font-weight:700; word-break:keep-all; }
+    .monthly-event-image { position:relative; width:190px; height:155px; margin:0 auto 18px; display:flex; align-items:center; justify-content:center; border-radius:20px; background:#fff; box-shadow:0 12px 28px rgba(0,0,0,.22); filter:none; overflow:hidden; }
+    .monthly-event-image img { width:100%; height:100%; object-fit:contain; }
+    .monthly-event-lead { position:relative; margin-top:3px; font-size:1.05rem; font-weight:700; color:#d8e9ff; }
+    .monthly-event-price { position:relative; margin:2px 0 8px; color:#fff; font-size:1.35rem; font-weight:900; line-height:1; }
+    .monthly-event-price strong { display:inline-block; margin:0 4px; color:#ffe268; font-size:3.7rem; font-weight:900; letter-spacing:-.07em; text-shadow:0 4px 15px rgba(0,0,0,.28); }
+    .monthly-event-message { position:relative; display:inline-block; margin-top:10px; padding:11px 17px; border:none; border-radius:12px; background:rgba(255,255,255,.13); color:#fff; font-size:inherit; font-weight:800; }
+    .monthly-event-footnote { position:relative; margin-top:16px; color:rgba(255,255,255,.72); font-size:.7rem; }
+    @media(max-width:600px) { .monthly-event-control{margin-right:38px}.monthly-event-poster{padding:26px 16px 24px}.monthly-event-image{width:190px;height:155px;margin-bottom:18px}.monthly-event-price strong{font-size:3.15rem} }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1973,11 +1993,12 @@
 </div>
 
 <div class="card">
-  <div style="display:flex;gap:8px;">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
     <button type="button" class="btn-add" onclick="openCareCardModal()" style="flex:1;margin:0;">💳 명함</button>
     <button type="button" class="btn-add" onclick="openCareVoucherModal()" style="flex:1;margin:0;background:linear-gradient(135deg,#00b09b,#96c93d);">🎁 상품</button>
     <button type="button" class="btn-add" id="btnShareBoth" style="flex:1;margin:0;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-weight:800;box-shadow:0 4px 15px rgba(102,126,234,0.4);">🎁 상품</button>
     <button type="button" class="btn-add" id="btnShareMiteVideo" style="flex:1;margin:0;background:linear-gradient(135deg,#ff512f,#dd2476);color:white;font-weight:800;box-shadow:0 4px 15px rgba(255,81,47,0.4);">🎬 영상</button>
+    <button type="button" class="btn-add" id="btnSendYoutubeShorts" style="flex:0 0 100%;width:100%;margin:0;background:linear-gradient(135deg,#ff0033,#b90024);color:white;font-weight:800;box-shadow:0 4px 15px rgba(220,0,40,0.28);">🎁 코웨이 고객 전용 · 쇼츠 무료 라이선스</button>
   </div>
 </div>
 
@@ -2593,6 +2614,12 @@
 <div class="modal-overlay" id="noteModal" onclick="closeModal(event)">
   <div class="note-paper" id="notePaper">
     <button class="note-close" onclick="closeModalDirect()">✕</button>
+    <div id="monthlyEventControlUI" class="monthly-event-control" style="display:none;">
+      <label>
+        <input type="checkbox" id="modalMonthlyEventCheck" onchange="toggleModalMonthlyEvent()">
+        <span><b>🔥 10월 특별 이벤트 적용</b><small>체크하면 고객용 월 1만원 화면으로 전환됩니다</small></span>
+      </label>
+    </div>
     <div id="noteContent"></div>
     
     <!-- 🏷️ 코라솔 실시간 할인 조절 UI -->
@@ -3686,6 +3713,7 @@
   let currentProductName = '';
   let currentModalProductId = null;
   let currentCategory = '전체';
+  let modalMonthlyEventActive = false;
   
   // 🏷️ 코라솔 실시간 상태 관리
   let modalCorasolActive = false;
@@ -3754,6 +3782,12 @@
   function toggleModalCard() {
     const chk = document.getElementById('modalCardCheck');
     modalCardActive = chk.checked;
+    refreshModalContent();
+  }
+
+  function toggleModalMonthlyEvent() {
+    const chk = document.getElementById('modalMonthlyEventCheck');
+    modalMonthlyEventActive = !!(chk && chk.checked);
     refreshModalContent();
   }
 
@@ -3828,6 +3862,32 @@
       p.totalDisc += addedCorasolAmt;
     }
 
+    const isExcel = raw && (raw.source === 'excel' || raw.source === 'coway_excel');
+    const cowaySearchName = getCowaySearchQuery(p.name, isExcel ? raw.model : '');
+    const productImgPath = getProductImagePath(p.name, isExcel);
+    const monthlyEventExcludedCategories = new Set(['제습기', '연수기', '에어컨', '의류청정기', '음식물처리기', '인덕션']);
+    const monthlyEventCategory = String(raw.category || p.category || '').replace(/\s+/g, '');
+    const monthlyEventProductName = String(p.name || raw.name || '').replace(/\s+/g, '');
+    const monthlyEventExcludedByName = /(제습기|연수기|에어컨|의류청정기|음식물처리기|인덕션)/.test(monthlyEventProductName);
+    const monthlyEventEligible = !monthlyEventExcludedCategories.has(monthlyEventCategory) && !monthlyEventExcludedByName;
+    const monthlyEventControl = document.getElementById('monthlyEventControlUI');
+    const monthlyEventCheck = document.getElementById('modalMonthlyEventCheck');
+    if (!monthlyEventEligible) modalMonthlyEventActive = false;
+    if (monthlyEventControl) monthlyEventControl.style.display = monthlyEventEligible ? 'block' : 'none';
+    if (monthlyEventCheck) monthlyEventCheck.checked = modalMonthlyEventActive && monthlyEventEligible;
+
+    if (modalMonthlyEventActive && monthlyEventEligible) {
+      const safeName = escapeHtml(p.name || '코웨이 제품');
+      const safeImg = String(productImgPath || '').replace(/"/g, '&quot;');
+      document.getElementById('noteContent').innerHTML = `<div class="monthly-event-poster"><div class="monthly-event-kicker">2026 OCTOBER SPECIAL</div><div class="monthly-event-title">🔥 10월 고객 특별 이벤트</div><div class="monthly-event-product">${safeName}</div><div class="monthly-event-image"><img src="${safeImg}" alt="${safeName}" onerror="window.fallbackProductThumb(this, '${safeName.replace(/'/g, "\\'")}');"></div><div class="monthly-event-lead">이번 달, 이 제품을 특별하게</div><div class="monthly-event-price">월 <strong>10,000</strong>원</div><div class="monthly-event-message">부담은 가볍게, 혜택은 확실하게!</div><div class="monthly-event-footnote">※ 행사 적용 여부와 세부 조건은 담당자에게 확인해 주세요.</div></div>`;
+      const today = new Date().toLocaleDateString('ko-KR');
+      document.getElementById('noteStamp').textContent = '작성일 : ' + today;
+      const corasolUI = document.getElementById('corasolControlUI');
+      if (corasolUI) corasolUI.style.display = 'none';
+      currentSmsText = `🔥 [코웨이 10월 고객 특별 이벤트] 🔥\n\n제품 : ${p.name}\n\n✨ 이번 달 특별 혜택\n월 렌탈료 10,000원\n\n부담은 가볍게, 혜택은 확실하게!\n\n※ 행사 적용 여부와 세부 조건은 담당자에게 확인해 주세요.\n📅 작성일 : ${today}`;
+      return;
+    }
+
     const rows = [];
     const noteDiscRate = p.rental > 0 ? Math.min(100, Math.round((p.totalDisc / p.rental) * 100)) : 0;
     rows.push(`<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
@@ -3848,10 +3908,6 @@
         </span>
       </div>
     </div>`);
-
-    const isExcel = raw && (raw.source === 'excel' || raw.source === 'coway_excel');
-    const cowaySearchName = getCowaySearchQuery(p.name, isExcel ? raw.model : '');
-    const productImgPath = getProductImagePath(p.name, isExcel);
 
     if (isExcel) {
       const modelText = raw.model ? String(raw.model).trim() : '';
@@ -4776,6 +4832,9 @@
     modalCorasolActive = false;
     modalCorasolQty = 1;
     modalCardActive = true;
+    modalMonthlyEventActive = false;
+    const monthlyEventCheck = document.getElementById('modalMonthlyEventCheck');
+    if (monthlyEventCheck) monthlyEventCheck.checked = false;
     modalBundleDiscOverride = 5;
     window.modalHalfDiscOverride = null;
     window.modalCompetitorDiscOverride = null;
@@ -4823,14 +4882,19 @@
     const el = document.getElementById('notePaper');
     const smsRow = document.querySelector('.note-sms-row');
     const corasolUI = document.getElementById('corasolControlUI');
+    const monthlyEventUI = document.getElementById('monthlyEventControlUI');
+    const corasolDisplay = corasolUI ? corasolUI.style.display : '';
+    const monthlyEventDisplay = monthlyEventUI ? monthlyEventUI.style.display : '';
     smsRow.style.display = 'none';
     if (corasolUI) corasolUI.style.display = 'none';
+    if (monthlyEventUI) monthlyEventUI.style.display = 'none';
     el.style.maxHeight = 'none'; el.style.overflowY = 'visible'; el.style.height = 'auto';
     await new Promise(r => setTimeout(r, 100));
     const canvas = await html2canvas(el, { backgroundColor:'#fffef5', scale:2, logging:false, useCORS:true, scrollY:-window.scrollY, scrollX:-window.scrollX, windowHeight:document.documentElement.scrollHeight });
     el.style.maxHeight = ''; el.style.overflowY = ''; el.style.height = '';
     smsRow.style.display = 'flex';
-    if (corasolUI) corasolUI.style.display = 'block';
+    if (corasolUI) corasolUI.style.display = corasolDisplay;
+    if (monthlyEventUI) monthlyEventUI.style.display = monthlyEventDisplay;
     return canvas;
   }
 
@@ -5975,9 +6039,12 @@
       notePaper.classList.remove('hypno-bg-animate');
       const corasolUI = document.getElementById('corasolControlUI');
       if (corasolUI) corasolUI.style.display = 'none';
+      const monthlyEventUI = document.getElementById('monthlyEventControlUI');
+      if (monthlyEventUI) monthlyEventUI.style.display = 'none';
       modalCorasolActive = false;
       modalCorasolQty = 1;
       modalCardActive = true;
+      modalMonthlyEventActive = false;
       modalBundleDiscOverride = null;
       window.modalHalfDiscOverride = null;
       window.modalCompetitorDiscOverride = null;
@@ -6563,6 +6630,7 @@
     modalCorasolActive = false;
     modalCorasolQty = 1;
     modalCardActive = true;
+    modalMonthlyEventActive = false;
 
     const modal = history.state && history.state.modal;
 
@@ -7350,8 +7418,94 @@ ${getFreeCareApplyMessage()}
 
     let shareBothLock = false;
     let shareMiteVideoLock = false;
+    let shareYoutubeShortsLock = false;
 
     const MITE_VIDEO_URL = 'https://youtu.be/terNhLRFTwI?si=vUHTPM7uX6I2kTpd';
+    const YOUTUBE_SHORTS_CHANNEL_URL = 'https://youtube.com/@lux_heaven?si=63Z9FUag7m8JQzIS';
+    const YOUTUBE_SHORTS_IMAGE_URL = '유튜브쇼츠자동생성기-안내-v2.png';
+
+    function getYoutubeShortsMessage() {
+      const staff = typeof window.getCurrentStaff === 'function' ? window.getCurrentStaff() : {};
+      const staffName = (staff && staff.name) || '코웨이 담당자';
+      return `🎁 ${staffName} 고객님만을 위한 특별 선물
+
+제가 직접 개발한
+「유튜브 쇼츠 영상 제작 프로그램」의
+무료 사용 라이선스를 제공해 드립니다.
+
+만들고 싶은 영상의 제목만 입력하면
+프로그램이 내용에 맞는 배경 영상부터
+자막과 성우 목소리까지 자동으로 입혀
+완성된 쇼츠 영상 하나를 만들어 줍니다. 🎥
+
+유사한 영상 제작 솔루션은 수백만 원대에
+판매되기도 하며, 제가 개발한 프로그램도
+일반 판매 예정가는 30만 원입니다.
+
+하지만 저를 통해 코웨이를 이용하시는 고객님께는
+감사의 마음을 담아 무료로 제공해 드립니다. 😊
+
+✅ 제목 한 줄만 입력하면 자동 제작
+✅ 배경 영상·자막·성우 음성 자동 생성
+✅ 유튜브 자동 업로드 및 영어 버전 제작 가능
+✅ 처음 사용하시는 분도 간편하게 시작
+
+아래 채널에서 실제 제작 영상을 확인해 보세요.
+▶ ${YOUTUBE_SHORTS_CHANNEL_URL}
+
+무료 라이선스를 원하시면 이 문자로
+“쇼츠 제작”이라고 답장해 주세요.
+확인 후 이용 방법을 자세히 안내해 드리겠습니다.
+
+💙 코웨이 ${staffName} 드림`;
+    }
+
+    async function sendYoutubeShortsSms() {
+      if (shareYoutubeShortsLock) return;
+      shareYoutubeShortsLock = true;
+      const btn = document.getElementById('btnSendYoutubeShorts');
+      if (btn) btn.disabled = true;
+      const message = getYoutubeShortsMessage();
+      try {
+        try { await navigator.clipboard.writeText(message); } catch (_) {}
+        const blob = await loadImageBlob(YOUTUBE_SHORTS_IMAGE_URL);
+        const file = new File([blob], YOUTUBE_SHORTS_IMAGE_URL, { type: blob.type || 'image/png' });
+        const files = [file];
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
+          try {
+            await navigator.share({
+              files,
+              title: '코웨이 고객 전용 쇼츠 제작 프로그램',
+              text: message
+            });
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = YOUTUBE_SHORTS_IMAGE_URL;
+              a.click();
+              alert('메시지가 클립보드에 복사됐어요!\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + message);
+            }
+          }
+        } else {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = YOUTUBE_SHORTS_IMAGE_URL;
+          a.click();
+          alert('메시지가 클립보드에 복사됐어요!\n이미지 전송 후 붙여넣기 하세요 😊\n\n' + message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('프로그램 이미지 로드에 실패했습니다.\n\n오류: ' + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => { shareYoutubeShortsLock = false; }, 2000);
+      }
+    }
+
+    window.getYoutubeShortsMessage = getYoutubeShortsMessage;
+    window.sendYoutubeShortsSms = sendYoutubeShortsSms;
 
     function getMiteVideoMessage() {
       // window 에 노출된 동적 버전 우선 사용 (담당자 이름 반영)
@@ -7754,6 +7908,16 @@ ${MITE_VIDEO_URL}
       btnShareMiteVideo.addEventListener('pointerup', (e) => {
         e.preventDefault();
         window.shareMiteVideo();
+      });
+    }
+
+    // 유튜브 쇼츠 제작 프로그램 고객 안내 문자
+    const btnSendYoutubeShorts = document.getElementById('btnSendYoutubeShorts');
+    if (btnSendYoutubeShorts && !btnSendYoutubeShorts.dataset.bound) {
+      btnSendYoutubeShorts.dataset.bound = '1';
+      btnSendYoutubeShorts.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        window.sendYoutubeShortsSms();
       });
     }
 
